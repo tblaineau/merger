@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
 	#loading correspondance file and merging with load EROS stars 
 	print("Merging")
-	correspondance_path="/Users/tristanblaineau/"+MACHO_field+".txt"
+	correspondance_path="/Users/tristanblaineau/"+str(MACHO_field)+".txt"
 	correspondance = pd.read_csv(correspondance_path, names=["id_E", "id_M"], usecols=[0, 3], sep=' ')
 	merged1 = eros_lcs.merge(correspondance, on="id_E", validate="m:1")
 	del eros_lcs
