@@ -61,21 +61,21 @@ def mag_stats(df):
 	# 	line = [name]
 	# 	counter+=1
 	# 	print(str(counter)+" : " +name, end="\r")
-	# 	for key, cf in color_filters.items():
+	# 	for key, cf in COLOR_FILTERS.items():
 	# 		c = group[cf['mag']].notnull() & (group[cf['err']]>0) & (group[cf['err']]<9.999)
 	# 		line+=compute_magstats(group[c][[cf['mag'], cf['err']]].rename(columns={cf['mag']:'mag', cf['err']:'err'}))
 	# 	ms.append(line)
 
 	# ms = pd.DataFrame(ms)
 	# col_names = ['id_E']
-	# for key, value in color_filters.items():
+	# for key, value in COLOR_FILTERS.items():
 	# 	col_names.append('bl_'+key)
 	# 	col_names.append('std_'+key)
 	# ms.columns = col_names
 	# return ms
 	
 	stats_list = []
-	for key, cf in color_filters.items():
+	for key, cf in COLOR_FILTERS.items():
 		c = df[cf['mag']].notnull() & (df[cf['err']]>0) & (df[cf['err']]<9.999)
 		stats_list.append(df[c].groupby('id_E')[cf['mag']].agg(['mean', 'std']))
 	ms = stats_list[0]
@@ -83,7 +83,7 @@ def mag_stats(df):
 		ms = ms.merge(e, on='id_E')
 
 	col_names = []
-	for key, value in color_filters.items():
+	for key, value in COLOR_FILTERS.items():
 		col_names.append('bl_'+key)
 		col_names.append('std_'+key)
 	print(ms.columns)

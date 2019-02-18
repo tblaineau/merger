@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import gzip
 
-color_filters = {
+COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
 	'red_M':{'mag':'red_M', 'err': 'rederr_M'},
 	'blue_E':{'mag':'blue_E', 'err': 'blueerr_E'},
