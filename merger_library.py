@@ -72,6 +72,11 @@ def load_macho_field(field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
+
+
+
+
+
 def generate_microlensing_parameters(seed):
 	tmin = 48928
 	tmax = 52697
