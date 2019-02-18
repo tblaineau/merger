@@ -10,18 +10,18 @@ COLOR_FILTERS = {
 }
 
 def read_eros_lighcurve(filepath):
-	f = open(filepath)
-	for _ in range(4): f.readline()
-	lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
-	for line in f.readlines():
-		line = line.split()
-		lc["time"].append(float(line[0])+49999.5)
-		lc["red_E"].append(float(line[1]))
-		lc["rederr_E"].append(float(line[2]))
-		lc["blue_E"].append(float(line[3]))
-		lc["blueerr_E"].append(float(line[4]))
-		lc["id_E"].append(filepath.split('/')[-1][:-5])
-	f.close()
+	with open(filepath) as f:
+		for _ in range(4): f.readline()
+		lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
+		for line in f.readlines():
+			line = line.split()
+			lc["time"].append(float(line[0])+49999.5)
+			lc["red_E"].append(float(line[1]))
+			lc["rederr_E"].append(float(line[2]))
+			lc["blue_E"].append(float(line[3]))
+			lc["blueerr_E"].append(float(line[4]))
+			lc["id_E"].append(filepath.split('/')[-1][:-5])
+		f.close()
 	return pd.DataFrame.from_dict(lc)
 
 def read_macho_lightcurve(filepath):
@@ -38,7 +38,7 @@ def read_macho_lightcurve(filepath):
 		f.close()
 	return pd.DataFrame.from_dict(lc)
 
-def open_eros_files(eros_path):
+def load_eros_files(eros_path):
 	pds = []
 	for root, subdirs, files in os.walk(eros_path):
 		print(subdirs)
