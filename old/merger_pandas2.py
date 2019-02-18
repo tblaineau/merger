@@ -52,7 +52,7 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df):
 	conditions = {}
 	for key, color_filter in COLOR_FILTERS.items():
 		conditions[key] = subdf[color_filter['mag']].notnull() & (subdf[color_filter['err']]<9.999) & (subdf[color_filter['err']]>0)
-		# means[key] = raw_stats_df.loc[current_id][color_filter['mag']]	# <--- use baseline
+		# means[key] = raw_stats_df.loc[current_id][color_filter['mag']]	# <---- use baseline from "raw stats"
 		means[key] = subdf[color_filter['mag']].mean() # <---- use mean as baseline
 
 	#amplification mulitplier
