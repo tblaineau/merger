@@ -12,6 +12,8 @@ def microlensing_event(t, u0, t0, tE, mag1):
 
 def fit_ml(subdf):
 
+	#sélection des données, pas plus de 10% du temps de calcul en général (0.01s vs 0.1s)
+	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
 	maskRE = subdf.red_E.notnull() & subdf.rederr_E.notnull()
 	maskBE = subdf.blue_E.notnull() & subdf.blueerr_E.notnull()
 	maskRM = subdf.red_M.notnull() & subdf.rederr_M.notnull()
