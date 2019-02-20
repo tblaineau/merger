@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import gzip
+import numpy as np
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -8,6 +9,8 @@ COLOR_FILTERS = {
 	'blue_E':{'mag':'blue_E', 'err': 'blueerr_E'},
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
+
+WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 def read_eros_lighcurve(filepath):
 	with open(filepath) as f:
@@ -77,7 +80,7 @@ def load_macho_field(field):
 
 
 
-def generate_microlensing_parameters(seed):
+def generate_microlensing_parameters(seed, blending=False):
 	tmin = 48928
 	tmax = 52697
 	seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
@@ -85,4 +88,10 @@ def generate_microlensing_parameters(seed):
 	u0 = np.random.uniform(0,1)
 	tE = np.exp(np.random.uniform(6.21, 9.21))
 	t0 = np.random.uniform(tmin-tE/2., tmax+tE/2.)
-	return u0, t0, tE
+	blend_factors = {}
+	for key in COLOR_FILTERS.keys():
+		if blending:
+			blend_factors[key]=np.random.uniform(0, 0.7)
+		else:
+			blend_factors[key]=0
+	return u0, t0, tE, blend_factors

@@ -66,11 +66,12 @@ def fit_ml(subdf):
 		error_magStarBE=2., 
 		error_magStarRM=2., 
 		error_magStarBM=2., 
-		limit_u0=(0,3), 
-		limit_tE=(100, None),
+		limit_u0=(0,2), 
+		limit_tE=(100, 10000),
+		limit_t0=(40000, 60000),#(48927, 52698)
 		errordef=1,
 		print_level=0)
-	
+
 	fmin, fval = m.migrad()
 	global GLOBAL_COUNTER
 	GLOBAL_COUNTER+=1
@@ -78,7 +79,7 @@ def fit_ml(subdf):
 	return pd.Series(m.values.values()+[m.get_fmin().is_valid, m.fval], index=m.values.keys()+['valid', 'fval'])
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
-merged = pd.read_pickle(WORKING_DIR_PATH+"merged_49_lm0322.pkl")
+merged = pd.read_pickle(WORKING_DIR_PATH+"49_lm0322.pkl")
 # merged = pd.read_pickle(WORKING_DIR_PATH+"merged_lc_ampli")
 merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)

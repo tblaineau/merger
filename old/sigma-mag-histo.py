@@ -112,14 +112,12 @@ def mag_stats(df):
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
-merged=pd.read_pickle(WORKING_DIR_PATH+"merged_49_lm0322")
+merged=pd.read_pickle(WORKING_DIR_PATH+"49_lm0324.pkl")
 
-print(merged.nunique())
 merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0 and x.blue_E.count()!=0 and x.red_M.count()!=0 and x.blue_M.count()!=0)
-print(merged.nunique())
 
 start = time.time()
 ms = mag_stats(merged)
 print(str(time.time()-start)+" seconds elapsed.")
 
-ms.to_pickle('ms_temp_lm0322n')
+ms.to_pickle('ms_temp_lm0324')

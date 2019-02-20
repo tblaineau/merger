@@ -1,5 +1,6 @@
 import argparse, time, os
 import numpy as np
+import pandas as pd
 
 import sys
 sys.path.append('libraries')
@@ -13,8 +14,7 @@ if __name__ == '__main__':
 	
 	WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 	MACHO_field = 49
-	quart = 'lm0324'
-	print(quart[:5])
+	ccd = 'lm0322'
 
 
 	start = time.time()
@@ -23,8 +23,9 @@ if __name__ == '__main__':
 	# l o a d   E R O S
 	print("Loading EROS files")
 
-	eros_lcs = merger_library.load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+quart[:5]+"/"+quart)
 
+	# eros_lcs = pd.concat([pd.read_pickle(WORKING_DIR_PATH+"full_"+ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
+	eros_lcs = merger_library.load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+ccd[:5]+"/"+ccd)
 	end_load_eros = time.time()
 	print(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 
@@ -58,5 +59,9 @@ if __name__ == '__main__':
 		and x.blue_E.count()!=0 
 		and x.blue_M.count()!=0)
 
+	# reset index if index is id_E
+	# if merged.index.name == 'id_E':
+		# merged.reset_index(inplace=True)
+
 	# save merged dataframe
-	merged.to_pickle(os.path.join(WORKING_DIR_PATH, str(MACHO_field)+"_"+quart+".pkl"))
+	merged.to_pickle(os.path.join(WORKING_DIR_PATH, str(MACHO_field)+"_"+ccd+".pkl"))
