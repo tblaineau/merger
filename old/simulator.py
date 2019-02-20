@@ -51,7 +51,7 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False):
 	u0, t0, tE, blend_factors = generate_microlensing_parameters(current_id, blending=blending)
 	A = microlensing_amplification(subdf.time, u0, t0, tE)
 
-	
+
 	for key, color_filter in COLOR_FILTERS.items():
 		#phi_th is the lightcurve with perfect measurements (computed from original baseline)
 		#phi_th = means[key] - 2.5*np.log10(A[conditions[key]])

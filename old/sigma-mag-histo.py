@@ -24,13 +24,13 @@ from merger_library import *
 # 				del full_field
 
 
-NB_POINTS=1000
+NB_POINTS = 1000
 SCALE_WIDTH = 3
 
 def gaussian(x, mu, sig, A):
 	return A/np.sqrt(2*np.pi*sig**2)*np.exp(-(x-mu)**2/(2*sig**2))
 
-def compute_magstats(df):
+def compute_baselines(df):
 	if len(df)==0:
 		return np.nan, np.nan
 	width = df.mag.max()-df.mag.min()
@@ -74,6 +74,9 @@ def mag_stats(df):
 	# ms.columns = col_names
 	# return ms
 	
+
+	# Compute mean and standard deviation (simple) for each filters
+	
 	stats_list = []
 	for key, cf in COLOR_FILTERS.items():
 		c = df[cf['mag']].notnull() & (df[cf['err']]>0) & (df[cf['err']]<9.999)
@@ -112,7 +115,7 @@ def mag_stats(df):
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
-merged=pd.read_pickle(WORKING_DIR_PATH+"49_lm0324.pkl")
+merged=pd.read_pickle(WORKING_DIR_PATH+"49_lm0322.pkl")
 
 merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0 and x.blue_E.count()!=0 and x.red_M.count()!=0 and x.blue_M.count()!=0)
 
@@ -120,4 +123,4 @@ start = time.time()
 ms = mag_stats(merged)
 print(str(time.time()-start)+" seconds elapsed.")
 
-ms.to_pickle('ms_temp_lm0324')
+ms.to_pickle(WORKING_DIR_PATH+'ms_temp_lm0322')
