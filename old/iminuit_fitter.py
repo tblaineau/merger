@@ -29,10 +29,10 @@ def fit_ml(subdf):
 	crm = (errRM>0) & (errRM<9.999)
 	cbm = (errBM>0) & (errBM<9.999)
 
-	magRE = subdf[maskRE][cre].red_E.values
-	magBE = subdf[maskBE][cbe].blue_E.values
-	magRM = subdf[maskRM][crm].red_M.values
-	magBM = subdf[maskBM][cbm].blue_M.values
+	magRE = subdf[maskRE][cre].ampli_red_E.values
+	magBE = subdf[maskBE][cbe].ampli_blue_E.values
+	magRM = subdf[maskRM][crm].ampli_red_M.values
+	magBM = subdf[maskBM][cbm].ampli_blue_M.values
 
 	timeRE = subdf[maskRE][cre].time.values
 	timeBE = subdf[maskBE][cbe].time.values
@@ -44,14 +44,17 @@ def fit_ml(subdf):
 	errRM = errRM[crm]
 	errBM = errBM[cbm]
 
-	def least_squares(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
+	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
 		lsq2 = np.sum(((magBE - microlensing_event(timeBE, u0, t0, tE, magStarBE))/ errBE)**2)
 		lsq3 = np.sum(((magRM - microlensing_event(timeRM, u0, t0, tE, magStarRM))/ errRM)**2)
 		lsq4 = np.sum(((magBM - microlensing_event(timeBM, u0, t0, tE, magStarBM))/ errBM)**2)
 		return lsq1+lsq2+lsq3+lsq4
 
-	m = Minuit(least_squares, 
+	def least_squares_flat(f_magStarRE, f_magStarBE, f_magStarRM, f_magStarBM):
+		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
+
+	m_micro = Minuit(least_squares_microlens, 
 		u0=0.5, 
 		t0=50000, 
 		tE=1000, 
@@ -72,14 +75,37 @@ def fit_ml(subdf):
 		errordef=1,
 		print_level=0)
 
-	fmin, fval = m.migrad()
+	m_flat = Minuit(least_squares_flat, 
+		f_magStarRE=20, 
+		f_magStarBE=20, 
+		f_magStarRM=-4, 
+		f_magStarBM=-4, 
+		error_f_magStarRE=2, 
+		error_f_magStarBE=2., 
+		error_f_magStarRM=2., 
+		error_f_magStarBM=2., 
+		errordef=1,
+		print_level=0
+		)
+
+	m_micro.migrad()
+	m_flat.migrad()
 	global GLOBAL_COUNTER
 	GLOBAL_COUNTER+=1
-	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m.get_fmin().is_valid)+"     ", end='\r')
-	return pd.Series(m.values.values()+[m.get_fmin().is_valid, m.fval], index=m.values.keys()+['valid', 'fval'])
+	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
+	return pd.Series(
+
+		m_micro.values.values()+[m_micro.get_fmin().is_valid, m_micro.fval] 
+		+ 
+		m_flat.values.values()+[m_flat.get_fmin().is_valid, m_flat.fval], 
+
+		index=m_micro.values.keys()+['micro_valid', 'micro_fval']
+		+
+		m_flat.values.keys()+['flat_valid', 'flat_fval']
+		)
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
-merged = pd.read_pickle(WORKING_DIR_PATH+"49_lm0322.pkl")
+merged = pd.read_pickle(WORKING_DIR_PATH+"simulated_test_2.pkl")
 # merged = pd.read_pickle(WORKING_DIR_PATH+"merged_lc_ampli")
 merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
@@ -90,5 +116,5 @@ print("FILES LOADED")
 start = time.time()
 res= merged.groupby("id_E").apply(fit_ml)
 end= time.time()
-res.to_pickle('res_fit_lm0322.pkl')
+res.to_pickle('res_simu_2.pkl')
 print(str(end-start)+" seconds elapsed.")

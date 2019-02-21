@@ -84,7 +84,7 @@ def mag_stats(df):
 	ms = stats_list[0]
 	for e in stats_list[1:]:
 		ms = ms.merge(e, on='id_E')
-
+	
 	col_names = []
 	for key, value in COLOR_FILTERS.items():
 		col_names.append('bl_'+key)

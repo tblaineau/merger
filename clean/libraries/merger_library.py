@@ -90,7 +90,7 @@ def load_macho_tiles(field, tile_list):
 	for tile in tile_list:
 		print(macho_path+"F_"+str(field)+"."+str(tile)+".gz")
 		# pds.append(pd.read_csv(macho_path+"F_49."+str(tile)+".gz", names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
-		pds.append(read_macho_lightcurve(macho_path+"F_49."+str(tile)+".gz"))
+		pds.append(read_macho_lightcurve(macho_path+"F_"+str(field)+"."+str(tile)+".gz"))
 	return pd.concat(pds)
 
 def load_macho_field(field):
