@@ -72,6 +72,7 @@ merged = pd.read_pickle(WORKING_DIR_PATH+"49_lm0322.pkl")
 # l o a d   b a s e l i n e s   a n d   s t d   d e v i a t i o n s 
 print("Loading mag and sig")
 ms = pd.read_pickle(WORKING_DIR_PATH+"ms_temp_lm0322n")
+
 # c o m p u t e   b i n n e d   h i s t o g r a m   o f   s t d   d e v i a t i o n s
 bin_baseline, bin_edges, binnumber = stats.binned_statistic(ms.dropna(subset=['bl_red_E', 'std_red_E']).bl_red_E, ms.dropna(subset=['bl_red_E', 'std_red_E']).std_red_E, bins=30, statistic='mean')
 sigmag = Sigma_Baseline(bin_edges, bin_baseline)

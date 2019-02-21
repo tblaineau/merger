@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import gzip
+import time
+import logging
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -104,17 +106,61 @@ def load_macho_field(field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
+def merger(working_dir_path, macho_field, eros_ccd):
+	"""Merge EROS and MACHO lightcurves
+	
+	[description]
+	
+	Arguments:
+		working_dir_path {str} -- Where to put resulting .pkl
+		macho_field {int} -- MACHO field on which merge lcs.
+		eros_ccd {str} -- ccd eros, format : "lm0***"
+	
+	Raises:
+		NameError -- No common stars in field
+	"""
+	start = time.time()
 
 
+	# l o a d   E R O S
+	logging.info("Loading EROS files")
 
 
+	# eros_lcs = pd.concat([pd.read_pickle(working_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
+	eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)
+	end_load_eros = time.time()
+	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 
-def generate_microlensing_parameters(seed):
-	tmin = 48928
-	tmax = 52697
-	seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
-	np.random.seed(seed)
-	u0 = np.random.uniform(0,1)
-	tE = np.exp(np.random.uniform(6.21, 9.21))
-	t0 = np.random.uniform(tmin-tE/2., tmax+tE/2.)
-	return u0, t0, tE
+	#loading correspondance file and merging with load EROS stars 
+	logging.info("Merging")
+	correspondance_path="/Users/tristanblaineau/"+str(MACHO_field)+".txt"
+	correspondance = pd.read_csv(correspondance_path, names=["id_E", "id_M"], usecols=[0, 3], sep=' ')
+	merged1 = eros_lcs.merge(correspondance, on="id_E", validate="m:1")
+	del eros_lcs
+
+	# determine needed tiles from MACHO
+	tiles = np.unique([x.split(":")[1] for x in merged1.id_M.unique()])
+	if not tiles.size:
+		raise NameError("No common stars in field !!!!")
+
+	#l o a d   M A C H O 
+	logging.info("Loading MACHO files")
+	macho_lcs = load_macho_tiles(MACHO_field, tiles)
+
+	logging.info("Merging")
+	merged2 = macho_lcs.merge(correspondance, on='id_M', validate="m:1")
+	del macho_lcs
+	merged = pd.concat((merged1, merged2), copy=False)
+
+	# replace invalid values in magnitudes with numpy NaN and remove rows with no valid magnitudes
+	merged = merged.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
+
+	# remove lightcurves missing one or more color
+	merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0 
+		and x.red_M.count()!=0 
+		and x.blue_E.count()!=0 
+		and x.blue_M.count()!=0)
+
+	# save merged dataframe
+	logging.info("Saving")
+	merged.to_pickle(os.path.join(working_dir_path, str(MACHO_field)+"_"+ccd+".pkl"))
