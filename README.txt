@@ -12,3 +12,7 @@ sort of working directory
 	"simulator" add simulated events to a part of the lightcurves
 	"iminuit_fitter" loop through a file containing merged lc and estimate parameters for a microlensing event
 	"sigma-mag-histo" lopp through merged lc and save a dataframe containing their mean magnitude and standard deviation for use in creation of simulated eventss
+
+utils/
+other useful scripts
+	"toy_simulator" interactive microlensing simulator
