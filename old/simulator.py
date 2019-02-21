@@ -36,6 +36,8 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False):
 	Returns:
 		DataFrame -- New star with a µlens event
 	"""
+
+	#Remove anomalous values of magnitudes
 	subdf=subdf.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
 
 	current_id = subdf.id_E.iloc[0]

@@ -12,7 +12,7 @@ def microlensing_event(t, u0, t0, tE, mag1):
 
 def fit_ml(subdf):
 
-	#sélection des données, pas plus de 10% du temps de calcul en général (0.01s vs 0.1s)
+	#sélection des données, pas plus de 10% du temps de calcul en moyenne (0.01s vs 0.1s)
 	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
 	maskRE = subdf.red_E.notnull() & subdf.rederr_E.notnull()
 	maskBE = subdf.blue_E.notnull() & subdf.blueerr_E.notnull()
@@ -106,7 +106,6 @@ def fit_ml(subdf):
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 merged = pd.read_pickle(WORKING_DIR_PATH+"simulated_test_2.pkl")
-# merged = pd.read_pickle(WORKING_DIR_PATH+"merged_lc_ampli")
 merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
 print(merged)
@@ -116,5 +115,5 @@ print("FILES LOADED")
 start = time.time()
 res= merged.groupby("id_E").apply(fit_ml)
 end= time.time()
-res.to_pickle('res_simu_2.pkl')
+res.to_pickle(WORKING_DIR_PATH+'res_simu_2.pkl')
 print(str(end-start)+" seconds elapsed.")
