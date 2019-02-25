@@ -25,18 +25,22 @@ def read_eros_lighcurve(filepath):
 	Returns:
 		pandas DataFrame -- dataframe containing the EROS id, time of observation, magnitudes in blue and red and associated errors.
 	"""
-	with open(filepath) as f:
-		for _ in range(4): f.readline()
-		lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
-		for line in f.readlines():
-			line = line.split()
-			lc["time"].append(float(line[0])+49999.5)
-			lc["red_E"].append(float(line[1]))
-			lc["rederr_E"].append(float(line[2]))
-			lc["blue_E"].append(float(line[3]))
-			lc["blueerr_E"].append(float(line[4]))
-			lc["id_E"].append(filepath.split('/')[-1][:-5])
-		f.close()
+	try:
+		with open(filepath) as f:
+			for _ in range(4): f.readline()
+			lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
+			for line in f.readlines():
+				line = line.split()
+				lc["time"].append(float(line[0])+49999.5)
+				lc["red_E"].append(float(line[1]))
+				lc["rederr_E"].append(float(line[2]))
+				lc["blue_E"].append(float(line[3]))
+				lc["blueerr_E"].append(float(line[4]))
+				lc["id_E"].append(filepath.split('/')[-1][:-5])
+			f.close()
+	except FileNotFoundError:
+		print(filepath+" doesn't exist.")
+		return None
 	return pd.DataFrame.from_dict(lc)
 
 def read_macho_lightcurve(filepath):
