@@ -50,17 +50,21 @@ def read_macho_lightcurve(filepath):
 	Returns:
 		pandas DataFrame -- dataframe containing the MACHO id, time of observation, magnitudes in blue and red and associated errors.
 	"""
-	with gzip.open(filepath, 'rt') as f:
-		lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
-		for line in f:
-			line = line.split(';')
-			lc['time'].append(float(line[4]))
-			lc['red_M'].append(float(line[9]))
-			lc['rederr_M'].append(float(line[10]))
-			lc['blue_M'].append(float(line[24]))
-			lc['blueerr_M'].append(float(line[25]))
-			lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
-		f.close()
+	try:
+		with gzip.open(filepath, 'rt') as f:
+			lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
+			for line in f:
+				line = line.split(';')
+				lc['time'].append(float(line[4]))
+				lc['red_M'].append(float(line[9]))
+				lc['rederr_M'].append(float(line[10]))
+				lc['blue_M'].append(float(line[24]))
+				lc['blueerr_M'].append(float(line[25]))
+				lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
+			f.close()
+	except FileNotFoundError:
+		print(filepath+" doesn't exist.")
+		return None
 	return pd.DataFrame.from_dict(lc)
 
 def load_eros_files(eros_path):
