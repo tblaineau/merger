@@ -20,10 +20,10 @@ def parallax(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0):
 	u = np.sqrt(t1+t2+t3+t4+t5)
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
-def microlens(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0):
-	return mag - 2.5*np.log10(parallax(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0))
+def microlens(t, mag, blend, u0, t0, tE, delta_u, beta, psi, alpha0):
+	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0))
 
-def projected_plan(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0):
+def projected_plan(t, mag, blend, u0, t0, tE, delta_u, beta, psi, alpha0):
 	xD = (t-t0)/tE * np.cos(psi) - u0*np.sin(psi)
 	yD = (t-t0)/tE * np.sin(psi) + u0*np.cos(psi)
 
@@ -44,6 +44,7 @@ tE=500
 mag=19
 params = {
 	'mag':mag,
+	'blend':0.,
 	'u0':u0,
 	't0':t0,
 	'tE':tE,
@@ -86,6 +87,10 @@ alpha0_slider = Slider(alpha0_slider_ax, 'alpha0', 0., 2*np.pi, valinit=10*np.pi
 psi_slider_ax = fig2.add_axes([0.25, 0.4, 0.65, 0.03])
 psi_slider = Slider(psi_slider_ax, 'psi', 0., 2*np.pi, valinit=10*np.pi/180.)
 
+blend_slider_ax = fig2.add_axes([0.25, 0.45, 0.65, 0.03])
+blend_slider = Slider(blend_slider_ax, 'blend', 0., 1, valinit=0.)
+
+
 def update_u0(val):
 	params["u0"] = val
 	update_graph()
@@ -118,6 +123,10 @@ def update_psi(val):
 	params["psi"] = val
 	update_graph()
 
+def update_blend(val):
+	params["blend"] = val
+	update_graph()
+
 def update_graph():
 	ydata = microlens(time, *params.values())
 	line.set_ydata(ydata)
@@ -138,6 +147,7 @@ delta_uslider.on_changed(update_delta_u)
 beta_slider.on_changed(update_beta)
 alpha0_slider.on_changed(update_alpha0)
 psi_slider.on_changed(update_psi)
+blend_slider.on_changed(update_blend)
 ax0.set_ylim(16, 20)
 ax0.invert_yaxis()
 plt.show()
