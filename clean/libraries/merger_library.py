@@ -106,7 +106,7 @@ def load_macho_field(field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
-def merger(working_dir_path, macho_field, eros_ccd):
+def merger(working_dir_path, MACHO_field, eros_ccd):
 	"""Merge EROS and MACHO lightcurves
 	
 	[description]
