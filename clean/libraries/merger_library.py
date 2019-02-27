@@ -12,7 +12,7 @@ COLOR_FILTERS = {
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
 
-WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
+output_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 def read_eros_lighcurve(filepath):
 	"""
@@ -139,8 +139,8 @@ def load_eros_compressed_files(filepath):
 	f.close()
 	return pd.DataFrame.from_dict(lc)
 
-def load_macho_tiles(field, tile_list):
-	macho_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_"+str(field)+"/"
+def load_macho_tiles(MACHO_files_path, field, tile_list):
+	macho_path = MACHO_files_path+"F_"+str(field)+"/"
 	pds = []
 	for tile in tile_list:
 		print(macho_path+"F_"+str(field)+"."+str(tile)+".gz")
@@ -149,7 +149,7 @@ def load_macho_tiles(field, tile_list):
 	return pd.concat(pds)
 
 def load_macho_field(field):
-	macho_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_"+str(field)+"/"
+	macho_path = MACHO_files_path+"F_"+str(field)+"/"
 	pds = []
 	for root, subdirs, files in os.walk(macho_path):
 		for file in files:
@@ -159,13 +159,13 @@ def load_macho_field(field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
-def merger(working_dir_path, MACHO_field, eros_ccd):
+def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path):
 	"""Merge EROS and MACHO lightcurves
 	
 	[description]
 	
 	Arguments:
-		working_dir_path {str} -- Where to put resulting .pkl
+		output_dir_path {str} -- Where to put resulting .pkl
 		macho_field {int} -- MACHO field on which merge lcs.
 		eros_ccd {str} -- ccd eros, format : "lm0***"
 	
@@ -179,15 +179,15 @@ def merger(working_dir_path, MACHO_field, eros_ccd):
 	logging.info("Loading EROS files")
 
 
-	# eros_lcs = pd.concat([pd.read_pickle(working_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
+	# eros_lcs = pd.concat([pd.read_pickle(output_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
 	# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
-	eros_lcs = pd.concat([load_eros_compressed_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd+quart+"-lc.tar.gz") for quart in "klmn"])
+	eros_lcs = pd.concat([load_eros_compressed_files(EROS_files_path+eros_ccd[:5]+"/"+eros_ccd+quart+"-lc.tar.gz") for quart in "klmn"])
 	end_load_eros = time.time()
 	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 
 	#loading correspondance file and merging with load EROS stars 
 	logging.info("Merging")
-	correspondance_path="/Users/tristanblaineau/"+str(MACHO_field)+".txt"
+	correspondance_path=correspondance_files_path+str(MACHO_field)+".txt"
 	correspondance = pd.read_csv(correspondance_path, names=["id_E", "id_M"], usecols=[0, 3], sep=' ')
 	merged1 = eros_lcs.merge(correspondance, on="id_E", validate="m:1")
 	del eros_lcs
@@ -199,7 +199,7 @@ def merger(working_dir_path, MACHO_field, eros_ccd):
 
 	#l o a d   M A C H O 
 	logging.info("Loading MACHO files")
-	macho_lcs = load_macho_tiles(MACHO_field, tiles)
+	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, tiles)
 
 	logging.info("Merging")
 	merged2 = macho_lcs.merge(correspondance, on='id_M', validate="m:1")
@@ -217,4 +217,4 @@ def merger(working_dir_path, MACHO_field, eros_ccd):
 
 	# save merged dataframe
 	logging.info("Saving")
-	merged.to_pickle(os.path.join(working_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+".pkl"))
+	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+".pkl"))
