@@ -4,6 +4,7 @@ import os
 import gzip
 import time
 import logging
+import tarfile
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -126,17 +127,16 @@ def load_eros_compressed_files(filepath):
 	Returns:
 		[DataFrame] -- dataframe containing all the lightcurves of "filepath"
 	"""
-	f = tarfile.open(filepath, 'r:gz')
-	lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
-	c = 0
-	for member in f.getmembers():
-		lcf = f.extractfile(member)
-		if lcf:
-			c+=1
-			print(c, end='\r')
-			read_compressed_eros_lightcurve(lc, lcf, member.name)
-		lcf.close()
-	f.close()
+	with tarfile.open(filepath, 'r:gz') as f:
+		lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
+		c = 0
+		for member in f.getmembers():
+			lcf = f.extractfile(member)
+			if lcf:
+				c+=1
+				print(c, end='\r')
+				read_compressed_eros_lightcurve(lc, lcf, member.name)
+				lcf.close()
 	return pd.DataFrame.from_dict(lc)
 
 def load_macho_tiles(MACHO_files_path, field, tile_list):
@@ -181,7 +181,7 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 
 	# eros_lcs = pd.concat([pd.read_pickle(output_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
 	# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
-	eros_lcs = pd.concat([load_eros_compressed_files(EROS_files_path+eros_ccd[:5]+"/"+eros_ccd+quart+"-lc.tar.gz") for quart in "klmn"])
+	eros_lcs = pd.concat([load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz")) for quart in "klmn"])
 	end_load_eros = time.time()
 	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 

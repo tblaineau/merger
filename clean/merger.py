@@ -49,14 +49,14 @@ if __name__ == '__main__':
 
 	print(fit)
 
-	if EROS_CCD:
+	if not EROS_CCD is None:
 		eros_ccd = "lm"+EROS_field+str(EROS_CCD)
-		merger_library.merger(working_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
+		merger_library.merger(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
 		if fit:
 			iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+".pkl")
 	else:
 		for i in range(0,8):
 			eros_ccd = "lm"+EROS_field+str(i)
-			merger_library.merger(working_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
+			merger_library.merger(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
 			if fit:
 				iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+".pkl")
