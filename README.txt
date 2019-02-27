@@ -2,7 +2,8 @@ clean/
 directory with theorically functional scripts
 	libraries/
 		"merger_library" module for loading MACO and EROS data into pandas df
-	"merger" load and merge EROS and MACHO data with association file and save to pandas pickle
+		"iminuit_fitter" mdule for fitting lightcurves, writing a new file with evaluated parameters
+	"merger" load and merge EROS and MACHO data with association file and save to pandas pickle, and fit
 
 
 old/
