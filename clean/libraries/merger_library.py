@@ -12,7 +12,7 @@ COLOR_FILTERS = {
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
 
-output_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
+OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 def read_eros_lighcurve(filepath):
 	"""
