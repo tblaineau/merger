@@ -29,6 +29,7 @@ def read_eros_lighcurve(filepath):
 		with open(filepath) as f:
 			for _ in range(4): f.readline()
 			lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
+			id_E = filepath.split('/')[-1][:-5]
 			for line in f.readlines():
 				line = line.split()
 				lc["time"].append(float(line[0])+49999.5)
@@ -36,7 +37,7 @@ def read_eros_lighcurve(filepath):
 				lc["rederr_E"].append(float(line[2]))
 				lc["blue_E"].append(float(line[3]))
 				lc["blueerr_E"].append(float(line[4]))
-				lc["id_E"].append(filepath.split('/')[-1][:-5])
+				lc["id_E"].append(id_E)
 			f.close()
 	except FileNotFoundError:
 		print(filepath+" doesn't exist.")
@@ -94,6 +95,49 @@ def load_eros_files(eros_path):
 				pds.append(read_eros_lighcurve(os.path.join(root, filename)))
 		print(c)
 	return pd.concat(pds)
+
+def read_compressed_eros_lightcurve(lc, exfile, name):
+	"""Append data from EROS lightcurve to dict
+	
+	[description]
+	
+	Arguments:
+		lc {dict} -- dictionnary containing the data of the current EROS 1/4 CCD
+		exfile {file} -- lightcurve file
+		name {str} -- lightcurve EROS identifier
+	"""
+	id_E = name.split("/")[-1][:-5]
+	for line in exfile.readlines()[4:]:
+			lc["time"].append(float(line[0])+49999.5)
+			lc["red_E"].append(float(line[1]))
+			lc["rederr_E"].append(float(line[2]))
+			lc["blue_E"].append(float(line[3]))
+			lc["blueerr_E"].append(float(line[4]))
+			lc["id_E"].append(id_E)
+
+def load_eros_compressed_files(filepath):
+	"""Load EROS lightcurves from compressed tar.gz archives
+	
+	[description]
+	
+	Arguments:
+		filepath {str} -- path to the file to open
+	
+	Returns:
+		[DataFrame] -- dataframe containing all the lightcurves of "filepath"
+	"""
+	f = tarfile.open(filepath, 'r:gz')
+	lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
+	c = 0
+	for member in f.getmembers():
+		lcf = f.extractfile(member)
+		if lcf:
+			c+=1
+			print(c, end='\r')
+			read_compressed_eros_lightcurve(lc, lcf, member.name)
+		lcf.close()
+	f.close()
+	return pd.DataFrame.from_dict(lc)
 
 def load_macho_tiles(field, tile_list):
 	macho_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_"+str(field)+"/"
