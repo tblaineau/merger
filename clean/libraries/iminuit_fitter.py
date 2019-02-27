@@ -139,6 +139,6 @@ def fit_all(filename):
 	start = time.time()
 	res= merged.groupby("id_E").apply(fit_ml)
 	end= time.time()
-	res.to_pickle(WORKING_DIR_PATH+'res_'+filename+'.pkl')
+	res.to_pickle(WORKING_DIR_PATH+'res_'+filename)
 	print(str(end-start)+" seconds elapsed.")
 	print(str(len(res))+" stars fitted.")
