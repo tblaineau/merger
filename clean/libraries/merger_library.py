@@ -180,7 +180,8 @@ def merger(working_dir_path, MACHO_field, eros_ccd):
 
 
 	# eros_lcs = pd.concat([pd.read_pickle(working_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
-	eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)
+	# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
+	eros_lcs = pd.concat([load_eros_compressed_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd+quart+"-lc.tar.gz") for quart in "klmn"])
 	end_load_eros = time.time()
 	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 
