@@ -14,18 +14,24 @@ def fit_ml(subdf):
 
 	#sélection des données, pas plus de 10% du temps de calcul en moyenne (0.01s vs 0.1s)
 	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
+
+	#remove anomalous magnitudes
+	subdf.drop(subdf.red_E.nsmallest(5).index, inplace=True)
+	subdf.drop(subdf.blue_E.nsmallest(5).index, inplace=True)
+	subdf.drop(subdf.red_M.nsmallest(5).index, inplace=True)
+	subdf.drop(subdf.blue_M.nsmallest(5).index, inplace=True)
+
 	maskRE = subdf.red_E.notnull() & subdf.rederr_E.notnull()
 	maskBE = subdf.blue_E.notnull() & subdf.blueerr_E.notnull()
 	maskRM = subdf.red_M.notnull() & subdf.rederr_M.notnull()
 	maskBM = subdf.blue_M.notnull() & subdf.blueerr_M.notnull()
-
-
 
 	errRE = subdf[maskRE].rederr_E.values
 	errBE = subdf[maskBE].blueerr_E.values
 	errRM = subdf[maskRM].rederr_M.values
 	errBM = subdf[maskBM].blueerr_M.values
 
+	#remove anomalous errors
 	min_err = 0.01
 	cre = (errRE>min_err) & (errRE<9.999)
 	cbe = (errBE>min_err) & (errBE<9.999)
