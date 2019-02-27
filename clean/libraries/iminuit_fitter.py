@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from iminuit import Minuit
-import time
+import time, os
 import matplotlib.pyplot as plt
 
 GLOBAL_COUNTER=0
@@ -120,7 +120,7 @@ def fit_ml(subdf):
 		+["dof"]
 		)
 
-def fit_all(filename):
+def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH):
 	"""Fit all curves in filename
 	
 	[description]
@@ -132,13 +132,13 @@ def fit_all(filename):
 	if filename[-4:]!='.pkl':
 		filename+='.pkl'
 	print("Loading "+filename)
-	merged = pd.read_pickle(WORKING_DIR_PATH+filename)
+	merged = pd.read_pickle(os.path.join(input_dir_path,filename))
 	merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 	merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
 	print("FILES LOADED")
 	start = time.time()
 	res= merged.groupby("id_E").apply(fit_ml)
 	end= time.time()
-	res.to_pickle(WORKING_DIR_PATH+'res_'+filename)
+	res.to_pickle(os.path.join(output_dir_path,'res_'+filename))
 	print(str(end-start)+" seconds elapsed.")
 	print(str(len(res))+" stars fitted.")
