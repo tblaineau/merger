@@ -146,6 +146,7 @@ def fit_ml(subdf):
 		+["dof"]
 		)
 
+WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH):
 	"""Fit all curves in filename
 	
@@ -154,7 +155,6 @@ def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_D
 	Arguments:
 		filename {str} -- Name of the file containing the merged curves.
 	"""
-	WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 	if filename[-4:]!='.pkl':
 		filename+='.pkl'
 	print("Loading "+filename)
