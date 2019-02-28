@@ -27,47 +27,80 @@ def fit_ml(subdf):
 
 	#sélection des données, pas plus de 10% du temps de calcul en moyenne (0.01s vs 0.1s)
 	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
-	
-	subdf.drop(subdf.red_E.nsmallest(5).index, inplace=True)
-	subdf.drop(subdf.blue_E.nsmallest(5).index, inplace=True)
-	subdf.drop(subdf.red_M.nsmallest(5).index, inplace=True)
-	subdf.drop(subdf.blue_M.nsmallest(5).index, inplace=True)
+	# subdf.drop(subdf.red_E.nsmallest(5).index, inplace=True)
+	# subdf.drop(subdf.blue_E.nsmallest(5).index, inplace=True)
+	# subdf.drop(subdf.red_M.nsmallest(5).index, inplace=True)
+	# subdf.drop(subdf.blue_M.nsmallest(5).index, inplace=True)
+
+	# st = time.time()
 
 	maskRE = subdf.red_E.notnull() & subdf.rederr_E.notnull()
 	maskBE = subdf.blue_E.notnull() & subdf.blueerr_E.notnull()
 	maskRM = subdf.red_M.notnull() & subdf.rederr_M.notnull()
 	maskBM = subdf.blue_M.notnull() & subdf.blueerr_M.notnull()
 
-	errRE = subdf[maskRE].rederr_E.values
-	errBE = subdf[maskBE].blueerr_E.values
-	errRM = subdf[maskRM].rederr_M.values
-	errBM = subdf[maskBM].blueerr_M.values
+	errRE = subdf[maskRE].rederr_E
+	errBE = subdf[maskBE].blueerr_E
+	errRM = subdf[maskRM].rederr_M
+	errBM = subdf[maskBM].blueerr_M
 
-	min_err = 0.0
-	cre = (errRE>min_err) & (errRE<9.999)
-	cbe = (errBE>min_err) & (errBE<9.999)
-	crm = (errRM>min_err) & (errRM<9.999)
-	cbm = (errBM>min_err) & (errBM<9.999)
+	min_err = 0.01
+	cre = errRE.between(min_err,9.999)
+	cbe = errBE.between(min_err,9.999)
+	crm = errRM.between(min_err,9.999)
+	cbm = errBM.between(min_err,9.999)
 
-	# magRE = subdf[maskRE][cre].ampli_red_E.values
-	# magBE = subdf[maskBE][cbe].ampli_blue_E.values
-	# magRM = subdf[maskRM][crm].ampli_red_M.values
-	# magBM = subdf[maskBM][cbm].ampli_blue_M.values
+	magRE = subdf[maskRE][cre].ampli_red_E
+	magBE = subdf[maskBE][cbe].ampli_blue_E
+	magRM = subdf[maskRM][crm].ampli_red_M
+	magBM = subdf[maskBM][cbm].ampli_blue_M
 
-	magRE = subdf[maskRE][cre].red_E.values
-	magBE = subdf[maskBE][cbe].blue_E.values
-	magRM = subdf[maskRM][crm].red_M.values
-	magBM = subdf[maskBM][cbm].blue_M.values
-
-	timeRE = subdf[maskRE][cre].time.values
-	timeBE = subdf[maskBE][cbe].time.values
-	timeRM = subdf[maskRM][crm].time.values
-	timeBM = subdf[maskBM][cbm].time.values
+	# magRE = subdf[maskRE][cre].red_E
+	# magBE = subdf[maskBE][cbe].blue_E
+	# magRM = subdf[maskRM][crm].red_M
+	# magBM = subdf[maskBM][cbm].blue_M
 
 	errRE = errRE[cre]
 	errBE = errBE[cbe]
 	errRM = errRM[crm]
 	errBM = errBM[cbm]
+
+	# st1 = time.time()
+	# print(st1-st)
+
+	cut5RE = np.abs((magRE.rolling(5, center=True).median()-magRE[2:-2]))/errRE[2:-2]>5
+	cut5BE = np.abs((magBE.rolling(5, center=True).median()-magBE[2:-2]))/errBE[2:-2]>5
+	cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]>5
+	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]>5
+
+	# st2 = time.time()
+	# print(st2-st1)
+	# print("time")
+
+	timeRE = subdf[maskRE][cre][cut5RE].time.values
+	timeBE = subdf[maskBE][cbe][cut5BE].time.values
+	timeRM = subdf[maskRM][crm][cut5RM].time.values
+	timeBM = subdf[maskBM][cbm][cut5BM].time.values
+
+	# st3 = time.time()
+	# print(st3-st2)
+
+	errRE = errRE[cut5RE].values
+	errBE = errBE[cut5BE].values
+	errRM = errRM[cut5RM].values
+	errBM = errBM[cut5BM].values
+
+	# st4 = time.time()
+	# print(st4-st3)
+
+	magRE = magRE[cut5RE].values
+	magBE = magBE[cut5BE].values
+	magRM = magRM[cut5RM].values
+	magBM = magBM[cut5BM].values
+
+	# st5 = time.time()
+	# print(st5-st4)
+	# print(str(st5-st)+ " seconds elapsed on formatting !")
 
 	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
@@ -153,6 +186,11 @@ def fit_ml(subdf):
 
 	m_micro.migrad()
 	m_flat.migrad()
+
+	# st6=time.time()
+	# print(str(st6-st5)+" seconds elapsed fitting.")
+	# print(str(st6-st)+" total time elapsed.")
+
 	global GLOBAL_COUNTER
 	GLOBAL_COUNTER+=1
 	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
@@ -171,16 +209,16 @@ def fit_ml(subdf):
 		)
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
-merged = pd.read_pickle(WORKING_DIR_PATH+'8_lm0213.pkl')
+merged = pd.read_pickle(WORKING_DIR_PATH+'simulated_8_lm0213_no_blend.pkl')
 merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
-print(merged)
+print(merged.index.nunique())
 
 print("FILES LOADED")
 
 start = time.time()
 res= merged.groupby("id_E").apply(fit_ml)
 end= time.time()
-res.to_pickle(WORKING_DIR_PATH+'res_8_lm0213_cut5.pkl')
+res.to_pickle(WORKING_DIR_PATH+'res_simulated_8_lm0213_no_blend.pkl')
 print(str(end-start)+" seconds elapsed.")
 print(str(len(res))+" stars fitted.")
