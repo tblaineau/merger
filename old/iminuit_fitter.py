@@ -32,8 +32,6 @@ def fit_ml(subdf):
 	# subdf.drop(subdf.red_M.nsmallest(5).index, inplace=True)
 	# subdf.drop(subdf.blue_M.nsmallest(5).index, inplace=True)
 
-	# st = time.time()
-
 	maskRE = subdf.red_E.notnull() & subdf.rederr_E.notnull()
 	maskBE = subdf.blue_E.notnull() & subdf.blueerr_E.notnull()
 	maskRM = subdf.red_M.notnull() & subdf.rederr_M.notnull()
@@ -65,42 +63,43 @@ def fit_ml(subdf):
 	errRM = errRM[crm]
 	errBM = errBM[cbm]
 
-	# st1 = time.time()
-	# print(st1-st)
-
 	cut5RE = np.abs((magRE.rolling(5, center=True).median()-magRE[2:-2]))/errRE[2:-2]<5
 	cut5BE = np.abs((magBE.rolling(5, center=True).median()-magBE[2:-2]))/errBE[2:-2]<5
 	cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]<5
 	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]<5
 
-	# st2 = time.time()
-	# print(st2-st1)
-	# print("time")
+	if (cut5RE.sum()<20 and cut5BE.sum()<20) or (cut5BM.sum()<20 and cut5RM.sum()<20):
+		timeRE = subdf[maskRE][cre].time.values
+		timeBE = subdf[maskBE][cbe].time.values
+		timeRM = subdf[maskRM][crm].time.values
+		timeBM = subdf[maskBM][cbm].time.values
 
-	timeRE = subdf[maskRE][cre][cut5RE].time.values
-	timeBE = subdf[maskBE][cbe][cut5BE].time.values
-	timeRM = subdf[maskRM][crm][cut5RM].time.values
-	timeBM = subdf[maskBM][cbm][cut5BM].time.values
+		errRE = errRE.values
+		errBE = errBE.values
+		errRM = errRM.values
+		errBM = errBM.values
 
-	# st3 = time.time()
-	# print(st3-st2)
+		magRE = magRE.values
+		magBE = magBE.values
+		magRM = magRM.values
+		magBM = magBM.values
+		print("too much")
 
-	errRE = errRE[cut5RE].values
-	errBE = errBE[cut5BE].values
-	errRM = errRM[cut5RM].values
-	errBM = errBM[cut5BM].values
+	else:
+		timeRE = subdf[maskRE][cre][cut5RE].time.values
+		timeBE = subdf[maskBE][cbe][cut5BE].time.values
+		timeRM = subdf[maskRM][crm][cut5RM].time.values
+		timeBM = subdf[maskBM][cbm][cut5BM].time.values
 
-	# st4 = time.time()
-	# print(st4-st3)
+		errRE = errRE[cut5RE].values
+		errBE = errBE[cut5BE].values
+		errRM = errRM[cut5RM].values
+		errBM = errBM[cut5BM].values
 
-	magRE = magRE[cut5RE].values
-	magBE = magBE[cut5BE].values
-	magRM = magRM[cut5RM].values
-	magBM = magBM[cut5BM].values
-
-	# st5 = time.time()
-	# print(st5-st4)
-	# print(str(st5-st)+ " seconds elapsed on formatting !")
+		magRE = magRE[cut5RE].values
+		magBE = magBE[cut5BE].values
+		magRM = magRM[cut5RM].values
+		magBM = magBM[cut5BM].values
 
 	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
@@ -186,10 +185,6 @@ def fit_ml(subdf):
 
 	m_micro.migrad()
 	m_flat.migrad()
-
-	# st6=time.time()
-	# print(str(st6-st5)+" seconds elapsed fitting.")
-	# print(str(st6-st)+" total time elapsed.")
 
 	global GLOBAL_COUNTER
 	GLOBAL_COUNTER+=1
