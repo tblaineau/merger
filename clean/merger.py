@@ -11,9 +11,7 @@ import numpy as np
 import logging
 import os
 
-import sys
-sys.path.append('libraries')
-import merger_library, iminuit_fitter
+from libraries import merger_library, iminuit_fitter
 
 def dir_path_check(dirpath):
 	if not os.path.isdir(dirpath):
