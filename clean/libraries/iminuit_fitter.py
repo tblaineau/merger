@@ -31,15 +31,15 @@ def fit_ml(subdf):
 	crm = errRM.between(min_err,9.999)
 	cbm = errBM.between(min_err,9.999)
 
-	magRE = subdf[maskRE][cre].ampli_red_E
-	magBE = subdf[maskBE][cbe].ampli_blue_E
-	magRM = subdf[maskRM][crm].ampli_red_M
-	magBM = subdf[maskBM][cbm].ampli_blue_M
+	# magRE = subdf[maskRE][cre].ampli_red_E
+	# magBE = subdf[maskBE][cbe].ampli_blue_E
+	# magRM = subdf[maskRM][crm].ampli_red_M
+	# magBM = subdf[maskBM][cbm].ampli_blue_M
 
-	# magRE = subdf[maskRE][cre].red_E
-	# magBE = subdf[maskBE][cbe].blue_E
-	# magRM = subdf[maskRM][crm].red_M
-	# magBM = subdf[maskBM][cbm].blue_M
+	magRE = subdf[maskRE][cre].red_E
+	magBE = subdf[maskBE][cbe].blue_E
+	magRM = subdf[maskRM][crm].red_M
+	magBM = subdf[maskBM][cbm].blue_M
 
 	errRE = errRE[cre]
 	errBE = errBE[cbe]
