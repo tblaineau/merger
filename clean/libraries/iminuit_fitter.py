@@ -53,10 +53,10 @@ def fit_ml(subdf):
 	timeRM = subdf[maskRM][crm].time.values
 	timeBM = subdf[maskBM][cbm].time.values
 
-	errRE = errRE[cre]
-	errBE = errBE[cbe]
-	errRM = errRM[crm]
-	errBM = errBM[cbm]
+	errRE = errRE[cre].values
+	errBE = errBE[cbe].values
+	errRM = errRM[crm].values
+	errBM = errBM[cbm].values
 
 	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
