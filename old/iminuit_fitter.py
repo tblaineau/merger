@@ -68,10 +68,10 @@ def fit_ml(subdf):
 	# st1 = time.time()
 	# print(st1-st)
 
-	cut5RE = np.abs((magRE.rolling(5, center=True).median()-magRE[2:-2]))/errRE[2:-2]>5
-	cut5BE = np.abs((magBE.rolling(5, center=True).median()-magBE[2:-2]))/errBE[2:-2]>5
-	cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]>5
-	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]>5
+	cut5RE = np.abs((magRE.rolling(5, center=True).median()-magRE[2:-2]))/errRE[2:-2]<5
+	cut5BE = np.abs((magBE.rolling(5, center=True).median()-magBE[2:-2]))/errBE[2:-2]<5
+	cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]<5
+	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]<5
 
 	# st2 = time.time()
 	# print(st2-st1)
@@ -212,7 +212,6 @@ WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 merged = pd.read_pickle(WORKING_DIR_PATH+'simulated_8_lm0213_no_blend.pkl')
 merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
-print(merged.index.nunique())
 
 print("FILES LOADED")
 
