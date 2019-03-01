@@ -109,12 +109,13 @@ def read_compressed_eros_lightcurve(lc, exfile, name):
 	"""
 	id_E = name.split("/")[-1][:-5]
 	for line in exfile.readlines()[4:]:
-			lc["time"].append(float(line[0])+49999.5)
-			lc["red_E"].append(float(line[1]))
-			lc["rederr_E"].append(float(line[2]))
-			lc["blue_E"].append(float(line[3]))
-			lc["blueerr_E"].append(float(line[4]))
-			lc["id_E"].append(id_E)
+		line = line.split()
+		lc["time"].append(float(line[0])+49999.5)
+		lc["red_E"].append(float(line[1]))
+		lc["rederr_E"].append(float(line[2]))
+		lc["blue_E"].append(float(line[3]))
+		lc["blueerr_E"].append(float(line[4]))
+		lc["id_E"].append(id_E)
 
 def load_eros_compressed_files(filepath):
 	"""Load EROS lightcurves from compressed tar.gz archives
