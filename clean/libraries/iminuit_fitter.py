@@ -51,7 +51,10 @@ def fit_ml(subdf):
 	cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]<5
 	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]<5
 
-	if (cut5RE.sum()<20 and cut5BE.sum()<20) or (cut5BM.sum()<20 and cut5RM.sum()<20):
+	tolerance_ratio = 0.9
+	if ((cut5RE.sum()/len(cut5RE)<tolerance_ratio and cut5BE.sum()/len(cut5BE)<tolerance_ratio) 
+		or (cut5BM.sum()/len(cut5BM)<tolerance_ratio and cut5RM.sum()/len(cut5RM)<tolerance_ratio)):
+	
 		timeRE = subdf[maskRE][cre].time.values
 		timeBE = subdf[maskBE][cbe].time.values
 		timeRM = subdf[maskRM][crm].time.values
