@@ -149,7 +149,7 @@ def load_macho_tiles(MACHO_files_path, field, tile_list):
 		pds.append(read_macho_lightcurve(macho_path+"F_"+str(field)+"."+str(tile)+".gz"))
 	return pd.concat(pds)
 
-def load_macho_field(field):
+def load_macho_field(MACHO_files_path, field):
 	macho_path = MACHO_files_path+"F_"+str(field)+"/"
 	pds = []
 	for root, subdirs, files in os.walk(macho_path):
