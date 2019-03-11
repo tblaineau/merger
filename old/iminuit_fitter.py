@@ -10,18 +10,31 @@ def microlensing_event(t, u0, t0, tE, mag1):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
 	return -2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1 
 
-def parallax(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0):
-	phi = 2*np.pi/365.25 * (t-t0) + alpha0
-	t1 = u0*u0
-	t2 = ((t-t0)/tE)**2
-	t3 = delta_u**2 * (np.cos(phi)**2 + (np.sin(phi) * np.cos(beta))**2)
-	t4 = -delta_u * (t-t0)/tE * (np.cos(psi) * np.cos(phi) + np.cos(beta) * np.sin(psi) * np.sin(phi))
-	t5 = u0 * delta_u * (np.sin(psi) * np.cos(phi) - np.cos(psi) * np.sin(phi) * np.cos(beta))
-	u = np.sqrt(t1+t2+t3+t4+t5)
+def parallax(t, mag, u0, t0, tE, delta_u, theta):
+	# beta = delta - np.pi/2
+	alphaS = 80.8941667*np.pi/180.
+	deltaS = -69.7561111*np.pi/180.
+	epsilon = (90. - 66.56070833)*np.pi/180.
+	t_origin = 58747 #(21 septembre 2019)
+	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
+	xsi = (t-t0)/tE
+	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - alphaS
+	u_D = np.array([ 
+		-u0*np.sin(theta) + xsi*np.cos(theta),
+		 u0*np.cos(theta) + xsi*np.sin(theta)
+		])
+	u_t = np.array([
+		-delta_u*np.sin(phi),
+		 delta_u*np.cos(phi)*sin_beta
+		])
+	u = np.linalg.norm(u_D-u_t, axis=0)
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
-def parallax_microlensing_event(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0):
-	return mag - 2.5*np.log10(parallax(t, mag, u0, t0, tE, delta_u, beta, psi, alpha0))
+def parallax_microlensing_event(t, mag, u0, t0, tE, delta_u, theta):
+	return mag + - 2.5*np.log10(parallax(t, mag, u0, t0, tE, delta_u, theta))
+
+def parallax_blend_microlensing_event(t, mag, blend, u0, t0, tE, delta_u, theta):
+	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax(t, mag, u0, t0, tE, delta_u, theta))
 
 def fit_ml(subdf):
 
@@ -42,33 +55,34 @@ def fit_ml(subdf):
 	errRM = subdf[maskRM].rederr_M
 	errBM = subdf[maskBM].blueerr_M
 
-	min_err = 0.01
-	cre = errRE.between(min_err,9.999)
-	cbe = errBE.between(min_err,9.999)
-	crm = errRM.between(min_err,9.999)
-	cbm = errBM.between(min_err,9.999)
+	min_err = 0.
+	max_err = 9.999
+	cre = errRE.between(min_err, max_err, inclusive=False)
+	cbe = errBE.between(min_err, max_err, inclusive=False)
+	crm = errRM.between(min_err, max_err, inclusive=False)
+	cbm = errBM.between(min_err, max_err, inclusive=False)
 
-	magRE = subdf[maskRE][cre].ampli_red_E
-	magBE = subdf[maskBE][cbe].ampli_blue_E
-	magRM = subdf[maskRM][crm].ampli_red_M
-	magBM = subdf[maskBM][cbm].ampli_blue_M
+	# magRE = subdf[maskRE][cre].ampli_red_E
+	# magBE = subdf[maskBE][cbe].ampli_blue_E
+	# magRM = subdf[maskRM][crm].ampli_red_M
+	# magBM = subdf[maskBM][cbm].ampli_blue_M
 
-	# magRE = subdf[maskRE][cre].red_E
-	# magBE = subdf[maskBE][cbe].blue_E
-	# magRM = subdf[maskRM][crm].red_M
-	# magBM = subdf[maskBM][cbm].blue_M
+	magRE = subdf[maskRE][cre].red_E
+	magBE = subdf[maskBE][cbe].blue_E
+	magRM = subdf[maskRM][crm].red_M
+	magBM = subdf[maskBM][cbm].blue_M
 
 	errRE = errRE[cre]
 	errBE = errBE[cbe]
 	errRM = errRM[crm]
 	errBM = errBM[cbm]
 
-	cut5RE = np.abs((magRE.rolling(5, center=True).median()-magRE[2:-2]))/errRE[2:-2]<5
-	cut5BE = np.abs((magBE.rolling(5, center=True).median()-magBE[2:-2]))/errBE[2:-2]<5
-	cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]<5
-	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]<5
+	# cut5RE = np.abs((magRE.rolling(5, center=True).median()-magRE[2:-2]))/errRE[2:-2]<5
+	# cut5BE = np.abs((magBE.rolling(5, center=True).median()-magBE[2:-2]))/errBE[2:-2]<5
+	# cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]<5
+	# cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]<5
 
-	if (cut5RE.sum()<20 and cut5BE.sum()<20) or (cut5BM.sum()<20 and cut5RM.sum()<20):
+	if True:#(cut5RE.sum()<20 and cut5BE.sum()<20) or (cut5BM.sum()<20 and cut5RM.sum()<20):
 		timeRE = subdf[maskRE][cre].time.values
 		timeBE = subdf[maskBE][cbe].time.values
 		timeRM = subdf[maskRM][crm].time.values
@@ -83,7 +97,7 @@ def fit_ml(subdf):
 		magBE = magBE.values
 		magRM = magRM.values
 		magBM = magBM.values
-		print("too much")
+		#print("too much")
 
 	else:
 		timeRE = subdf[maskRE][cre][cut5RE].time.values
@@ -112,21 +126,21 @@ def fit_ml(subdf):
 		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
 
 	# def ls_parallax(params):
-	# 	u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM, delta_u, beta, psi, alpha0 = params
-	# 	lsq1 = np.sum(((magRE - parallax_microlensing_event(timeRE, magStarRE, u0, t0, tE, delta_u, beta, psi, alpha0))/ errRE)**2)
-	# 	lsq2 = np.sum(((magBE - parallax_microlensing_event(timeBE, magStarBE, u0, t0, tE, delta_u, beta, psi, alpha0))/ errBE)**2)
-	# 	lsq3 = np.sum(((magRM - parallax_microlensing_event(timeRM, magStarRM, u0, t0, tE, delta_u, beta, psi, alpha0))/ errRM)**2)
-	# 	lsq4 = np.sum(((magBM - parallax_microlensing_event(timeBM, magStarBM, u0, t0, tE, delta_u, beta, psi, alpha0))/ errBM)**2)
+	# 	u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM, delta_u, psi = params
+	# 	lsq1 = np.sum(((magRE - parallax_microlensing_event(timeRE, magStarRE, u0, t0, tE, delta_u, subdf[maskRE][cre][cut5RE].delta_E.values/180.*np.pi))/ errRE)**2)
+	# 	lsq2 = np.sum(((magBE - parallax_microlensing_event(timeBE, magStarBE, u0, t0, tE, delta_u, subdf[maskBE][cbe][cut5BE].delta_E.values/180.*np.pi))/ errBE)**2)
+	# 	lsq3 = np.sum(((magRM - parallax_microlensing_event(timeRM, magStarRM, u0, t0, tE, delta_u, subdf[maskRM][crm][cut5RM].delta_E.values/180.*np.pi))/ errRM)**2)
+	# 	lsq4 = np.sum(((magBM - parallax_microlensing_event(timeBM, magStarBM, u0, t0, tE, delta_u, subdf[maskBM][cbm][cut5BM].delta_E.values/180.*np.pi))/ errBM)**2)
 	# 	return lsq1+lsq2+lsq3+lsq4
 
 	m_micro = Minuit(least_squares_microlens, 
-		u0=0.5, 
+		u0=1., 
 		t0=50000, 
-		tE=1000, 
-		magStarRE=20, 
-		magStarBE=20, 
-		magStarRM=-4, 
-		magStarBM=-4, 
+		tE=500, 
+		magStarRE=magRE.mean(), 
+		magStarBE=magBE.mean(), 
+		magStarRM=magRM.mean(), 
+		magStarBM=magBM.mean(), 
 		error_u0=0.1, 
 		error_t0=5000, 
 		error_tE=100, 
@@ -140,36 +154,32 @@ def fit_ml(subdf):
 		errordef=1,
 		print_level=0)
 
-	"""
-	params_names = ["u0", "t0", "tE", "magStarRE", "magStarBE", "magStarRM", "magStarBM", "delta_u", "beta", "psi", "alpha0"]
-	params_init = {
-		"u0":0.5, 
-		"t0":50000, 
-		"tE":1000, 
-		"magStarRE":20, 
-		"magStarBE":20, 
-		"magStarRM":-4, 
-		"magStarBM":-4, 
-		"delta_u":0,
-		"beta":0,
-		"psi":0,
-		"error_u0":0.1, 
-		"error_t0":5000, 
-		"error_tE":100, 
-		"error_magStarRE":2, 
-		"error_magStarBE":2., 
-		"error_magStarRM":2., 
-		"error_magStarBM":2., 
-		"limit_u0":(0,2), 
-		"limit_tE":(300, 10000),
-		"limit_t0":(40000, 60000),
-		"limit_beta":(0,np.pi),
-		"limit_delta_u":(0, None),
-		"limit_psi":(0, 2*np.pi),
-		"limit_alpha0":(0, 2*np.pi)
-	}
-	m_micro = Minuit(ls_parallax, forced_parameters=params_names, print_level=1, errordef=1, use_array_call=True, **params_init)
-	"""
+	# params_names = ["u0", "t0", "tE", "magStarRE", "magStarBE", "magStarRM", "magStarBM", "delta_u", "psi"]
+	# params_init = {
+	# 	"u0":0.5, 
+	# 	"t0":50000, 
+	# 	"tE":1000, 
+	# 	"magStarRE":20, 
+	# 	"magStarBE":20, 
+	# 	"magStarRM":-4, 
+	# 	"magStarBM":-4, 
+	# 	"delta_u":0,
+	# 	"psi":0,
+	# 	"error_u0":0.1, 
+	# 	"error_t0":5000, 
+	# 	"error_tE":100, 
+	# 	"error_magStarRE":2, 
+	# 	"error_magStarBE":2., 
+	# 	"error_magStarRM":2., 
+	# 	"error_magStarBM":2., 
+	# 	"limit_u0":(0,2), 
+	# 	"limit_tE":(300, 10000),
+	# 	"limit_t0":(40000, 60000),
+	# 	"limit_delta_u":(0, None),
+	# 	"limit_psi":(0, 2*np.pi)
+	# }
+	# m_micro = Minuit(ls_parallax, forced_parameters=params_names, print_level=1, errordef=1, use_array_call=True, **params_init)
+	
 	m_flat = Minuit(least_squares_flat, 
 		f_magStarRE=20, 
 		f_magStarBE=20, 
@@ -191,28 +201,29 @@ def fit_ml(subdf):
 	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
 	return pd.Series(
 
-		m_micro.values.values()+[m_micro.get_fmin().is_valid, m_micro.fval] 
+		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval] 
 		+ 
-		m_flat.values.values()+[m_flat.get_fmin().is_valid, m_flat.fval]
+		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
 		+[len(errRE)+len(errBE)+len(errRM)+len(errBM)], 
 
-		index=m_micro.values.keys()+['micro_valid', 'micro_fval']
+		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
-		m_flat.values.keys()+['flat_valid', 'flat_fval']
+		m_flat.values.keys()+['flat_fmin', 'flat_fval']
 		+["dof"]
 
 		)
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
-merged = pd.read_pickle(WORKING_DIR_PATH+'simulated_8_lm0213_no_blend.pkl')
+merged = pd.read_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_no_blend.pkl')
 merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
 
 print("FILES LOADED")
 
 start = time.time()
+merged.reset_index(drop=True, inplace=True)
 res= merged.groupby("id_E").apply(fit_ml)
 end= time.time()
-res.to_pickle(WORKING_DIR_PATH+'res_simulated_8_lm0213_no_blend.pkl')
+res.to_pickle(WORKING_DIR_PATH+'res_simulated_50_lm0220_nocut5.pkl')
 print(str(end-start)+" seconds elapsed.")
 print(str(len(res))+" stars fitted.")
