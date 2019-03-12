@@ -11,6 +11,25 @@ def microlensing_amplification(t, u0, t0, tE):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
+def ma_parallax(t, u0, t0, tE, delta_u, theta):
+	alphaS = 80.8941667*np.pi/180.
+	deltaS = -69.7561111*np.pi/180.
+	epsilon = (90. - 66.56070833)*np.pi/180.
+	t_origin = 58747 #(21 septembre 2019)
+	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
+	tau = (t-t0)/tE
+	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - alphaS
+	u_D = np.array([ 
+		-u0*np.sin(theta) + tau*np.cos(theta),
+		 u0*np.cos(theta) + tau*np.sin(theta)
+		])
+	u_t = np.array([
+		-delta_u*np.sin(phi),
+		 delta_u*np.cos(phi)*sin_beta
+		])
+	u = np.linalg.norm(u_D-u_t, axis=0)
+	return (u**2+2)/(u*np.sqrt(u**2+4))
+
 class Sigma_Baseline:
 	def __init__(self, bin_edges, bin_baseline):
 		self.be = bin_edges
@@ -50,15 +69,18 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False):
 		means[key] = subdf[color_filter['mag']].mean() # <---- use mean as baseline
 
 	#amplification mulitplier
-	u0, t0, tE, blend_factors = generate_microlensing_parameters(current_id, blending=blending)
-	A = microlensing_amplification(subdf.time, u0, t0, tE)
+	u0, t0, tE, blend_factors, delta_u, theta = generate_microlensing_parameters(current_id, blending=blending, parallax=False)
+	if parallax:
+		A = ma_parallax(subdf.time, u0, t0, tE, delta_u, theta)
+	else:
+		A = microlensing_amplification(subdf.time, u0, t0, tE)
 
 
 	for key, color_filter in COLOR_FILTERS.items():
 		#phi_th is the lightcurve with perfect measurements (computed from original baseline)
 		#phi_th = means[key] - 2.5*np.log10(A[conditions[key]])
 		phi_th = -2.5*np.log10(np.power(10, means[key]/-2.5)*blend_factors[key] + np.power(10, means[key]/-2.5)*(1-blend_factors[key])*A[conditions[key]])
-		norm = sigmag.get_sigma_base(subdf[conditions[key]][color_filter['mag']]) / sigmag.get_sigma_base(phi_th)
+		norm = sigmag.get_sigma_base(means[key]) / sigmag.get_sigma_base(phi_th)
 
 		subdf['ampli_'+color_filter['err']] = subdf[conditions[key]][color_filter['err']] / norm
 		subdf['ampli_'+color_filter['mag']] = phi_th + (subdf[conditions[key]][color_filter['mag']] - means[key]) / norm
@@ -67,7 +89,7 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False):
 
 # l o a d   s t a r s
 print("Loading stars")
-merged = pd.read_pickle(WORKING_DIR_PATH+"49_lm0322.pkl")
+merged = pd.read_pickle(WORKING_DIR_PATH+"50_lm0220.pkl")
 
 # l o a d   b a s e l i n e s   a n d   s t d   d e v i a t i o n s 
 print("Loading mag and sig")
@@ -83,11 +105,11 @@ merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0
 	and x.blue_E.count()!=0 
 	and x.blue_M.count()!=0)
 
-#simulate on only 2% of the lightcurves
-merged = merged.groupby("id_E").filter(lambda x: np.random.rand()<0.02)
+#simulate on only x% of the lightcurves
+merged = merged.groupby("id_E").filter(lambda x: np.random.rand()<0.2)
 
 print("Starting simulations...")
 start = time.time()
-simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, blending=True)
+simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, blending=False)
 print(time.time()-start)
-simulated.to_pickle('simulated_test_2.pkl')
+simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_no_blend.pkl')
