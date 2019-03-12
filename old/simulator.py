@@ -39,7 +39,7 @@ class Sigma_Baseline:
 		index = np.where(index>=len(self.be)-2, len(self.bb)-1, index-1)
 		return self.bb[index]
 
-def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False):
+def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, parallax=False):
 	""" For a given star, generate µ-lens event
 	
 	[description]
@@ -69,7 +69,7 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False):
 		means[key] = subdf[color_filter['mag']].mean() # <---- use mean as baseline
 
 	#amplification mulitplier
-	u0, t0, tE, blend_factors, delta_u, theta = generate_microlensing_parameters(current_id, blending=blending, parallax=False)
+	u0, t0, tE, blend_factors, delta_u, theta = generate_microlensing_parameters(current_id, blending=blending, parallax=parallax)
 	if parallax:
 		A = ma_parallax(subdf.time, u0, t0, tE, delta_u, theta)
 	else:
