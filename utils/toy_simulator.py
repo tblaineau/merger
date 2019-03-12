@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import matplotlib.patches as malptch
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
 
 def microlensing_amplification(t, u0, t0, tE):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
@@ -42,13 +44,18 @@ def microlens(t, mag, blend, u0, t0, tE, delta_u, theta):
 	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax(t, mag, u0, t0, tE, delta_u, theta))
 
 def projected_plan(t, mag, blend, u0, t0, tE, delta_u, theta):
-	alpha0 = 2*np.pi/PERIOD_EARTH*t0%PERIOD_EARTH
 	xD = (t-t0)/tE * np.cos(theta) - u0*np.sin(theta)
 	yD = (t-t0)/tE * np.sin(theta) + u0*np.cos(theta)
 
-	phi = 2*np.pi/PERIOD_EARTH * (t-t0) + alpha0
-	x = delta_u * np.cos(phi)
-	y = delta_u * np.sin(phi) * np.cos(beta)
+	alphaS = 80.8941667*np.pi/180.
+	deltaS = -69.7561111*np.pi/180.
+	epsilon = (90. - 66.56070833)*np.pi/180.
+	t_origin = 58747 #(21 septembre 2019)
+	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
+	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - alphaS
+
+	x = - delta_u * np.sin(phi)
+	y = delta_u * np.cos(phi) * sin_beta
 	return xD, yD, x, y
 
 fig, axs = plt.subplots(1,2)
@@ -71,12 +78,13 @@ params = {
 	'theta':10*np.pi/180.
 }
 
-line, = ax0.plot(time,  microlens(time, *params.values()), color='black', linewidth=0.5)
-#xD, yD, xpE, ypE = projected_plan(time, *params.values())
-#defl_line, = ax1.plot(xD, yD)
-#earth_projected_orbit, = ax1.plot(xpE, ypE)
-#ax1.add_patch(malptch.Circle((0,0),1, fill=False, color="black"))
-#ax1.axis("equal")
+a=microlens(time, *params.values())
+line, = ax0.plot(time,  a, color='black', linewidth=0.5)
+xD, yD, xpE, ypE = projected_plan(time, *params.values())
+defl_line = ax1.scatter(xD, yD, c=a, s=1)
+earth_projected_orbit = ax1.scatter(xpE, ypE, c=a, s=1)
+ax1.add_patch(malptch.Circle((0,0),1, fill=False, color="black"))
+ax1.axis("equal")
 
 fig2 = plt.figure()
 
@@ -134,14 +142,20 @@ def update_graph():
 	ydata = microlens(time, *params.values())
 	line.set_ydata(ydata)
 	#ax0.set_ylim(ydata.max()+1, ydata.min()-1)
-
-	#xD, yD, xpE, ypE = projected_plan(time, *params.values())
-	#earth_projected_orbit.set_xdata(xpE)
-	#earth_projected_orbit.set_ydata(ypE)
-	#defl_line.set_xdata(xD)
-	#defl_line.set_ydata(yD)
-	fig.canvas.draw_idle()
 	
+	colnorm = Normalize(vmin=16, vmax=19)
+	colmap = ScalarMappable(norm=colnorm, cmap=plt.get_cmap('Reds'))
+
+	xD, yD, xpE, ypE = projected_plan(time, *params.values())
+	earth_projected_orbit.set_offsets(np.array([xpE,ypE]).T)
+	earth_projected_orbit.set_facecolor(colmap.to_rgba(ydata))
+	# earth_projected_orbit.set_ydata(ypE)
+	defl_line.set_offsets(np.array([xD,yD]).T)
+	defl_line.set_facecolor(colmap.to_rgba(ydata))
+
+	# defl_line.set_ydata(yD)
+	fig.canvas.draw_idle()
+
 u0slider.on_changed(update_u0)
 t0slider.on_changed(update_t0)
 tEslider.on_changed(update_tE)
