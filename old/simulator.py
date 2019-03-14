@@ -12,13 +12,16 @@ def microlensing_amplification(t, u0, t0, tE):
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
 def ma_parallax(t, u0, t0, tE, delta_u, theta):
+	PERIOD_EARTH = 365.2422
 	alphaS = 80.8941667*np.pi/180.
 	deltaS = -69.7561111*np.pi/180.
 	epsilon = (90. - 66.56070833)*np.pi/180.
 	t_origin = 58747 #(21 septembre 2019)
 	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
+	beta = np.arcsin(sin_beta)
+	lambda_star = np.arcsin((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta))
 	tau = (t-t0)/tE
-	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - alphaS
+	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
 	u_D = np.array([ 
 		-u0*np.sin(theta) + tau*np.cos(theta),
 		 u0*np.cos(theta) + tau*np.sin(theta)
@@ -59,7 +62,8 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, pa
 	#Remove anomalous values of magnitudes
 	subdf=subdf.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
 
-	current_id = subdf.id_E.iloc[0]
+	current_id = subdf["id_E"].iloc[0]
+	print(current_id)
 
 	means = {}
 	conditions = {}
@@ -91,6 +95,8 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, pa
 print("Loading stars")
 merged = pd.read_pickle(WORKING_DIR_PATH+"50_lm0220.pkl")
 
+print(merged.columns)
+
 # l o a d   b a s e l i n e s   a n d   s t d   d e v i a t i o n s 
 print("Loading mag and sig")
 ms = pd.read_pickle(WORKING_DIR_PATH+"ms_temp_lm0322n")
@@ -106,10 +112,10 @@ merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0
 	and x.blue_M.count()!=0)
 
 #simulate on only x% of the lightcurves
-merged = merged.groupby("id_E").filter(lambda x: np.random.rand()<0.2)
+merged = merged.groupby("id_E").filter(lambda x: np.random.rand()<0.02)
 
 print("Starting simulations...")
 start = time.time()
-simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, blending=False)
+simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, blending=False, parallax=True)
 print(time.time()-start)
-simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_no_blend.pkl')
+simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_parallax.pkl')

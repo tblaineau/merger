@@ -4,6 +4,7 @@ from matplotlib.widgets import Slider
 import matplotlib.patches as malptch
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
+from matplotlib.collections import LineCollection
 
 def microlensing_amplification(t, u0, t0, tE):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
@@ -13,19 +14,20 @@ def microlensing_amplification(t, u0, t0, tE):
 # 	return mag - 2.5*np.log10(microlensing_amplification(t, u0, t0, tE))
 
 PERIOD_EARTH = 365.2422
+alphaS = 80.8941667*np.pi/180.
+deltaS = -69.7561111*np.pi/180.
+epsilon = (90. - 66.56070833)*np.pi/180.
+t_origin = 58747 #(21 septembre 2019)
 
 def parallax(t, mag, u0, t0, tE, delta_u, theta):
-	# beta = delta - np.pi/2
-	alphaS = 80.8941667*np.pi/180.
-	deltaS = -69.7561111*np.pi/180.
-	epsilon = (90. - 66.56070833)*np.pi/180.
-	t_origin = 58747 #(21 septembre 2019)
 	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
-	xsi = (t-t0)/tE
-	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - alphaS
+	beta = np.arcsin(sin_beta)
+	lambda_star = np.arcsin((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta))
+	tau = (t-t0)/tE
+	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
 	u_D = np.array([ 
-		-u0*np.sin(theta) + xsi*np.cos(theta),
-		 u0*np.cos(theta) + xsi*np.sin(theta)
+		-u0*np.sin(theta) + tau*np.cos(theta),
+		 u0*np.cos(theta) + tau*np.sin(theta)
 		])
 	u_t = np.array([
 		-delta_u*np.sin(phi),
@@ -47,12 +49,11 @@ def projected_plan(t, mag, blend, u0, t0, tE, delta_u, theta):
 	xD = (t-t0)/tE * np.cos(theta) - u0*np.sin(theta)
 	yD = (t-t0)/tE * np.sin(theta) + u0*np.cos(theta)
 
-	alphaS = 80.8941667*np.pi/180.
-	deltaS = -69.7561111*np.pi/180.
-	epsilon = (90. - 66.56070833)*np.pi/180.
-	t_origin = 58747 #(21 septembre 2019)
 	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
-	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - alphaS
+	beta = np.arcsin(sin_beta)
+	lambda_star = np.arcsin((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta))
+
+	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
 
 	x = - delta_u * np.sin(phi)
 	y = delta_u * np.cos(phi) * sin_beta
@@ -78,11 +79,15 @@ params = {
 	'theta':10*np.pi/180.
 }
 
-a=microlens(time, *params.values())
+a = microlens(time, *params.values())
 line, = ax0.plot(time,  a, color='black', linewidth=0.5)
 xD, yD, xpE, ypE = projected_plan(time, *params.values())
-defl_line = ax1.scatter(xD, yD, c=a, s=1)
+defl_line = ax1.scatter(xD, yD, c=a, s=10)
 earth_projected_orbit = ax1.scatter(xpE, ypE, c=a, s=1)
+print()
+co_lines = LineCollection(np.reshape(np.column_stack(np.array([xD, yD, xpE, ypE])), (377,2,2)), linewidth=14./a, cmap=plt.get_cmap('Reds_r'), alpha=0.5)
+co_lines.set_array(a)
+ax1.add_collection(co_lines)
 ax1.add_patch(malptch.Circle((0,0),1, fill=False, color="black"))
 ax1.axis("equal")
 
@@ -144,14 +149,17 @@ def update_graph():
 	#ax0.set_ylim(ydata.max()+1, ydata.min()-1)
 	
 	colnorm = Normalize(vmin=16, vmax=19)
-	colmap = ScalarMappable(norm=colnorm, cmap=plt.get_cmap('Reds'))
+	colmap = ScalarMappable(norm=colnorm, cmap=plt.get_cmap('Reds_r'))
 
 	xD, yD, xpE, ypE = projected_plan(time, *params.values())
-	earth_projected_orbit.set_offsets(np.array([xpE,ypE]).T)
+	earth_projected_orbit.set_offsets(np.column_stack([xpE,ypE]))
 	earth_projected_orbit.set_facecolor(colmap.to_rgba(ydata))
 	# earth_projected_orbit.set_ydata(ypE)
-	defl_line.set_offsets(np.array([xD,yD]).T)
+	defl_line.set_offsets(np.column_stack([xD,yD]))
 	defl_line.set_facecolor(colmap.to_rgba(ydata))
+
+	co_lines.set_segments(np.reshape(np.column_stack(np.array([xD, yD, xpE, ypE])), (377,2,2)))
+	co_lines.set_array(ydata)
 
 	# defl_line.set_ydata(yD)
 	fig.canvas.draw_idle()
