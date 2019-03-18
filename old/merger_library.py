@@ -78,9 +78,7 @@ def load_macho_field(field):
 
 
 
-
-
-def generate_microlensing_parameters(seed, blending=False):
+def generate_microlensing_parameters(seed, blending=False, parallax=False):
 	tmin = 48928
 	tmax = 52697
 	seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
@@ -94,4 +92,9 @@ def generate_microlensing_parameters(seed, blending=False):
 			blend_factors[key]=np.random.uniform(0, 0.7)
 		else:
 			blend_factors[key]=0
-	return u0, t0, tE, blend_factors
+	theta = 0
+	delta_u = 0
+	if parallax:
+		theta = np.random.uniform(0, 2*np.pi)
+		delta_u = np.random.uniform(0,1)
+	return u0, t0, tE, blend_factors, delta_u, theta
