@@ -1,10 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, Button
 import matplotlib.patches as malptch
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 from matplotlib.collections import LineCollection
+import matplotlib.animation as animation
+import astropy.units as u
+import astropy.constants as const
 
 def microlensing_amplification(t, u0, t0, tE):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
@@ -85,12 +88,13 @@ def u_earth(ti, delta_u):
 def u_deflector(ti, theta, tE, u0, t0):
 	return [[0, -u0*np.sin(theta)+(ti-t0)/tE*np.cos(theta)], [0, u0*np.cos(theta)+(ti-t0)/tE*np.sin(theta)]]
 
-fig, axs = plt.subplots(1,2)
-ax0 = axs[0]
-ax1 = axs[1]
-
-fig3 =  plt.figure()
-ax3 = fig3.gca()
+#fig, axs = plt.subplots(1,2)
+# ax0 = axs[0]
+# ax1 = axs[1]
+fig = plt.figure()
+fig3 = plt.figure()
+ax0 = fig.gca()
+ax1 = fig3.gca()
 
 time = np.arange(48928, 52697, 10)
 u0=0.5
@@ -108,12 +112,24 @@ params = {
 	'ti':t0
 }
 
+physical_params = {
+	"M_D": 10,
+	"D_S": 50,
+	"x": 0.2,
+	"v_T": 10
+}
+
+physical_params_units={
+	"M_D":u.solMass,
+	"D_S": u.kpc,
+	"x":u.m/u.m,
+	"v_T":u.km/u.s
+}
+
 vec_earth, = ax1.plot(*u_earth(t0, params["delta_u"]), marker='o')
 deflector_position = u_deflector(t0, params["theta"], params["tE"], params["u0"], params["t0"])
 vec_defle, = ax1.plot(*deflector_position, marker='o')
-ax3.set_xlim(-2,2)
-ax3.set_ylim(-2,2)
-ax3.set_aspect('equal')
+
 
 a = microlens(time, params.values())
 line, = ax0.plot(time,  a, color='black', linewidth=0.5)
@@ -145,17 +161,53 @@ magslider_ax = fig2.add_axes([0.25, 0.2, 0.65, 0.03])
 magslider = Slider(magslider_ax, 'mag', 10, 23, valinit=mag)
 
 delta_uslider_ax = fig2.add_axes([0.25, 0.25, 0.65, 0.03])
-delta_uslider = Slider(delta_uslider_ax, 'delta_u', 0, 2, valinit=0)
+delta_uslider = Slider(delta_uslider_ax, 'delta_u', 0, 1, valinit=0)
 
-ti_slider_ax = fig2.add_axes([0.25, 0.3, 0.65, 0.03])
-ti_slider = Slider(ti_slider_ax, 't_i', 48000, 53000, valinit=params["t0"])
-
-theta_slider_ax = fig2.add_axes([0.25, 0.4, 0.65, 0.03])
+theta_slider_ax = fig2.add_axes([0.25, 0.3, 0.65, 0.03])
 theta_slider = Slider(theta_slider_ax, 'theta', 0., 360., valinit=10)
 
-blend_slider_ax = fig2.add_axes([0.25, 0.45, 0.65, 0.03])
+blend_slider_ax = fig2.add_axes([0.25, 0.35, 0.65, 0.03])
 blend_slider = Slider(blend_slider_ax, 'blend', 0., 1, valinit=0.)
 
+ti_slider_ax = fig2.add_axes([0.25, 0.5, 0.65, 0.03])
+ti_slider = Slider(ti_slider_ax, 't_i', 48000, 53000, valinit=params["t0"])
+
+MD_slider_ax = fig2.add_axes([0.25, 0.6, 0.65, 0.03])
+MD_slider = Slider(MD_slider_ax, 'Deflector mass (solmass)', 10, 1000, valinit=physical_params["M_D"])
+
+DS_slider_ax = fig2.add_axes([0.25, 0.65, 0.65, 0.03])
+DS_slider = Slider(DS_slider_ax, 'Source distance (kpc)', 10, 100, valinit=physical_params["D_S"])
+
+x_slider_ax = fig2.add_axes([0.25, 0.7, 0.65, 0.03])
+x_slider = Slider(x_slider_ax, 'distance ratio', 0, 1, valinit=physical_params["x"])
+
+vT_slider_ax = fig2.add_axes([0.25, 0.75, 0.65, 0.03])
+vT_slider = Slider(vT_slider_ax, 'Deflector transverse speed (km/s)', -100, 100, valinit=physical_params["v_T"])
+
+but1_ax = fig2.add_axes([0.25, 0.8, 0.65, 0.03])
+but1 = Button(but1_ax, "Print")
+
+def update_params_from_physical():
+	r_E = np.sqrt(4*const.G*physical_params["M_D"]*physical_params_units["M_D"]/const.c**2 * physical_params["D_S"]*physical_params_units["D_S"]*physical_params["x"]*(1-physical_params["x"]))
+	params["tE"] = (r_E/(physical_params["v_T"]*physical_params_units["v_T"])).to(u.d).value
+	params["delta_u"] = (1*u.au*(1-physical_params["x"])/r_E *u.rad).decompose().value
+	tEslider.set_val(params["tE"])
+	delta_uslider.set_val(params["delta_u"])
+
+def update_MD(val):
+	physical_params["M_D"] = val
+	update_params_from_physical()
+	update_graph()
+
+def update_vT(val):
+	physical_params["v_T"] = val
+	update_params_from_physical()
+	update_graph()
+
+def update_x(val):
+	physical_params["x"] = val
+	update_params_from_physical()
+	update_graph()
 
 def update_u0(val):
 	params["u0"] = val
@@ -189,7 +241,13 @@ def update_ti(val):
 	params['ti'] = val
 	update_graph()
 
+def print_all(val):
+	print(params)
+	print(physical_params)
+	print()
+
 def update_graph():
+
 	ydata = microlens(time, params.values())
 	line.set_ydata(ydata)
 	#ax0.set_ylim(ydata.max()+1, ydata.min()-1)
@@ -217,6 +275,7 @@ def update_graph():
 
 	# defl_line.set_ydata(yD)
 	fig.canvas.draw_idle()
+	fig2.canvas.draw_idle()
 	fig3.canvas.draw_idle()
 
 u0slider.on_changed(update_u0)
@@ -227,6 +286,10 @@ magslider.on_changed(update_mag)
 delta_uslider.on_changed(update_delta_u)
 theta_slider.on_changed(update_theta)
 blend_slider.on_changed(update_blend)
+MD_slider.on_changed(update_MD)
+x_slider.on_changed(update_x)
+vT_slider.on_changed(update_vT)
+but1.on_clicked(print_all)
 ax0.set_ylim(10, 20)
 ax0.invert_yaxis()
 plt.show()
