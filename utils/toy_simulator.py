@@ -109,7 +109,8 @@ params = {
 }
 
 vec_earth, = ax1.plot(*u_earth(t0, params["delta_u"]), marker='o')
-vec_defle, = ax1.plot(*u_deflector(t0, params["theta"], params["tE"], params["u0"], params["t0"]), marker='o')
+deflector_position = u_deflector(t0, params["theta"], params["tE"], params["u0"], params["t0"])
+vec_defle, = ax1.plot(*deflector_position, marker='o')
 ax3.set_xlim(-2,2)
 ax3.set_ylim(-2,2)
 ax3.set_aspect('equal')
@@ -120,11 +121,13 @@ xD, yD, xpE, ypE = projected_plan(time, params.values())
 defl_line = ax1.scatter(xD, yD, c=a, s=10)
 earth_projected_orbit = ax1.scatter(xpE, ypE, c=a, s=1)
 current_ampli, = ax0.plot(params["ti"], microlens(params["ti"], params.values()), marker="o", markersize=10, color='red')
+einstein_radius = malptch.Circle((deflector_position[0][1], deflector_position[1][1]), 1 , fill=False, color="black")
+
 
 # co_lines = LineCollection(np.reshape(np.column_stack(np.array([xD, yD, xpE, ypE])), (377,2,2)), linewidth=14./a, cmap=plt.get_cmap('Reds_r'), alpha=0.5)
 # co_lines.set_array(a)
 # ax1.add_collection(co_lines)
-# ax1.add_patch(malptch.Circle((0,0),1, fill=False, color="black"))
+ax1.add_patch(einstein_radius)
 ax1.axis("equal")
 
 fig2 = plt.figure()
@@ -202,9 +205,12 @@ def update_graph():
 	defl_line.set_facecolor(colmap.to_rgba(ydata))
 
 	vec_earth.set_data(*u_earth(params["ti"], params["delta_u"]))
-	vec_defle.set_data(*u_deflector(params["ti"], params["theta"], params["tE"], params["u0"], params["t0"]))
+	deflector_position = u_deflector(params["ti"], params["theta"], params["tE"], params["u0"], params["t0"])
+	vec_defle.set_data(*deflector_position)
 
 	current_ampli.set_data(params["ti"], microlens(params["ti"], params.values()))
+
+	einstein_radius.center = deflector_position[0][1], deflector_position[1][1]
 
 	# co_lines.set_segments(np.reshape(np.column_stack(np.array([xD, yD, xpE, ypE])), (377,2,2)))
 	# co_lines.set_array(ydata)
