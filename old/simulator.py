@@ -18,8 +18,11 @@ def ma_parallax(t, u0, t0, tE, delta_u, theta):
 	epsilon = (90. - 66.56070833)*np.pi/180.
 	t_origin = 58747 #(21 septembre 2019)
 	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
-	beta = np.arcsin(sin_beta)
-	lambda_star = np.arcsin((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta))
+	beta = np.arcsin(sin_beta) #ok because beta is in -pi/2; pi/2
+	if abs(beta)==np.pi/2:
+		lambda_star = 0
+	else:
+		lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
 	tau = (t-t0)/tE
 	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
 	u_D = np.array([ 
