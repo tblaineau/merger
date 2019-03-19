@@ -113,10 +113,10 @@ params = {
 }
 
 physical_params = {
-	"M_D": 10,
-	"D_S": 50,
-	"x": 0.2,
-	"v_T": 10
+	"M_D": 100,
+	"D_S": 55,
+	"x": 0.5,
+	"v_T": 150
 }
 
 physical_params_units={
@@ -173,7 +173,7 @@ ti_slider_ax = fig2.add_axes([0.25, 0.5, 0.65, 0.03])
 ti_slider = Slider(ti_slider_ax, 't_i', 48000, 53000, valinit=params["t0"])
 
 MD_slider_ax = fig2.add_axes([0.25, 0.6, 0.65, 0.03])
-MD_slider = Slider(MD_slider_ax, 'Deflector mass (solmass)', 10, 1000, valinit=physical_params["M_D"])
+MD_slider = Slider(MD_slider_ax, 'Deflector mass (solmass)', 1, 1000, valinit=physical_params["M_D"])
 
 DS_slider_ax = fig2.add_axes([0.25, 0.65, 0.65, 0.03])
 DS_slider = Slider(DS_slider_ax, 'Source distance (kpc)', 10, 100, valinit=physical_params["D_S"])
@@ -182,7 +182,7 @@ x_slider_ax = fig2.add_axes([0.25, 0.7, 0.65, 0.03])
 x_slider = Slider(x_slider_ax, 'distance ratio', 0, 1, valinit=physical_params["x"])
 
 vT_slider_ax = fig2.add_axes([0.25, 0.75, 0.65, 0.03])
-vT_slider = Slider(vT_slider_ax, 'Deflector transverse speed (km/s)', -100, 100, valinit=physical_params["v_T"])
+vT_slider = Slider(vT_slider_ax, 'Deflector transverse speed (km/s)', -200, 200, valinit=physical_params["v_T"])
 
 but1_ax = fig2.add_axes([0.25, 0.8, 0.65, 0.03])
 but1 = Button(but1_ax, "Print")
@@ -206,6 +206,11 @@ def update_vT(val):
 
 def update_x(val):
 	physical_params["x"] = val
+	update_params_from_physical()
+	update_graph()
+
+def update_DS(val):
+	physical_params["D_S"] = val
 	update_params_from_physical()
 	update_graph()
 
@@ -287,6 +292,7 @@ delta_uslider.on_changed(update_delta_u)
 theta_slider.on_changed(update_theta)
 blend_slider.on_changed(update_blend)
 MD_slider.on_changed(update_MD)
+DS_slider.on_changed(update_DS)
 x_slider.on_changed(update_x)
 vT_slider.on_changed(update_vT)
 but1.on_clicked(print_all)
