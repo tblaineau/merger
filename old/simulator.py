@@ -12,19 +12,19 @@ def microlensing_amplification(t, u0, t0, tE):
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
 def ma_parallax(t, u0, t0, tE, delta_u, theta):
-	PERIOD_EARTH = 365.2422
+	year = 365.2422
 	alphaS = 80.8941667*np.pi/180.
 	deltaS = -69.7561111*np.pi/180.
 	epsilon = (90. - 66.56070833)*np.pi/180.
 	t_origin = 58747 #(21 septembre 2019)
 	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
-	beta = np.arcsin(sin_beta) #ok because beta is in -pi/2; pi/2
+	beta = np.arcsin(sin_beta) #ok because beta is in [-pi/2; pi/2]
 	if abs(beta)==np.pi/2:
 		lambda_star = 0
 	else:
 		lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
 	tau = (t-t0)/tE
-	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
+	phi = 2*np.pi * (t-t_origin)/year - lambda_star
 	u_D = np.array([ 
 		-u0*np.sin(theta) + tau*np.cos(theta),
 		 u0*np.cos(theta) + tau*np.sin(theta)
@@ -57,9 +57,10 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, pa
 	
 	Keyword Arguments:
 		blending {bool} -- Simulate blending or not (default: {False})
+		parallax {bool} -- Simulate parallax or not (defualt: {False})
 	
 	Returns:
-		DataFrame -- New star with a µlens event
+		DataFrame -- New star with a µlens event (contains two new columns per filter : 1 for magnitudes, 1 for errors)
 	"""
 
 	#Remove anomalous values of magnitudes
@@ -75,7 +76,7 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, pa
 		# means[key] = raw_stats_df.loc[current_id][color_filter['mag']]	# <---- use baseline from "raw stats"
 		means[key] = subdf[color_filter['mag']].mean() # <---- use mean as baseline
 
-	#amplification mulitplier
+	#Generate µlens parameters
 	u0, t0, tE, blend_factors, delta_u, theta = generate_microlensing_parameters(current_id, blending=blending, parallax=parallax)
 	if parallax:
 		A = ma_parallax(subdf.time, u0, t0, tE, delta_u, theta)
@@ -85,7 +86,6 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, pa
 
 	for key, color_filter in COLOR_FILTERS.items():
 		#phi_th is the lightcurve with perfect measurements (computed from original baseline)
-		#phi_th = means[key] - 2.5*np.log10(A[conditions[key]])
 		phi_th = -2.5*np.log10(np.power(10, means[key]/-2.5)*blend_factors[key] + np.power(10, means[key]/-2.5)*(1-blend_factors[key])*A[conditions[key]])
 		norm = sigmag.get_sigma_base(means[key]) / sigmag.get_sigma_base(phi_th)
 
