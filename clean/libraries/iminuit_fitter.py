@@ -11,7 +11,7 @@ def microlensing_event(t, u0, t0, tE, mag1):
 	return -2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1 
 
 def fit_ml(subdf, cut5=False):
-	"""[summary]
+	"""Fit on one star
 	
 	[description]
 	
