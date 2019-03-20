@@ -30,6 +30,7 @@ SCALE_WIDTH = 3
 def gaussian(x, mu, sig, A):
 	return A/np.sqrt(2*np.pi*sig**2)*np.exp(-(x-mu)**2/(2*sig**2))
 
+counter = 0
 def compute_baselines(df):
 	if len(df)==0:
 		return np.nan, np.nan
@@ -39,22 +40,24 @@ def compute_baselines(df):
 	for r, e in zip(df.mag, df.err):
 		y+=stats.norm.pdf(x, loc=r, scale=SCALE_WIDTH*e)
 
-
-	def minimize_gaussian(mu, sigma, A):
-		return np.sum((gaussian(x, mu, sigma, A)-y)**2)
+	phibar = np.max(y)
+	return phibar, np.sum((df.mag-phibar)**2/len(df.mag))
+	# def minimize_gaussian(mu, sigma, A):
+	# 	return np.sum((gaussian(x, mu, sigma, A)-y)**2)
 	
-	m = Minuit(minimize_gaussian, 
-				mu=df.mag.mean(), 
-				sigma=1, 
-				A=1000, error_mu=1, error_sigma=0.5, error_A=100, errordef=1, print_level=0)
-	fmin, param = m.migrad()
-	if m.get_fmin().is_valid:
-		return m.values['mu'], np.sum((df.mag-m.values['mu'])**2/len(df.mag))
-	else:
-		return np.nan, np.nan
+	# m = Minuit(minimize_gaussian, 
+	# 			mu=df.mag.mean(), 
+	# 			sigma=1, 
+	# 			A=1000, error_mu=1, error_sigma=0.5, error_A=100, errordef=1, print_level=0)
+	# fmin, param = m.migrad()
+	# if m.get_fmin().is_valid:
+	# 	return m.values['mu'], np.sum((df.mag-m.values['mu'])**2/len(df.mag))
+	# else:
+	# 	return np.nan, np.nan
 
 def mag_stats(df):
 	""" Take df with columns names [id_E, mag, err] and return baseline and std deviation"""
+	# WITH FIT
 	# ms = []
 	# counter=0
 	# for name, group in df.groupby("id_E"):
@@ -63,7 +66,7 @@ def mag_stats(df):
 	# 	print(str(counter)+" : " +name, end="\r")
 	# 	for key, cf in COLOR_FILTERS.items():
 	# 		c = group[cf['mag']].notnull() & (group[cf['err']]>0) & (group[cf['err']]<9.999)
-	# 		line+=compute_magstats(group[c][[cf['mag'], cf['err']]].rename(columns={cf['mag']:'mag', cf['err']:'err'}))
+	# 		line+=compute_baselines(group[c][[cf['mag'], cf['err']]].rename(columns={cf['mag']:'mag', cf['err']:'err'}))
 	# 	ms.append(line)
 
 	# ms = pd.DataFrame(ms)
@@ -74,48 +77,61 @@ def mag_stats(df):
 	# ms.columns = col_names
 	# return ms
 	
+	#WITH AMXIMUM
+	def compute_magstats(subdf):
+		line=[]
+		global counter
+		counter+=1
+		print(str(counter)+" : " +subdf.name, end="\r")
+		for key, cf in COLOR_FILTERS.items():
+			c = subdf[subdf[cf['mag']].notnull() & (subdf[cf['err']]>0) & (subdf[cf['err']]<9.999)]
+			if len(c)==0:
+				line+=[np.nan, np.nan]
+			else:
+				width = c[cf['mag']].max()-c[cf['mag']].min()
+				x=np.linspace(c[cf['mag']].min()-width, c[cf['mag']].max()+width, NB_POINTS)
+				xc = np.zeros(len(c))
+				x = x[:,None]+xc[None,:]
+				# x=np.repeat(x[:,np.newaxis], len(c), axis=1)
+				y = stats.norm.pdf(x, loc=c[cf['mag']], scale=SCALE_WIDTH*c[cf['err']])
+				phibar = x[np.argmax(np.sum(y,axis=1)), 0]
+				line+=[phibar, np.sum((c[cf['mag']]-phibar)**2/len(c[cf['mag']]))]
+		return line
 
-	# Compute mean and standard deviation (simple) for each filters
-	
-	stats_list = []
-	for key, cf in COLOR_FILTERS.items():
-		c = df[cf['mag']].notnull() & (df[cf['err']]>0) & (df[cf['err']]<9.999)
-		stats_list.append(df[c].groupby('id_E')[cf['mag']].agg(['mean', 'std']))
-	ms = stats_list[0]
-	for e in stats_list[1:]:
-		ms = ms.merge(e, on='id_E')
-	
+	ms = df.groupby("id_E").apply(compute_magstats)
+	ms = pd.DataFrame.from_items(zip(ms.index, ms.values)).T
 	col_names = []
 	for key, value in COLOR_FILTERS.items():
 		col_names.append('bl_'+key)
 		col_names.append('std_'+key)
-	print(ms.columns)
 	ms.columns = col_names
+	ms.index.name='id_E'
 	return ms
+
+	# Compute mean and standard deviation (simple) for each filters
+	
+	# stats_list = []
+	# for key, cf in COLOR_FILTERS.items():
+	# 	c = df[cf['mag']].notnull() & (df[cf['err']]>0) & (df[cf['err']]<9.999)
+	# 	stats_list.append(df[c].groupby('id_E')[cf['mag']].agg(['mean', 'std']))
+	# ms = stats_list[0]
+	# for e in stats_list[1:]:
+	# 	ms = ms.merge(e, on='id_E')
+	
+	# col_names = []
+	# for key, value in COLOR_FILTERS.items():
+	# 	col_names.append('bl_'+key)
+	# 	col_names.append('std_'+key)
+	# print(ms.columns)
+	# ms.columns = col_names
+	# return ms
 
 
 ###################### LOAD TEST DATA
 
-# ef = pd.read_pickle("/Volumes/DisqueSauvegarde/working_dir/full_lm0322n")
-# ef = ef.replace(to_replace=99.999, value=np.nan).dropna(axis=0, how='all', subset=['blue_E', 'red_E'])
-# start = time.time()
-# mf = load_macho_tiles(49, [6382])
-# # mf["id_M"] = mf[["id1", "id2", "id3"]].apply(lambda x: ':'.join([str(i) for i in x]), axis=1)
-# # mf.drop(["id1", "id2", "id3"], axis=1, inplace=True)
-# mf = mf.replace(to_replace=-99., value=np.nan).dropna(axis=0, how='all', subset=['blue_M', 'red_M'])
-# print(str(time.time()-start)+" seconds to load MACHO data.")
-# correspondance_path="/Users/tristanblaineau/49.txt"
-# correspondance = pd.read_csv(correspondance_path, names=["id_E", "id_M"], usecols=[0, 3], sep=' ')
-# merged1 = ef.merge(correspondance, on="id_E", validate="m:1")
-# del ef
-# merged2 = mf.merge(correspondance, on='id_M', validate="m:1")
-# del mf
-# merged = pd.concat((merged1, merged2))
-
-
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
-merged=pd.read_pickle(WORKING_DIR_PATH+"49_lm0322.pkl")
+merged=pd.read_pickle(WORKING_DIR_PATH+"5_lm0103.pkl")
 
 merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0 and x.blue_E.count()!=0 and x.red_M.count()!=0 and x.blue_M.count()!=0)
 
@@ -123,4 +139,4 @@ start = time.time()
 ms = mag_stats(merged)
 print(str(time.time()-start)+" seconds elapsed.")
 
-ms.to_pickle(WORKING_DIR_PATH+'ms_temp_lm0322')
+ms.to_pickle(WORKING_DIR_PATH+'ms_5_lm0103.pkl')
