@@ -41,7 +41,7 @@ def parallax_microlensing_event(t, mag, u0, t0, tE, delta_u, theta):
 def parallax_blend_microlensing_event(t, mag, blend, u0, t0, tE, delta_u, theta):
 	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax(t, mag, u0, t0, tE, delta_u, theta))
 
-def fit_ml(subdf):
+def fit_ml(subdf, parallax=False):
 	#sélection des données, pas plus de 10% du temps de calcul en moyenne (0.01s vs 0.1s)
 	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
 
@@ -82,77 +82,77 @@ def fit_ml(subdf):
 	timeRM = subdf[maskRM][crm].time.values
 	timeBM = subdf[maskBM][cbm].time.values
 
-	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
-		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
-		lsq2 = np.sum(((magBE - microlensing_event(timeBE, u0, t0, tE, magStarBE))/ errBE)**2)
-		lsq3 = np.sum(((magRM - microlensing_event(timeRM, u0, t0, tE, magStarRM))/ errRM)**2)
-		lsq4 = np.sum(((magBM - microlensing_event(timeBM, u0, t0, tE, magStarBM))/ errBM)**2)
-		return lsq1+lsq2+lsq3+lsq4
-
 	def least_squares_flat(f_magStarRE, f_magStarBE, f_magStarRM, f_magStarBM):
 		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
 
-	# def ls_parallax(params):
-	# 	u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM, delta_u, theta = params
-	# 	lsq1 = np.sum(((magRE - parallax_microlensing_event(timeRE, magStarRE, u0, t0, tE, delta_u, theta))/ errRE)**2)
-	# 	lsq2 = np.sum(((magBE - parallax_microlensing_event(timeBE, magStarBE, u0, t0, tE, delta_u, theta))/ errBE)**2)
-	# 	lsq3 = np.sum(((magRM - parallax_microlensing_event(timeRM, magStarRM, u0, t0, tE, delta_u, theta))/ errRM)**2)
-	# 	lsq4 = np.sum(((magBM - parallax_microlensing_event(timeBM, magStarBM, u0, t0, tE, delta_u, theta))/ errBM)**2)
-	# 	return lsq1+lsq2+lsq3+lsq4
+	if parallax:
+		def ls_parallax(params):
+			u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM, delta_u, theta = params
+			lsq1 = np.sum(((magRE - parallax_microlensing_event(timeRE, magStarRE, u0, t0, tE, delta_u, theta))/ errRE)**2)
+			lsq2 = np.sum(((magBE - parallax_microlensing_event(timeBE, magStarBE, u0, t0, tE, delta_u, theta))/ errBE)**2)
+			lsq3 = np.sum(((magRM - parallax_microlensing_event(timeRM, magStarRM, u0, t0, tE, delta_u, theta))/ errRM)**2)
+			lsq4 = np.sum(((magBM - parallax_microlensing_event(timeBM, magStarBM, u0, t0, tE, delta_u, theta))/ errBM)**2)
+			return lsq1+lsq2+lsq3+lsq4
 
-	# params_names = ["u0", "t0", "tE", "magStarRE", "magStarBE", "magStarRM", "magStarBM", "delta_u", "theta"]
-	# params_init = {
-	# 	"u0":0.5, 
-	# 	"t0":50000, 
-	# 	"tE":1000, 
-	# 	"magStarRE":magRE.mean(), 
-	# 	"magStarBE":magBE.mean(), 
-	# 	"magStarRM":magRM.mean(), 
-	# 	"magStarBM":magBM.mean(), 
-	# 	"delta_u":0,
-	# 	"theta":0,
-	# 	"error_u0":0.1, 
-	# 	"error_t0":5000, 
-	# 	"error_tE":100, 
-	# 	"error_magStarRE":2, 
-	# 	"error_magStarBE":2., 
-	# 	"error_magStarRM":2., 
-	# 	"error_magStarBM":2., 
-	# 	"error_delta_u":0.05,
-	# 	"error_theta":0.5,
-	# 	"limit_u0":(0,2), 
-	# 	"limit_tE":(-10000, 10000),
-	# 	"limit_t0":(40000, 60000),
-	# 	"limit_delta_u":(0, None),
-	# 	"limit_theta":(0, 2*np.pi)
-	# }
-	# m_micro = Minuit(ls_parallax, 
-	# 	forced_parameters=params_names, 
-	# 	print_level=0, 
-	# 	errordef=1, 
-	# 	use_array_call=True,
-	# 	 **params_init)
-
-	m_micro = Minuit(least_squares_microlens, 
-		u0=1., 
-		t0=50000, 
-		tE=500, 
-		magStarRE=magRE.mean(), 
-		magStarBE=magBE.mean(), 
-		magStarRM=magRM.mean(), 
-		magStarBM=magBM.mean(), 
-		error_u0=0.1, 
-		error_t0=5000, 
-		error_tE=100, 
-		error_magStarRE=2, 
-		error_magStarBE=2., 
-		error_magStarRM=2., 
-		error_magStarBM=2., 
-		limit_u0=(0,2), 
-		limit_tE=(300, 10000),
-		limit_t0=(40000, 60000),#(48927, 52698)
-		errordef=1,
-		print_level=0)
+		params_names = ["u0", "t0", "tE", "magStarRE", "magStarBE", "magStarRM", "magStarBM", "delta_u", "theta"]
+		params_init = {
+			"u0":0.5, 
+			"t0":50000, 
+			"tE":1000, 
+			"magStarRE":magRE.mean(), 
+			"magStarBE":magBE.mean(), 
+			"magStarRM":magRM.mean(), 
+			"magStarBM":magBM.mean(), 
+			"delta_u":0,
+			"theta":0,
+			"error_u0":0.1, 
+			"error_t0":5000, 
+			"error_tE":100, 
+			"error_magStarRE":2, 
+			"error_magStarBE":2., 
+			"error_magStarRM":2., 
+			"error_magStarBM":2., 
+			"error_delta_u":0.05,
+			"error_theta":0.5,
+			"limit_u0":(0,2), 
+			"limit_tE":(-10000, 10000),
+			"limit_t0":(40000, 60000),
+			"limit_delta_u":(0, None),
+			"limit_theta":(0, 2*np.pi)
+		}
+		m_micro = Minuit(ls_parallax, 
+			forced_parameters=params_names, 
+			print_level=0, 
+			errordef=1, 
+			use_array_call=True,
+			 **params_init)
+	else:
+		def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
+			lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
+			lsq2 = np.sum(((magBE - microlensing_event(timeBE, u0, t0, tE, magStarBE))/ errBE)**2)
+			lsq3 = np.sum(((magRM - microlensing_event(timeRM, u0, t0, tE, magStarRM))/ errRM)**2)
+			lsq4 = np.sum(((magBM - microlensing_event(timeBM, u0, t0, tE, magStarBM))/ errBM)**2)
+			return lsq1+lsq2+lsq3+lsq4
+		m_micro = Minuit(least_squares_microlens, 
+			u0=1., 
+			t0=50000, 
+			tE=500, 
+			magStarRE=magRE.mean(), 
+			magStarBE=magBE.mean(), 
+			magStarRM=magRM.mean(), 
+			magStarBM=magBM.mean(), 
+			error_u0=0.1, 
+			error_t0=5000, 
+			error_tE=100, 
+			error_magStarRE=2, 
+			error_magStarBE=2., 
+			error_magStarRM=2., 
+			error_magStarBM=2., 
+			limit_u0=(0,2), 
+			limit_tE=(300, 10000),
+			limit_t0=(40000, 60000),#(48927, 52698)
+			errordef=1,
+			print_level=0)
 
 	m_flat = Minuit(least_squares_flat, 
 		f_magStarRE=magRE.mean(), 
