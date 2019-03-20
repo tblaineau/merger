@@ -10,7 +10,20 @@ def microlensing_event(t, u0, t0, tE, mag1):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
 	return -2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1 
 
-def fit_ml(subdf):
+def fit_ml(subdf, cut5=False):
+	"""[summary]
+	
+	[description]
+	
+	Arguments:
+		subdf {dataframe} -- Lightcurves data
+	
+	Keyword Arguments:
+		cut5 {bool} -- If True, clean aberrant points using distance from median of 5 points (default: {False})
+	
+	Returns:
+		series -- Contains parameters for the microlensing and flat curve fits, their chi2, informations on the fitter (fmin) and dof.
+	"""
 
 	#sélection des données, pas plus de 10% du temps de calcul en moyenne (0.01s vs 0.1s)
 	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
@@ -52,26 +65,8 @@ def fit_ml(subdf):
 	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]<5
 
 	tolerance_ratio = 0.9
-	if ((cut5RE.sum()/len(cut5RE)<tolerance_ratio and cut5BE.sum()/len(cut5BE)<tolerance_ratio) 
+	if cut5 and not ((cut5RE.sum()/len(cut5RE)<tolerance_ratio and cut5BE.sum()/len(cut5BE)<tolerance_ratio) 
 		or (cut5BM.sum()/len(cut5BM)<tolerance_ratio and cut5RM.sum()/len(cut5RM)<tolerance_ratio)):
-	
-		timeRE = subdf[maskRE][cre].time.values
-		timeBE = subdf[maskBE][cbe].time.values
-		timeRM = subdf[maskRM][crm].time.values
-		timeBM = subdf[maskBM][cbm].time.values
-
-		errRE = errRE.values
-		errBE = errBE.values
-		errRM = errRM.values
-		errBM = errBM.values
-
-		magRE = magRE.values
-		magBE = magBE.values
-		magRM = magRM.values
-		magBM = magBM.values
-		print("too much on "+subdf.id_M.iloc[0])
-
-	else:
 		timeRE = subdf[maskRE][cre][cut5RE].time.values
 		timeBE = subdf[maskBE][cbe][cut5BE].time.values
 		timeRM = subdf[maskRM][crm][cut5RM].time.values
@@ -87,6 +82,22 @@ def fit_ml(subdf):
 		magRM = magRM[cut5RM].values
 		magBM = magBM[cut5BM].values
 
+	else:
+		timeRE = subdf[maskRE][cre].time.values
+		timeBE = subdf[maskBE][cbe].time.values
+		timeRM = subdf[maskRM][crm].time.values
+		timeBM = subdf[maskBM][cbm].time.values
+
+		errRE = errRE.values
+		errBE = errBE.values
+		errRM = errRM.values
+		errBM = errBM.values
+
+		magRE = magRE.values
+		magBE = magBE.values
+		magRM = magRM.values
+		magBM = magBM.values
+
 	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
 		lsq2 = np.sum(((magBE - microlensing_event(timeBE, u0, t0, tE, magStarBE))/ errBE)**2)
@@ -98,13 +109,13 @@ def fit_ml(subdf):
 		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
 
 	m_micro = Minuit(least_squares_microlens, 
-		u0=0.5, 
+		u0=1., 
 		t0=50000, 
-		tE=1000, 
-		magStarRE=20, 
-		magStarBE=20, 
-		magStarRM=-4, 
-		magStarBM=-4, 
+		tE=500, 
+		magStarRE=magRE.mean(), 
+		magStarBE=magBE.mean(), 
+		magStarRM=magRM.mean(), 
+		magStarBM=magBM.mean(), 
 		error_u0=0.1, 
 		error_t0=5000, 
 		error_tE=100, 
@@ -119,10 +130,10 @@ def fit_ml(subdf):
 		print_level=0)
 
 	m_flat = Minuit(least_squares_flat, 
-		f_magStarRE=20, 
-		f_magStarBE=20, 
-		f_magStarRM=-4, 
-		f_magStarBM=-4, 
+		f_magStarRE=magRE.mean(), 
+		f_magStarBE=magBE.mean(), 
+		f_magStarRM=magRM.mean(), 
+		f_magStarBM=magBM.mean(), 
 		error_f_magStarRE=2, 
 		error_f_magStarBE=2., 
 		error_f_magStarRM=2., 
@@ -138,14 +149,14 @@ def fit_ml(subdf):
 	#print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
 	return pd.Series(
 
-		m_micro.values.values()+[m_micro.get_fmin().is_valid, m_micro.fval] 
+		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval] 
 		+ 
-		m_flat.values.values()+[m_flat.get_fmin().is_valid, m_flat.fval]
+		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
 		+[len(errRE)+len(errBE)+len(errRM)+len(errBM)], 
 
-		index=m_micro.values.keys()+['micro_valid', 'micro_fval']
+		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
-		m_flat.values.keys()+['flat_valid', 'flat_fval']
+		m_flat.values.keys()+['flat_fmin', 'flat_fval']
 		+["dof"]
 		)
 
