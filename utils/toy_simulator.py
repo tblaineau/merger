@@ -83,10 +83,10 @@ def u_earth(ti, delta_u):
 	print("Phi : " +str((phi*180/np.pi)%360))
 	print("Temps : "+str(ti-t_origin))
 	print()
-	return [[0, -delta_u*np.sin(phi)], [0, delta_u*np.cos(phi)*sin_beta]]
+	return [[-delta_u*np.sin(phi)], [delta_u*np.cos(phi)*sin_beta]]
 
 def u_deflector(ti, theta, tE, u0, t0):
-	return [[0, -u0*np.sin(theta)+(ti-t0)/tE*np.cos(theta)], [0, u0*np.cos(theta)+(ti-t0)/tE*np.sin(theta)]]
+	return [[-u0*np.sin(theta)+(ti-t0)/tE*np.cos(theta)], [u0*np.cos(theta)+(ti-t0)/tE*np.sin(theta)]]
 
 #fig, axs = plt.subplots(1,2)
 # ax0 = axs[0]
@@ -126,9 +126,9 @@ physical_params_units={
 	"v_T":u.km/u.s
 }
 
-vec_earth, = ax1.plot(*u_earth(t0, params["delta_u"]), marker='o')
+vec_earth, = ax1.plot(*u_earth(t0, params["delta_u"]), marker='o', linestyle='')
 deflector_position = u_deflector(t0, params["theta"], params["tE"], params["u0"], params["t0"])
-vec_defle, = ax1.plot(*deflector_position, marker='o')
+vec_defle, = ax1.plot(*deflector_position, marker='o', linestyle='')
 
 
 a = microlens(time, params.values())
@@ -137,7 +137,7 @@ xD, yD, xpE, ypE = projected_plan(time, params.values())
 defl_line = ax1.scatter(xD, yD, c=a, s=10)
 earth_projected_orbit = ax1.scatter(xpE, ypE, c=a, s=1)
 current_ampli, = ax0.plot(params["ti"], microlens(params["ti"], params.values()), marker="o", markersize=10, color='red')
-einstein_radius = malptch.Circle((deflector_position[0][1], deflector_position[1][1]), 1 , fill=False, color="black")
+einstein_radius = malptch.Circle((deflector_position[0][0], deflector_position[1][0]), 1 , fill=False, color="black")
 
 
 # co_lines = LineCollection(np.reshape(np.column_stack(np.array([xD, yD, xpE, ypE])), (377,2,2)), linewidth=14./a, cmap=plt.get_cmap('Reds_r'), alpha=0.5)
@@ -186,6 +186,8 @@ vT_slider = Slider(vT_slider_ax, 'Deflector transverse speed (km/s)', -200, 200,
 
 but1_ax = fig2.add_axes([0.25, 0.8, 0.65, 0.03])
 but1 = Button(but1_ax, "Print")
+but2_ax = fig2.add_axes([0.25, 0.85, 0.65, 0.03])
+but2 = Button(but2_ax, 'Play')
 
 def update_params_from_physical():
 	r_E = np.sqrt(4*const.G*physical_params["M_D"]*physical_params_units["M_D"]/const.c**2 * physical_params["D_S"]*physical_params_units["D_S"]*physical_params["x"]*(1-physical_params["x"]))
@@ -273,7 +275,7 @@ def update_graph():
 
 	current_ampli.set_data(params["ti"], microlens(params["ti"], params.values()))
 
-	einstein_radius.center = deflector_position[0][1], deflector_position[1][1]
+	einstein_radius.center = deflector_position[0][0], deflector_position[1][0]
 
 	# co_lines.set_segments(np.reshape(np.column_stack(np.array([xD, yD, xpE, ypE])), (377,2,2)))
 	# co_lines.set_array(ydata)
@@ -282,6 +284,14 @@ def update_graph():
 	fig.canvas.draw_idle()
 	fig2.canvas.draw_idle()
 	fig3.canvas.draw_idle()
+
+def play(val):
+	ti = 49000
+	dt=50
+	while ti<53000:
+		plt.pause(0.01)
+		ti+=dt
+		update_ti(ti)
 
 u0slider.on_changed(update_u0)
 t0slider.on_changed(update_t0)
@@ -296,6 +306,7 @@ DS_slider.on_changed(update_DS)
 x_slider.on_changed(update_x)
 vT_slider.on_changed(update_vT)
 but1.on_clicked(print_all)
+but2.on_clicked(play)
 ax0.set_ylim(10, 20)
 ax0.invert_yaxis()
 plt.show()
