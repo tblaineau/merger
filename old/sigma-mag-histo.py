@@ -27,7 +27,7 @@ from merger_library import *
 NB_POINTS = 1000
 SCALE_WIDTH = 3
 
-def gaussian(x, mu, sig, A):
+def gaussian(x, mu, sig, A=1.):
 	return A/np.sqrt(2*np.pi*sig**2)*np.exp(-(x-mu)**2/(2*sig**2))
 
 counter = 0
@@ -93,7 +93,8 @@ def mag_stats(df):
 				xc = np.zeros(len(c))
 				x = x[:,None]+xc[None,:]
 				# x=np.repeat(x[:,np.newaxis], len(c), axis=1)
-				y = stats.norm.pdf(x, loc=c[cf['mag']], scale=SCALE_WIDTH*c[cf['err']])
+				y = gaussian(x, c[cf['mag']].values, SCALE_WIDTH*c[cf['err']].values)
+				# y = stats.norm.pdf(x, loc=c[cf['mag']], scale=SCALE_WIDTH*c[cf['err']])
 				phibar = x[np.argmax(np.sum(y,axis=1)), 0]
 				line+=[phibar, np.sum((c[cf['mag']]-phibar)**2/len(c[cf['mag']]))]
 		return line
@@ -131,7 +132,7 @@ def mag_stats(df):
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
-merged=pd.read_pickle(WORKING_DIR_PATH+"5_lm0103.pkl")
+merged=pd.read_pickle(WORKING_DIR_PATH+"8_lm0213k.pkl")
 
 merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0 and x.blue_E.count()!=0 and x.red_M.count()!=0 and x.blue_M.count()!=0)
 
@@ -139,4 +140,4 @@ start = time.time()
 ms = mag_stats(merged)
 print(str(time.time()-start)+" seconds elapsed.")
 
-ms.to_pickle(WORKING_DIR_PATH+'ms_5_lm0103.pkl')
+ms.to_pickle(WORKING_DIR_PATH+'bs_8_lm0213k.pkl')
