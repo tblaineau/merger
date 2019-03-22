@@ -159,6 +159,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	# plt.scatter(ms[:,1], ms[:,2])
 	# plt.scatter(subdf["ae"], subdf["de"], s=1)
 	# plt.scatter(subdf["am"], subdf["dm"], s=1)
+	# plt.gca().axis('equal')
 	# plt.show()
 
 	# INRADIUS
@@ -191,14 +192,16 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	#translation
 	SCALE_LIMIT=1.1
 	neros_stars = eros_stars.set_index('id_E')
-	nmacho_stars = macho_stars.set_index('id_M')
+	nmacho_stars = subdf.set_index('id_M')
 
 	#m_quads = pd.DataFrame(m_quads, columns=['xc', 'yc', 'xd', 'yd', 'starA', 'starB', 'starC', 'starD', 'distAB'])
 	e_quads_tmp = pd.DataFrame(e_quads, columns=['xc', 'yc', 'xd', 'yd', 'starA', 'starB', 'starC', 'starD', 'distAB'])
 	e_quads_tmp.sort_values('distAB', inplace=True, ascending=False, kind='mergesort')
 	distind.reindex(e_quads_tmp.index, copy=False)
 
-	for row in distind.itertuples(name='star'):
+	bot = []
+
+	for row in distind.iloc[:10].itertuples(name='star'):
 		idx = row.Index
 		q1 = e_quads[idx]
 		q2 = m_quads[int(row.i1)]
@@ -218,17 +221,22 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 				subdf.loc[:,"t_am"] = subdf.loc[:,"am"]+at
 				subdf.loc[:,"t_dm"] = subdf.loc[:,"dm"]+dt
 
-				for idx in q1:
-					tmp = subdf[eros_stars.id_E==idx]
-					plt.scatter(tmp.t_am, tmp.t_dm, marker='x', color='green')
+				# for idx in q1:
+				# 	tmp = subdf[eros_stars.id_E==idx]
+				# 	plt.scatter(tmp.t_am, tmp.t_dm, marker='x', color='green')
 
 				subdf.loc[:,"t_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
 				subdf.loc[:,"t_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
 
-				subdf.loc[:,"s_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
-				subdf.loc[:,"s_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
+				# subdf.loc[:,"s_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
+				# subdf.loc[:,"s_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
 
-				theta = -np.arccos(np.dot(v1, v1prime)/(np.linalg.norm(v1)*np.linalg.norm(v1prime)))
+				theta = np.arccos(np.dot(v1, v1prime)/(np.linalg.norm(v1)*np.linalg.norm(v1prime)))
+				cross = np.cross(v1, v1prime)
+				print(cross)
+				plane = np.cross([1,0], [0, 1])
+				if (np.dot(plane, cross)<0):
+					theta = -theta
 				print(str(theta)+" <- theta")
 				print(str(scale)+" <- scale")
 				subdf.loc[:,"rot_am"] = (subdf.loc[:,"t_am"]-seA['ae'])*np.cos(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.sin(theta) + seA['ae']
@@ -252,40 +260,81 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 				print(str(np.percentile(dist2[mask1][:,0], 0.99))+"<- new dist")
 				print(str(curr_mean_dist)+"<- current_dist")
-				i=0
-				for idx in q2[[4,5,6,7]]:
-					i+=1
-					tmp = macho_stars[macho_stars.id_M==idx]
-					if len(tmp)>0:
-						plt.scatter(tmp.am, tmp.dm, marker='+', color='pink')
-						print(tmp.am.values)
-						plt.text(tmp.am.values, tmp.dm.values, s=str(i))
-				plt.scatter(seA['ae'], seA['de'], marker='o', color='black')
-				plt.scatter(seB['ae'], seB['de'], marker='o', color='black')
-				for idx in q1:
-					tmp = eros_stars[eros_stars.id_E==idx]
-					plt.scatter(tmp.ae, tmp.de, marker='+', color='blue')
-				for idx in q1:
-					tmp = subdf[eros_stars.id_E==idx]
-					plt.scatter(tmp.s_am, tmp.s_dm, marker='x', color='darkred')
-				for idx in q1:
-					tmp = subdf[eros_stars.id_E==idx]
-					plt.scatter(tmp.t_am, tmp.t_dm, marker='+', color='red')
-				#print_current(subdf, 't_')
-				fus, med = fusion(subdf.reset_index(drop=True).drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y'], axis=1), eros_stars, prefix='t_')
-				plt.scatter(fus["ae"], fus["de"], s=1)
-				plt.scatter(fus["t_am"], fus["t_dm"], s=1)
-				plt.gca().axis('equal')
-				plt.show()
-				print(str(med)+" <- returned median")
+				# i=0
+				# plt.scatter(subdf["am"], subdf["dm"], s=10, marker='o',color='gray')
+				# plt.scatter(es[:,1], es[:,2], marker='o', color='purple')
+				# plt.scatter(ms[:,1], ms[:,2], marker='o', color='pink')
+				# for idx in q2[[4,5,6,7]]:
+				# 	i+=1
+				# 	tmp = macho_stars[macho_stars.id_M==idx]
+				# 	if len(tmp)>0:
+				# 		plt.scatter(tmp.am, tmp.dm, marker='+', color='pink')
+				# 		print(tmp.am.values)
+				# 		plt.text(tmp.am.values, tmp.dm.values, s=str(i))
+				# plt.scatter(seA['ae'], seA['de'], marker='o', color='black')
+				# plt.scatter(seB['ae'], seB['de'], marker='o', color='black')
+				# for idx in q1:
+				# 	tmp = eros_stars[eros_stars.id_E==idx]
+				# 	plt.scatter(tmp.ae, tmp.de, marker='+', color='blue')
+				# for idx in q2:
+				# 	tmp = subdf[subdf.id_M==idx]
+				# 	plt.scatter(tmp.s_am, tmp.s_dm, marker='x', color='darkred')
+				# for idx in q2:
+				# 	tmp = subdf[subdf.id_M==idx]
+				# 	plt.scatter(tmp.t_am, tmp.t_dm, marker='+', color='red')
+
+				# fus, med = fusion(subdf.reset_index(drop=True).drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y'], axis=1), eros_stars, prefix='t_')
+				# print_current(fus, 't_')
+				# # plt.scatter(fus["ae"], fus["de"], s=1)
+				# # plt.scatter(fus["t_am"], fus["t_dm"], s=1)
+				# plt.gca().axis('equal')
+				# print(str(med)+" <- returned median")
+				# plt.show()
 
 				if curr_mean_dist==0:
 					curr_mean_dist = np.mean(dist2[mask1][:,0])
-				if np.percentile(dist2[mask1][:,0], 0.99) < 1./3600.:
-					# return pd.Series([seA['ae'], seA['de'], at, dt, scale, q1, q2, theta], index=["a0", "d0", "at", "dt", "scale", "q1", "q2", "theta"])
-					subdf.loc[:,"am"] = subdf.loc[:,"t_am"]
-					subdf.loc[:,"dm"] = subdf.loc[:,"t_dm"]
-					return subdf.drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y','t_am', 't_dm', 'rot_am', 'rot_dm'], axis=1)
+				bot.append((idx,np.percentile(dist2[mask1][:,0], 0.95)))
+				# if np.percentile(dist2[mask1][:,0], 0.99) < 8e-6:
+				# 	# return pd.Series([seA['ae'], seA['de'], at, dt, scale, q1, q2, theta], index=["a0", "d0", "at", "dt", "scale", "q1", "q2", "theta"])
+				# 	subdf.loc[:,"am"] = subdf.loc[:,"t_am"]
+				# 	subdf.loc[:,"dm"] = subdf.loc[:,"t_dm"]
+				# 	return subdf.drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y','t_am', 't_dm', 'rot_am', 'rot_dm'], axis=1)
+
+	print(bot)
+	bot = np.array(bot, dtype=[('idx', float), ('value', float)])
+	print(bot)
+	output_idx = np.sort(bot, order='value')[0][0]
+	print(output_idx)
+
+	q1 = e_quads[int(output_idx)]
+	q2 = m_quads[int(distind.loc[output_idx].i1)]
+	seA = neros_stars.loc[q1[4]].to_dict()
+	seB = neros_stars.loc[q1[5]].to_dict()
+	smA = nmacho_stars.loc[q2[4]].to_dict()
+	smB = nmacho_stars.loc[q2[5]].to_dict()
+
+	v1 = [seB['ae']-seA['ae'], seB['de']-seA['de']]
+	v1prime = [smB['am']-smA['am'], smB['dm']-smA['dm']]
+	scale = np.linalg.norm(v1)/np.linalg.norm(v1prime)
+
+	if SCALE_LIMIT > scale > 1/SCALE_LIMIT:
+		at = seA['ae']-smA['am']
+		dt = seA['de']-smA['dm']
+		subdf.loc[:,"t_am"] = subdf.loc[:,"am"]+at
+		subdf.loc[:,"t_dm"] = subdf.loc[:,"dm"]+dt
+		subdf.loc[:,"t_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
+		subdf.loc[:,"t_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
+		theta = np.arccos(np.dot(v1, v1prime)/(np.linalg.norm(v1)*np.linalg.norm(v1prime)))
+		plane = np.cross([1,0], [0, 1])
+		if (np.dot(plane, cross)<0):
+			theta = -theta
+		subdf.loc[:,"rot_am"] = (subdf.loc[:,"t_am"]-seA['ae'])*np.cos(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.sin(theta) + seA['ae']
+		subdf.loc[:,"rot_dm"] = -(subdf.loc[:,"t_am"]-seA['ae'])*np.sin(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.cos(theta) + seA['de']
+
+		subdf.loc[:,"am"] = subdf.loc[:,"rot_am"]
+		subdf.loc[:,"dm"] = subdf.loc[:,"rot_dm"]
+		return subdf.drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y','t_am', 't_dm', 'rot_am', 'rot_dm'], axis=1)
+
 
 	print("NO VALID QUADS !!!!")
 	return subdf.drop(['ae', 'alpha_E', 'blue_E', 'c1', 'c1_x', 'c1_y', 'c2_x', 'c2_y', 'c3_x', 'c3_y', 'de', 'delta_E', 'id_E', 'red_E'], axis=1)
@@ -313,7 +362,7 @@ print("GO!")
 
 merged, mean_dist = fusion(macho_stars, eros_stars)
 print("QUADS")
-new_macho_stars = merged[(merged.chunk==26) & (merged.template_pier == 'E')].groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=20)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+new_macho_stars = merged[(merged.chunk==48) & (merged.template_pier == 'W')].groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=20)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
 # pd.to_pickle(new_macho_stars, 'correct.pkl')
 # new_macho_stars = pd.read_pickle('correct.pkl')
 print(new_macho_stars.columns)
