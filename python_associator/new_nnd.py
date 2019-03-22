@@ -19,7 +19,7 @@ def print_current(merged ,prefix=""):
 	ax = plt.gca()
 	segs = []
 	widths=[]
-	scale=0
+	scale=3
 	width_scale=1000
 
 	a1 = np.array(a1)
@@ -31,7 +31,7 @@ def print_current(merged ,prefix=""):
 	    dl = (d1[i]-d2[i])
 	    segs.append(((a1[i]+scale*al, d1[i]+scale*dl), (a2[i]-scale*al, d2[i]-scale*dl)))
 	    widths.append(np.sqrt(al*al+dl*dl)*width_scale)
-	ln_coll = LineCollection(segs, color="black", linewidth=1)#=widths)
+	ln_coll = LineCollection(segs, color="black", linewidth=widths)
 	ln_coll.set_antialiased(True)
 	ax.add_collection(ln_coll)
 
@@ -92,7 +92,7 @@ def most_distant(stars):
 	dlist = []
 	compute_distances(stars, dlist)
 	dlist=np.array(dlist)
-	dlist = dlist[dlist[:, 2].argsort()]
+	dlist = dlist[dlist[:, 2].argsort()[::-1]]
 	return dlist[0]
 
 
@@ -128,8 +128,9 @@ def generate_quads(ss):
 	return np.array(quads)
 
 def quads(subdf, eros_stars, macho_stars, nb_stars=10):
-	if len(subdf)<100:
-		return pd.Series([np.nan, np.nan, np.nan, np.nan, np.nan], index=["starsE", "starsM", "at", "dt", "scale"]) 
+	print(subdf.iloc[0].chunk)
+	if len(subdf)<100 or subdf.iloc[0].chunk==255:
+		return subdf.drop(['ae', 'alpha_E', 'blue_E', 'c1', 'c1_x', 'c1_y', 'c2_x', 'c2_y', 'c3_x', 'c3_y', 'de', 'delta_E', 'id_E', 'red_E'], axis=1)
 	#select 10 stars from each
 	
 	tree1 = KDTree(subdf[["am","dm"]], leaf_size=50)
@@ -154,11 +155,11 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	#print(subdf.sort_values(["red_E", "blue_E"])["red_E"])
 	#print(subdf.sort_values(["red_M", "blue_M"])["red_M"])
 
-	plt.scatter(es[:,1], es[:,2])
-	plt.scatter(ms[:,1], ms[:,2])
-	plt.scatter(subdf["ae"], subdf["de"], s=1)
-	plt.scatter(subdf["am"], subdf["dm"], s=1)
-	plt.show()
+	# plt.scatter(es[:,1], es[:,2])
+	# plt.scatter(ms[:,1], ms[:,2])
+	# plt.scatter(subdf["ae"], subdf["de"], s=1)
+	# plt.scatter(subdf["am"], subdf["dm"], s=1)
+	# plt.show()
 
 	# INRADIUS
 	# selected = subdf[["id_M", "am", "dm"]].sample(n=1).values
@@ -199,7 +200,6 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 	for row in distind.itertuples(name='star'):
 		idx = row.Index
-		print(idx)
 		q1 = e_quads[idx]
 		q2 = m_quads[int(row.i1)]
 		seA = neros_stars.loc[q1[4]].to_dict()
@@ -218,11 +218,15 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 				subdf.loc[:,"t_am"] = subdf.loc[:,"am"]+at
 				subdf.loc[:,"t_dm"] = subdf.loc[:,"dm"]+dt
 
+				for idx in q1:
+					tmp = subdf[eros_stars.id_E==idx]
+					plt.scatter(tmp.t_am, tmp.t_dm, marker='x', color='green')
+
 				subdf.loc[:,"t_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
 				subdf.loc[:,"t_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
 
-				# subdf.loc[:,"s_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
-				# subdf.loc[:,"s_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
+				subdf.loc[:,"s_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
+				subdf.loc[:,"s_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
 
 				theta = -np.arccos(np.dot(v1, v1prime)/(np.linalg.norm(v1)*np.linalg.norm(v1prime)))
 				print(str(theta)+" <- theta")
@@ -246,60 +250,45 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 				mask1 = ind2.index.values == ind1.loc[ind2.c1].c1.values
 				mask2 = ind1.index.values == ind2.loc[ind1.c1].c1.values
 
-				print(str(np.mean(dist2[mask1][:,0]))+"<- new dist")
+				print(str(np.percentile(dist2[mask1][:,0], 0.99))+"<- new dist")
 				print(str(curr_mean_dist)+"<- current_dist")
-				# i=0
-				# for idx in q2[[4,5,6,7]]:
-				# 	i+=1
-				# 	tmp = macho_stars[macho_stars.id_M==idx]
-				# 	if len(tmp)>0:
-				# 		plt.scatter(tmp.am, tmp.dm, marker='+', color='pink')
-				# 		print(tmp.am.values)
-				# 		plt.text(tmp.am.values, tmp.dm.values, s=str(i))
-				# plt.scatter(seA['ae'], seA['de'], marker='o', color='black')
-				# plt.scatter(seB['ae'], seB['de'], marker='o', color='black')
-				# for idx in q1:
-				# 	tmp = eros_stars[eros_stars.id_E==idx]
-				# 	plt.scatter(tmp.ae, tmp.de, marker='+', color='blue')
-				# for idx in q1:
-				# 	tmp = subdf[eros_stars.id_E==idx]
-				# 	plt.scatter(tmp.s_am, tmp.s_dm, marker='x', color='darkred')
-				# for idx in q1:
-				# 	tmp = subdf[eros_stars.id_E==idx]
-				# 	plt.scatter(tmp.t_am, tmp.t_dm, marker='+', color='red')
-				# #print_current(subdf, 't_')
-				# fus, med = fusion(subdf.reset_index(drop=True).drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y'], axis=1), eros_stars, prefix='t_')
-				# plt.scatter(fus["ae"], fus["de"], s=1)
-				# plt.scatter(fus["t_am"], fus["t_dm"], s=1)
-				# plt.show()
-				# print(str(med)+" <- returned median")
+				i=0
+				for idx in q2[[4,5,6,7]]:
+					i+=1
+					tmp = macho_stars[macho_stars.id_M==idx]
+					if len(tmp)>0:
+						plt.scatter(tmp.am, tmp.dm, marker='+', color='pink')
+						print(tmp.am.values)
+						plt.text(tmp.am.values, tmp.dm.values, s=str(i))
+				plt.scatter(seA['ae'], seA['de'], marker='o', color='black')
+				plt.scatter(seB['ae'], seB['de'], marker='o', color='black')
+				for idx in q1:
+					tmp = eros_stars[eros_stars.id_E==idx]
+					plt.scatter(tmp.ae, tmp.de, marker='+', color='blue')
+				for idx in q1:
+					tmp = subdf[eros_stars.id_E==idx]
+					plt.scatter(tmp.s_am, tmp.s_dm, marker='x', color='darkred')
+				for idx in q1:
+					tmp = subdf[eros_stars.id_E==idx]
+					plt.scatter(tmp.t_am, tmp.t_dm, marker='+', color='red')
+				#print_current(subdf, 't_')
+				fus, med = fusion(subdf.reset_index(drop=True).drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y'], axis=1), eros_stars, prefix='t_')
+				plt.scatter(fus["ae"], fus["de"], s=1)
+				plt.scatter(fus["t_am"], fus["t_dm"], s=1)
+				plt.gca().axis('equal')
+				plt.show()
+				print(str(med)+" <- returned median")
 
 				if curr_mean_dist==0:
 					curr_mean_dist = np.mean(dist2[mask1][:,0])
-				if np.mean(dist2[mask1][:,0])<0.00015:
-					return pd.Series([seA['ae'], seA['de'], at, dt, scale, q1, q2, theta], index=["a0", "d0", "at", "dt", "scale", "q1", "q2", "theta"])
-					#print(subdf)
-					#return subdf.drop()
+				if np.percentile(dist2[mask1][:,0], 0.99) < 1./3600.:
+					# return pd.Series([seA['ae'], seA['de'], at, dt, scale, q1, q2, theta], index=["a0", "d0", "at", "dt", "scale", "q1", "q2", "theta"])
+					subdf.loc[:,"am"] = subdf.loc[:,"t_am"]
+					subdf.loc[:,"dm"] = subdf.loc[:,"t_dm"]
+					return subdf.drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y','t_am', 't_dm', 'rot_am', 'rot_dm'], axis=1)
 
 	print("NO VALID QUADS !!!!")
-	return pd.Series([np.nan, np.nan, np.nan, np.nan, np.nan], index=["starsE", "starsM", "at", "dt", "scale"]) 
-
-def correct_position(subdf):
-	subdf.loc[:,"am"] = subdf["am"]+subdf['at']
-	subdf.loc[:,"dm"] = subdf["dm"]+subdf['dt']
-
-	subdf.loc[:,"am"] = subdf["a0"] + (subdf["am"]-subdf["a0"])*subdf['scale']
-	subdf.loc[:,"dm"] = subdf["d0"] + (subdf["dm"]-subdf["d0"])*subdf['scale']
-
-	subdf.loc[:,"rot_am"] = (subdf.loc[:,"am"]-subdf["a0"])*np.cos(subdf["theta"]) - (subdf.loc[:,"dm"]-subdf["d0"])*np.sin(subdf["theta"]) + subdf["a0"]
-	subdf.loc[:,"rot_dm"] = (subdf.loc[:,"am"]-subdf["a0"])*np.sin(subdf["theta"]) + (subdf.loc[:,"dm"]-subdf["d0"])*np.cos(subdf["theta"]) + subdf["d0"]
-
-	subdf.loc[:,"am"] = subdf.loc[:,"rot_am"]
-	subdf.loc[:,"dm"] = subdf.loc[:,"rot_dm"]
-
-	subdf.drop(["rot_am", 'rot_dm'], axis=1, inplace=True)
-
-	return subdf
+	return subdf.drop(['ae', 'alpha_E', 'blue_E', 'c1', 'c1_x', 'c1_y', 'c2_x', 'c2_y', 'c3_x', 'c3_y', 'de', 'delta_E', 'id_E', 'red_E'], axis=1)
 
 eros_stars = pd.DataFrame(load_eros_field_stars("032"))
 eros_stars.columns = ["id_E", "alpha_E", "delta_E", "red_E", "blue_E"]
@@ -324,34 +313,25 @@ print("GO!")
 
 merged, mean_dist = fusion(macho_stars, eros_stars)
 print("QUADS")
-a0, d0, at, dt, scale, q1, q2, theta  = quads(merged[(merged.chunk==31) & (merged.template_pier == 'E')], eros_stars, macho_stars, nb_stars=20)
-after_quads = merged[(merged.chunk==31) & (merged.template_pier == 'E')].groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=20)
-print(after_quads)
-new_macho_stars = pd.merge(macho_stars, after_quads,  left_on=["template_pier", "chunk"], right_index=True).dropna(how='any', axis=0)
-new_macho_stars = new_macho_stars.groupby(["template_pier", "chunk"]).apply(correct_position)
-print((new_macho_stars["am"]-macho_stars["am"]).dropna())
+new_macho_stars = merged[(merged.chunk==26) & (merged.template_pier == 'E')].groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=20)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+# pd.to_pickle(new_macho_stars, 'correct.pkl')
+# new_macho_stars = pd.read_pickle('correct.pkl')
+print(new_macho_stars.columns)
+# print((new_macho_stars["am"]-macho_stars["am"]).dropna())
 
-plt.figure()
-print(a0, d0, at, dt, scale, q1, q2, theta)
-for idx in q2:
-	tmp = macho_stars[macho_stars.id_M==idx]
-	plt.scatter(tmp.am, tmp.dm, marker='+', color='red')
-for idx in q1:
-	tmp = eros_stars[eros_stars.id_E==idx]
-	plt.scatter(tmp.ae, tmp.de, marker='+', color='blue')
-	
-print_current(merged[merged.chunk==3])
-new_macho_stars.reset_index(drop=True, inplace=True)
+print_current(merged)
+new_macho_stars = new_macho_stars[new_macho_stars.chunk!=255].reset_index(drop=True)
 merged, mean_dist = fusion(new_macho_stars, eros_stars)
 plt.figure()
 print_current(merged)
 plt.show()
 
-for i in range(1):
-	print(i)
-	print("Correction")
-	new_macho_stars = correction(merged, macho_stars)
-	print("Merge")
-	merged = fusion(new_macho_stars, eros_stars)
+# for i in range(1):
+# 	print(i)
+# 	print("Correction")
+# 	new_macho_stars = correction(merged, macho_stars)
+# 	print("Merge")
+# 	merged, _ = fusion(new_macho_stars, eros_stars)
 
-print_current(merged)
+# print_current(merged)
+# plt.show()
