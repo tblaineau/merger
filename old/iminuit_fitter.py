@@ -10,7 +10,7 @@ def microlensing_event(t, u0, t0, tE, mag1):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
 	return -2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1 
 
-def parallax(t, mag, u0, t0, tE, delta_u, theta):
+def parallax(t, u0, t0, tE, delta_u, theta):
 	year = 365.2422
 	alphaS = 80.8941667*np.pi/180.
 	deltaS = -69.7561111*np.pi/180.
@@ -36,14 +36,35 @@ def parallax(t, mag, u0, t0, tE, delta_u, theta):
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
 def parallax_microlensing_event(t, mag, u0, t0, tE, delta_u, theta):
-	return mag + - 2.5*np.log10(parallax(t, mag, u0, t0, tE, delta_u, theta))
+	return mag + - 2.5*np.log10(parallax(t, u0, t0, tE, delta_u, theta))
 
 def parallax_blend_microlensing_event(t, mag, blend, u0, t0, tE, delta_u, theta):
-	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax(t, mag, u0, t0, tE, delta_u, theta))
+	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax(t, u0, t0, tE, delta_u, theta))
 
 def fit_ml(subdf, parallax=False):
 	#sélection des données, pas plus de 10% du temps de calcul en moyenne (0.01s vs 0.1s)
 	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
+
+	# W O R K   I N   P R O G R E S S 
+	# min_err = 0.
+	# max_err = 9.999
+	# lc_holder = {}
+	# for key, color in COLOR_FILTERS.items():
+	# 	mask = subdf[color['mag']].notnull() & subdf[color['err']].notnull()
+	# 	err = subdf[mask]
+	# 	maskerr = err.between(min_err, max_err, inclusive=False)
+	# 	lc_holder[key] = {
+	# 		'mag':subdf[mask][maskerr][color['mag']].values
+	# 		'err':subdf[mask][maskerr][color['err']].values
+	# 		'time':subdf[mask][maskerr]['time'].values
+	# 	}
+	# def least_squares_flat(params):
+	# 	chi2 = 0
+	# 	for key, color in lc_holder.items():
+	# 		chi2 += np.sum(((color['mag'] - params[list(lc_holder).index(key)])/color['err'])**2)
+	# 	return chi2
+
+
 
 	maskRE = subdf.red_E.notnull() & subdf.rederr_E.notnull()
 	maskBE = subdf.blue_E.notnull() & subdf.blueerr_E.notnull()
@@ -82,6 +103,8 @@ def fit_ml(subdf, parallax=False):
 	timeRM = subdf[maskRM][crm].time.values
 	timeBM = subdf[maskBM][cbm].time.values
 
+	maxRE = (magRE.set_index(pd.to_datetime(magRE.time, unit='D', origin='17-11-1858', cache=True)).sort_index()['red_E'].rolling('100D', closed='both').mean()).idxmin()
+
 	def least_squares_flat(f_magStarRE, f_magStarBE, f_magStarRM, f_magStarBM):
 		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
 
@@ -97,7 +120,7 @@ def fit_ml(subdf, parallax=False):
 		params_names = ["u0", "t0", "tE", "magStarRE", "magStarBE", "magStarRM", "magStarBM", "delta_u", "theta"]
 		params_init = {
 			"u0":0.5, 
-			"t0":50000, 
+			"t0":timeRE.loc[maxRE], 
 			"tE":1000, 
 			"magStarRE":magRE.mean(), 
 			"magStarBE":magBE.mean(), 
@@ -197,6 +220,6 @@ start = time.time()
 merged.reset_index(drop=True, inplace=True)
 res= merged.groupby("id_E").apply(fit_ml)
 end= time.time()
-res.to_pickle(WORKING_DIR_PATH+'res_5_lm0103_nocut5.pkl')
+res.to_pickle(WORKING_DIR_PATH+'res_5_lm0103_nocut5_t0start.pkl')
 print(str(end-start)+" seconds elapsed.")
 print(str(len(res))+" stars fitted.")
