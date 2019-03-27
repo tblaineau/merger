@@ -1,13 +1,10 @@
 import numpy as np
 import pandas as pd
-import os, gzip
-from scipy.optimize import curve_fit
 import scipy.stats as stats
 from iminuit import Minuit
 import matplotlib.pyplot as plt
-import seaborn as sns
 import time
-from functools import reduce
+from collections import OrderedDict
 
 from merger_library import *
 
@@ -139,5 +136,5 @@ merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0 and x.blue_E
 start = time.time()
 ms = mag_stats(merged)
 print(str(time.time()-start)+" seconds elapsed.")
-
+print("Pour " +str(len(ms))+" étoiles.")
 ms.to_pickle(WORKING_DIR_PATH+'bs_8_lm0213k.pkl')
