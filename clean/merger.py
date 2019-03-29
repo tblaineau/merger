@@ -29,6 +29,7 @@ if __name__ == '__main__':
 	parser.add_argument('--MACHO-path', '-pM', type=str, default="/Volumes/DisqueSauvegarde/MACHO/lightcurves/")
 	parser.add_argument('--correspondance-path', '-pC', type=str, default="/Users/tristanblaineau/")
 
+	#Retrieve arguments
 	args = parser.parse_args()
 
 	MACHO_field = args.MACHO_field
@@ -40,6 +41,7 @@ if __name__ == '__main__':
 	correspondance_files_path = args.correspondance_path
 	output_directory = args.output_directory
 
+	#Check if input paths exist
 	dir_path_check(output_directory)
 	dir_path_check(correspondance_files_path)
 	dir_path_check(MACHO_files_path)
@@ -47,6 +49,7 @@ if __name__ == '__main__':
 
 	print(fit)
 
+	#Main
 	if not EROS_CCD is None:
 		eros_ccd = "lm"+EROS_field+str(EROS_CCD)
 		merger_library.merger(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
