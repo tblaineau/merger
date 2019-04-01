@@ -49,12 +49,16 @@ def rho(x, rho0=0.0079, a=5, r0=8.5):
 def vt_ppf(x, v0=220):
 	return np.sqrt(-np.log(1-x)*v0*v0)
 
-def rdm(func, nb=1):
+def rdm(func, range_x, nb=1):
 	k=0;
 	v=[]
+	min_x, max_x = range_x
+	x = np.linspace(min_x, max_x, 100000)
+	max_funcx = np.max(func(x))
+	print(max_funcx)
 	while len(v)<nb:
-		x=np.random.uniform()*1000;
-		y=np.random.uniform()*0.003899;
+		x=np.random.uniform(min_x, max_x);
+		y=np.random.uniform(0, max_funcx);
 		if x!=0 and y<func(x):
 			v.append(x)
 	return v
@@ -103,6 +107,21 @@ def ngc_ppf(rho):
 	delta = np.sqrt(A-B*B)
 	return (B + delta*np.tan(r_lmc*delta*rho/(rho_0*A)+np.arctan(-B/delta)))/r_lmc
 
+def lenses_pdf(x):
+	return ngc_pdf(x)*x*x
+
+def lenses_cdf(x):
+	A = d_sol**2+a**2
+	B = d_sol*cosb_lmc*cosl_lmc
+	delta = np.sqrt(A-B*B)
+
+	def pt1(x):
+		return - (A-2*B**2)*np.arctan((r_lmc*x-B)/delta)/delta
+	def pt2(x):
+		return B*np.log(r_lmc*x*(r_lmc*x-2*B)+A)+r_lmc*x
+
+	return A/r_lmc**3*((pt1(x)+pt2(x))-(pt1(0)+pt2(0)))
+
 def d_to_x(d):
 	a = 1
 	b = -2*cosb_lmc*cosl_lmc
@@ -119,43 +138,80 @@ class ngc_generator(rv_continuous):
 		#return A*ngc/((d/a)**2+1)
 		return rho_halo(x)
 
+class lenses_generator(rv_continuous):
+	def _pdf(self, x):
+		#A = rho_0*(d_sol**2+a**2)/a**2
+		#ngc = 1/(A*a*(np.arctan(d_lmc/a)-np.arctan(d_sol/a)))
+		#return A*ngc/((d/a)**2+1)
+		return lenses_pdf(x)
+
+	def _cdf(self, x):
+		A = d_sol**2+a**2
+		B = d_sol*cosb_lmc*cosl_lmc
+		delta = np.sqrt(A-B*B)
+
+		def pt1(x):
+			return - (A-2*B**2)*np.arctan((r_lmc*x-B)/delta)/delta
+		def pt2(x):
+			return B*np.log(r_lmc*x*(r_lmc*x-2*B)+A)+r_lmc*x
+
+		return A/r_lmc**3*((pt1(x)+pt2(x))-(pt1(0)+pt2(0)))
 
 RANGE=(0, 1)
-ngcgen = ngc_generator()
-x = np.linspace(0, 1, 10000)
-rho = np.linspace(ngc_cdf(0), ngc_cdf(1), 10000)
+lensesgen = lenses_generator()
+x = np.linspace(0, 1, 1000)
+out = np.linspace(lensesgen.cdf(0), lensesgen.cdf(1), 100)
 SIZE=100000
 BINS=50
-plt.plot(rho, ngc_ppf(rho))
+plt.plot(x, lenses_pdf(x))
+plt.gca().twinx().plot(x, lenses_cdf(x))
+print(max(lenses_pdf(x)))
 plt.figure()
-plt.plot(x, ngc_cdf(x))
-plt.plot(x, ngcgen.pdf(x))
+plt.plot(out, lensesgen.ppf(out))
 plt.show()
-
 
 RANGE=(0, 1)
 x = np.linspace(0, 1, 10000)
-SIZE=1000000*100
-BINS=1000
+SIZE=100000
+BINS=50
+lensesgen = lenses_generator()
+s1=time.time()
+rhordm = rdm(lenses_pdf, (0, 1), SIZE)
 s2=time.time()
-rhoppfrdm = ngc_ppf(np.random.uniform(ngc_cdf(0), ngc_cdf(1),SIZE))
+#rhoppfrdm = lensesgen.ppf(np.random.uniform(lensesgen.cdf(0), lensesgen.cdf(1),SIZE))
 s3= time.time()
-plt.hist(rhoppfrdm, histtype='step', bins=BINS)
+#plt.hist(rhoppfrdm, histtype='step', bins=BINS)
+plt.hist(rhordm, histtype='step', bins=BINS)
 plt.xlabel(r"$x$")
+print(s2-s1)
 print(s3-s2)
-plt.gca().twinx().plot(x, rho_halo(x)/BINS*SIZE, color='red')
+plt.gca().twinx().plot(x, lensesgen.pdf(x)/BINS*SIZE, color='red')
 plt.gca().set_ylim(0)
 plt.show()
 
+# RANGE=(0, 1)
+# x = np.linspace(0, 1, 10000)
+# SIZE=1000000*100
+# BINS=1000
+# s2=time.time()
+# rhoppfrdm = ngc_ppf(np.random.uniform(ngc_cdf(0), ngc_cdf(1),SIZE))
+# s3= time.time()
+# plt.hist(rhoppfrdm, histtype='step', bins=BINS)
+# plt.xlabel(r"$x$")
+# print(s3-s2)
+# plt.gca().twinx().plot(x, rho_halo(x)/BINS*SIZE, color='red')
+# plt.gca().set_ylim(0)
+# plt.show()
 
-"""
+
+
 RANGE=(0, 1000)
 x = np.linspace(0, 1000, 10000)
 SIZE=10000
 BINS=500
 #plt.plot(x, gen.ppf(x))
 s1 = time.time()
-vtrdm = vT_rdm(SIZE)
+vtrdm = rdm(pvT, (0,1000), SIZE)
 s2=time.time()
 vtppfrdm = vt_ppf(np.random.random(SIZE))
 s3= time.time()
@@ -168,4 +224,4 @@ print(s2-s1)
 print(s3-s2)
 plt.gca().twinx().plot(x, pvT(x), color='red')
 plt.gca().set_ylim(0)
-plt.show()"""
+plt.show()
