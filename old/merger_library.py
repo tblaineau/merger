@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import gzip
 import numpy as np
+import astropy.units as units
+import astropy.constants as constants
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -75,8 +77,107 @@ def load_macho_field(field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
+def rho_halo_pdf(x):
+	"""pdf of dark halo density
+	
+	[description]
+	
+	Arguments:
+		x {float} -- x = d_OD/d_OS
+	
+	Returns:
+		{float} -- dark matter density at x
+	"""
+	a=5000.			#pc
+	rho_0=0.0079	#M_sol/pc^3
+	d_sol = 8500	#pc
+	l_lmc, b_lmc = 280.4652/180.*np.pi, -32.8884/180.*np.pi
+	r_lmc = 55000	#pc
+	cosb_lmc = np.cos(b_lmc)
+	cosl_lmc = np.cos(l_lmc)
+	A = d_sol**2+a**2
+	B = d_sol*cosb_lmc*cosl_lmc
+	return rho_0*A/((x*r_lmc)**2-2*x*r_lmc*B+A)*x*x
 
+def vt_ppf(x, v0=220):
+	"""ppf of transverse speed pdf
+	
+	ppf of p(v_T):
+	p(v_T) = (2*v_T/(v0**2))*np.exp(-v_T**2/(v0**2))
+	
+	Arguments:
+		x -- quantile
+	
+	Keyword Arguments:
+		v0 {km/s} -- speed parameter (default: {220})
+	
+	Returns:
+		int {km/s} -- corresponding speed
+	"""
+	return np.sqrt(-np.log(1-x)*v0*v0)
 
+def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None):
+	"""generic rejection sampling algorithm
+	
+	[description]
+	
+	Arguments:
+		func {function} -- probability density function
+		range_x {(float, float)} -- range of x
+	
+	Keyword Arguments:
+		nb {number} -- size of returned sample  (default: {1})
+		max_sampling {number} -- size of sample for estimating the max of the pdf (default: {100000})
+		pdf_max {float} -- use this as pdf maximum, if None, estimate it (default: {None})
+	
+	Returns:
+		list -- sampled from the input pdf
+	"""
+	v=[]
+	min_x, max_x = range_x
+	if not pdf_max:
+		x = np.linspace(min_x, max_x, max_sampling)
+		max_funcx = np.max(func(x))
+	else:
+		max_funcx = pdf_max
+
+	while len(v)<nb:
+		x=np.random.uniform(min_x, max_x);
+		y=np.random.uniform(0, max_funcx);
+		if x!=0 and y<func(x):
+			v.append(x)
+	return v
+
+max_rh0x = np.max(rho_halo_pdf(np.linspace(0, 1, 100000)))		#maximum value estimate of dark halo density function
+
+def generate_physical_ml_parameters(seed, mass, u0_range=(0,1), blending=False):
+	tmin = 48928
+	tmax = 52697
+	r_lmc = 55000*units.pc
+	r_earth = 150*1e6*units.km
+	seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
+	np.random.seed(seed)
+
+	u0 = np.random.uniform(*u0_range)
+	x = rejection_sampling(rho_halo_pdf, (0,1), nb=1, pdf_max=max_rh0x)[0]
+	v_T = vt_ppf(np.random.uniform())
+	R_E = np.sqrt(4*constants.G*mass*units.M_sun/(constants.c**2)*r_lmc*x*(1-x))
+	tE = R_E/(v_T*units.km/units.s)
+	tE = tE.to(units.day).value
+	t0 = np.random.uniform(tmin-tE/2., tmax+tE/2.)
+
+	blend_factors = {}
+	for key in COLOR_FILTERS.keys():
+		if blending:
+			blend_factors[key]=np.random.uniform(0, 0.7)
+		else:
+			blend_factors[key]=0
+
+	theta = np.random.uniform(0, 2*np.pi)
+	delta_u = (r_earth*(1-x)/R_E).decompose().value
+	return u0, t0, tE, blend_factors, delta_u, theta
+
+print(generate_physical_ml_parameters('lm0103n190', 100))
 
 def generate_microlensing_parameters(seed, blending=False, parallax=False):
 	tmin = 48928
