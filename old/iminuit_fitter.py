@@ -103,7 +103,9 @@ def fit_ml(subdf, parallax=False):
 	timeRM = subdf[maskRM][crm].time.values
 	timeBM = subdf[maskBM][cbm].time.values
 
-	maxRE = (magRE.set_index(pd.to_datetime(magRE.time, unit='D', origin='17-11-1858', cache=True)).sort_index()['red_E'].rolling('100D', closed='both').mean()).idxmin()
+	#maximum rolling mean on 100 days
+	#magRE_T = subdf[maskRE][cre].red_E
+	#maxRE = (magRE_T.reindex(pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both').mean()).idxmin()
 
 	def least_squares_flat(f_magStarRE, f_magStarBE, f_magStarRM, f_magStarBM):
 		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
