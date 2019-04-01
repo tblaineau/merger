@@ -18,6 +18,7 @@ utils/
 other useful scripts
 	"toy_simulator" interactive microlensing simulator
 	"en_masse_fit_visualizer" visualize lightcurves with corresponding fitted microlensing event (WIP)
+	"physical_params_generator_testing" testing ppf generator of x and v_T
 
 python_associator/
 code to fuse EROS and MACHO astrometry using quads
