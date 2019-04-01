@@ -150,13 +150,14 @@ def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None):
 
 max_rh0x = np.max(rho_halo_pdf(np.linspace(0, 1, 100000)))		#maximum value estimate of dark halo density function
 
-def generate_physical_ml_parameters(seed, mass, u0_range=(0,1), blending=False):
+def generate_physical_ml_parameters(seed=None, mass=100, u0_range=(0,1), blending=False):
 	tmin = 48928
 	tmax = 52697
 	r_lmc = 55000*units.pc
 	r_earth = 150*1e6*units.km
-	seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
-	np.random.seed(seed)
+	if seed:
+		seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
+		np.random.seed(seed)
 
 	u0 = np.random.uniform(*u0_range)
 	x = rejection_sampling(rho_halo_pdf, (0,1), nb=1, pdf_max=max_rh0x)[0]
@@ -176,8 +177,6 @@ def generate_physical_ml_parameters(seed, mass, u0_range=(0,1), blending=False):
 	theta = np.random.uniform(0, 2*np.pi)
 	delta_u = (r_earth*(1-x)/R_E).decompose().value
 	return u0, t0, tE, blend_factors, delta_u, theta
-
-print(generate_physical_ml_parameters('lm0103n190', 100))
 
 def generate_microlensing_parameters(seed, blending=False, parallax=False):
 	tmin = 48928
