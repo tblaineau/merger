@@ -77,46 +77,7 @@ def load_macho_field(field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
-def rho_halo_pdf(x):
-	"""pdf of dark halo density
-	
-	[description]
-	
-	Arguments:
-		x {float} -- x = d_OD/d_OS
-	
-	Returns:
-		{float} -- dark matter density at x
-	"""
-	a=5000.			#pc
-	rho_0=0.0079	#M_sol/pc^3
-	d_sol = 8500	#pc
-	l_lmc, b_lmc = 280.4652/180.*np.pi, -32.8884/180.*np.pi
-	r_lmc = 55000	#pc
-	cosb_lmc = np.cos(b_lmc)
-	cosl_lmc = np.cos(l_lmc)
-	A = d_sol**2+a**2
-	B = d_sol*cosb_lmc*cosl_lmc
-	return rho_0*A/((x*r_lmc)**2-2*x*r_lmc*B+A)*x*x
-
-def vt_ppf(x, v0=220):
-	"""ppf of transverse speed pdf
-	
-	ppf of p(v_T):
-	p(v_T) = (2*v_T/(v0**2))*np.exp(-v_T**2/(v0**2))
-	
-	Arguments:
-		x -- quantile
-	
-	Keyword Arguments:
-		v0 {km/s} -- speed parameter (default: {220})
-	
-	Returns:
-		int {km/s} -- corresponding speed
-	"""
-	return np.sqrt(-np.log(1-x)*v0*v0)
-
-def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None):
+def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None, args=[]):
 	"""generic rejection sampling algorithm
 	
 	[description]
@@ -137,45 +98,77 @@ def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None):
 	min_x, max_x = range_x
 	if not pdf_max:
 		x = np.linspace(min_x, max_x, max_sampling)
-		max_funcx = np.max(func(x))
+		max_funcx = np.max(func(x, *args))
 	else:
 		max_funcx = pdf_max
 
 	while len(v)<nb:
 		x=np.random.uniform(min_x, max_x);
 		y=np.random.uniform(0, max_funcx);
-		if x!=0 and y<func(x):
+		if x!=0 and y<func(x, *args):
 			v.append(x)
 	return v
 
-kms_to_pcd = (units.km/units.s).to(units.pc/units.d)
-pxmax = p_x(np.linspace(0,1,10000)).max()
+class Microlensing_generator():
+	def __init__(self, mass=100, u_lim=1, v0=220, blending=False, max_blend=0.7):
+		self.mass = mass
+		self.u_lim = u_lim
+		self.blending = blending
 
-def generate_physical_ml_parameters(seed=None, mass=100, u0_range=(0,1), blending=False):
-    tmin = 48928
-    tmax = 52697
-    r_lmc = 55000
-    if seed:
-        seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
-        np.random.seed(seed)
+		self.tmin = 48928
+		self.tmax = 52697
+		self.tobs = self.tmax - self.tmin
+		self.r_lmc = 55000
+		self.a = 5000
+		self.rho_0 = 0.0079
+		self.d_sol = 8500
+		self.cosb_lmc = np.cos(-32.8884/180.*np.pi)
+		self.cosl_lmc = np.cos(280.4652/180.*np.pi)
+		self.A = self.d_sol**2 + self.a**2
+		self.B = self.d_sol * self.cosb_lmc * self.cosl_lmc
+		self.v0 = v0
+		self.max_blend=0.7
+		self.r_earth = (150*1e6 *units.km).to(units.pc).value
 
-    u0 = np.random.uniform(*u0_range)
-    x = rejection_sampling(p_x, (0,1), nb=1, pdf_max=pxmax, args=[mass])[0]
-    v_T = vt_ppf(np.random.uniform())
-    R_Ex = R_E(x, mass)
-    tE = R_Ex/(v_T*kms_to_pcd)
-    t0 = np.random.uniform(tmin-tE/2., tmax+tE/2.)
+		self.r_0 = np.sqrt(4 * constants.G / (constants.c**2) * self.r_lmc*units.pc).decompose([units.Msun, units.pc]).value
 
-    blend_factors = {}
-    for key in COLOR_FILTERS.keys():
-        if blending:
-            blend_factors[key]=np.random.uniform(0, 0.7)
-        else:
-            blend_factors[key]=0
+		self.kms_to_pcd = (units.km/units.s).to(units.pc/units.d)
 
-    theta = np.random.uniform(0, 2*np.pi)
-    delta_u = r_earth*(1-x)/R_Ex
-    return u0, t0, tE, blend_factors, delta_u, theta
+	def R_E(self, x):
+		return self.r_0 * np.sqrt(self.mass*x*(1-x))
+
+	def p_x(self, x, v_T):
+		rho_halo = self.rho_0 * self.A / ((x * self.r_lmc)**2 - 2 * x * self.r_lmc * self.B + self.A)
+
+		R_Ex = self.R_E(x)
+		return rho_halo / self.mass * self.r_lmc * (2 * self.u_lim * R_Ex * self.tobs * v_T)
+
+	def vt_ppf(self, x):
+		return np.sqrt(-np.log(1 - x) * self.v0**2)
+
+
+	def generate_parameters(self, seed=None):
+		if seed:
+			seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
+			np.random.seed(seed)
+
+		u0 = np.random.uniform(0, self.u_lim)
+		v_T = self.vt_ppf(np.random.uniform())
+		x = rejection_sampling(self.p_x, (0,1), nb=1, args=[v_T])[0]
+		R_Ex = self.R_E(x)
+		tE = R_Ex / (v_T * self.kms_to_pcd)
+		t0 = np.random.uniform(self.tmin - tE/2., self.tmax + tE/2.)
+
+		blend_factors = {}
+		for key in COLOR_FILTERS.keys():
+			if self.blending:
+				blend_factors[key]=np.random.uniform(0, self.max_blend)
+			else:
+				blend_factors[key]=0
+
+		theta = np.random.uniform(0, 2*np.pi)
+		delta_u = self.r_earth * (1 - x) / R_Ex
+		return u0, t0, tE, blend_factors, delta_u, theta
 
 def generate_microlensing_parameters(seed, blending=False, parallax=False):
 	tmin = 48928
