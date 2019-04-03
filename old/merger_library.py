@@ -148,35 +148,34 @@ def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None):
 			v.append(x)
 	return v
 
-max_rh0x = np.max(rho_halo_pdf(np.linspace(0, 1, 100000)))		#maximum value estimate of dark halo density function
+kms_to_pcd = (units.km/units.s).to(units.pc/units.d)
+pxmax = p_x(np.linspace(0,1,10000)).max()
 
 def generate_physical_ml_parameters(seed=None, mass=100, u0_range=(0,1), blending=False):
-	tmin = 48928
-	tmax = 52697
-	r_lmc = 55000*units.pc
-	r_earth = 150*1e6*units.km
-	if seed:
-		seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
-		np.random.seed(seed)
+    tmin = 48928
+    tmax = 52697
+    r_lmc = 55000
+    if seed:
+        seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
+        np.random.seed(seed)
 
-	u0 = np.random.uniform(*u0_range)
-	x = rejection_sampling(rho_halo_pdf, (0,1), nb=1, pdf_max=max_rh0x)[0]
-	v_T = vt_ppf(np.random.uniform())
-	R_E = np.sqrt(4*constants.G*mass*units.M_sun/(constants.c**2)*r_lmc*x*(1-x))
-	tE = R_E/(v_T*units.km/units.s)
-	tE = tE.to(units.day).value
-	t0 = np.random.uniform(tmin-tE/2., tmax+tE/2.)
+    u0 = np.random.uniform(*u0_range)
+    x = rejection_sampling(p_x, (0,1), nb=1, pdf_max=pxmax, args=[mass])[0]
+    v_T = vt_ppf(np.random.uniform())
+    R_Ex = R_E(x, mass)
+    tE = R_Ex/(v_T*kms_to_pcd)
+    t0 = np.random.uniform(tmin-tE/2., tmax+tE/2.)
 
-	blend_factors = {}
-	for key in COLOR_FILTERS.keys():
-		if blending:
-			blend_factors[key]=np.random.uniform(0, 0.7)
-		else:
-			blend_factors[key]=0
+    blend_factors = {}
+    for key in COLOR_FILTERS.keys():
+        if blending:
+            blend_factors[key]=np.random.uniform(0, 0.7)
+        else:
+            blend_factors[key]=0
 
-	theta = np.random.uniform(0, 2*np.pi)
-	delta_u = (r_earth*(1-x)/R_E).decompose().value
-	return u0, t0, tE, blend_factors, delta_u, theta
+    theta = np.random.uniform(0, 2*np.pi)
+    delta_u = r_earth*(1-x)/R_Ex
+    return u0, t0, tE, blend_factors, delta_u, theta
 
 def generate_microlensing_parameters(seed, blending=False, parallax=False):
 	tmin = 48928
