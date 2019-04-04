@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import astropy.units as u
+import astropy.units as units
 import time
 from scipy.stats import rv_continuous
 
@@ -37,6 +37,7 @@ r_lmc = 55000
 cosb_lmc = np.cos(b_lmc)
 cosl_lmc = np.cos(l_lmc)
 d_lmc = np.sqrt(r_lmc**2 - 2*d_sol*r_lmc*cosl_lmc*cosb_lmc + d_sol**2)
+
 def rho_halo(x, a=5000, rho_0=0.0079):
 	r2 = (x*r_lmc)**2 - 2*x*r_lmc*d_sol*cosb_lmc*cosl_lmc + d_sol**2
 	return rho_0 * (a*a+d_sol*d_sol)/(a*a+r2)
@@ -108,7 +109,7 @@ def ngc_ppf(rho):
 	return (B + delta*np.tan(r_lmc*delta*rho/(rho_0*A)+np.arctan(-B/delta)))/r_lmc
 
 def lenses_pdf(x):
-	return ngc_pdf(x)*x*x
+	return ngc_pdf(x)*np.sqrt(x*(1-x))
 
 def lenses_cdf(x):
 	A = d_sol**2+a**2
@@ -139,10 +140,9 @@ class ngc_generator(rv_continuous):
 		return rho_halo(x)
 
 class lenses_generator(rv_continuous):
+	# x**2 * rho(x)
+	
 	def _pdf(self, x):
-		#A = rho_0*(d_sol**2+a**2)/a**2
-		#ngc = 1/(A*a*(np.arctan(d_lmc/a)-np.arctan(d_sol/a)))
-		#return A*ngc/((d/a)**2+1)
 		return lenses_pdf(x)
 
 	def _cdf(self, x):
@@ -164,7 +164,7 @@ out = np.linspace(lensesgen.cdf(0), lensesgen.cdf(1), 100)
 SIZE=100000
 BINS=50
 plt.plot(x, lenses_pdf(x))
-plt.gca().twinx().plot(x, lenses_cdf(x))
+plt.gca().twinx().plot(x, lenses_cdf(x), color='red')
 print(max(lenses_pdf(x)))
 plt.figure()
 plt.plot(out, lensesgen.ppf(out))
@@ -181,11 +181,11 @@ s2=time.time()
 #rhoppfrdm = lensesgen.ppf(np.random.uniform(lensesgen.cdf(0), lensesgen.cdf(1),SIZE))
 s3= time.time()
 #plt.hist(rhoppfrdm, histtype='step', bins=BINS)
-plt.hist(rhordm, histtype='step', bins=BINS)
+#plt.hist(rhordm, histtype='step', bins=BINS)
 plt.xlabel(r"$x$")
 print(s2-s1)
 print(s3-s2)
-plt.gca().twinx().plot(x, lensesgen.pdf(x)/BINS*SIZE, color='red')
+plt.plot(x, lensesgen.cdf(x), color='red')
 plt.gca().set_ylim(0)
 plt.show()
 
