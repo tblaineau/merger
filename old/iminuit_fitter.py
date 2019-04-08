@@ -104,8 +104,8 @@ def fit_ml(subdf, parallax=False):
 	timeBM = subdf[maskBM][cbm].time.values
 
 	#maximum rolling mean on 100 days
-	magRE_T = subdf[maskRE][cre].red_E
-	maxRE = (magRE_T.reindex(pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both').mean()).idxmin()
+	#magRE_T = subdf[maskRE][cre].red_E
+	#maxRE = (magRE_T.reindex(pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both').mean()).idxmin()
 
 	def least_squares_flat(f_magStarRE, f_magStarBE, f_magStarRM, f_magStarBM):
 		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
@@ -122,7 +122,7 @@ def fit_ml(subdf, parallax=False):
 		params_names = ["u0", "t0", "tE", "magStarRE", "magStarBE", "magStarRM", "magStarBM", "delta_u", "theta"]
 		params_init = {
 			"u0":0.5, 
-			"t0":timeRE.loc[maxRE], 
+			"t0":50500,#subdf[maskRE][cre].time.loc[maxRE], 
 			"tE":1000, 
 			"magStarRE":magRE.mean(), 
 			"magStarBE":magBE.mean(), 
@@ -212,7 +212,7 @@ def fit_ml(subdf, parallax=False):
 		)
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
-merged = pd.read_pickle(WORKING_DIR_PATH+'5_lm0103.pkl')
+merged = pd.read_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_parallax.pkl')
 merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
 merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
 
@@ -220,8 +220,8 @@ print("FILES LOADED")
 
 start = time.time()
 merged.reset_index(drop=True, inplace=True)
-res= merged.groupby("id_E").apply(fit_ml)
+res= merged.groupby("id_E").apply(fit_ml, parallax=True)
 end= time.time()
-res.to_pickle(WORKING_DIR_PATH+'res_5_lm0103_nocut5_t0start.pkl')
+res.to_pickle(WORKING_DIR_PATH+'res_simulated_50_lm0220_parallax_parallax.pkl')
 print(str(end-start)+" seconds elapsed.")
 print(str(len(res))+" stars fitted.")

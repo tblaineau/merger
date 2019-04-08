@@ -11,6 +11,8 @@ sys.path.append("/Users/tristanblaineau/Documents/Work/Python/merger/clean/libra
 from lib_perso import *
 import merger_library
 
+from itertools import combinations, chain
+from scipy.special import comb
 
 def print_current(merged ,prefix=""):
 	a1, d1 = merged[prefix+"am"].values, merged[prefix+"dm"].values
@@ -27,10 +29,10 @@ def print_current(merged ,prefix=""):
 	a2 = np.array(a2)
 	d2 = np.array(d2)
 	for i, a in enumerate(a1):
-	    al = (a1[i]-a2[i])
-	    dl = (d1[i]-d2[i])
-	    segs.append(((a1[i]+scale*al, d1[i]+scale*dl), (a2[i]-scale*al, d2[i]-scale*dl)))
-	    widths.append(np.sqrt(al*al+dl*dl)*width_scale)
+		al = (a1[i]-a2[i])
+		dl = (d1[i]-d2[i])
+		segs.append(((a1[i]+scale*al, d1[i]+scale*dl), (a2[i]-scale*al, d2[i]-scale*dl)))
+		widths.append(np.sqrt(al*al+dl*dl)*width_scale)
 	ln_coll = LineCollection(segs, color="black", linewidth=widths)
 	ln_coll.set_antialiased(True)
 	ax.add_collection(ln_coll)
@@ -95,16 +97,74 @@ def most_distant(stars):
 	dlist = dlist[dlist[:, 2].argsort()[::-1]]
 	return dlist[0]
 
+def calc_distance(p0, points):
+	return ((p0-points)**2).sum(axis=1)
+
+def comb_index(n, k):
+	count = comb(n, k, exact=True)
+	index = np.fromiter(chain.from_iterable(combinations(range(n), k)), int, count=count*k)
+	return index.reshape(-1, k)
 
 def generate_quads(ss):
 	quads=[]
+	idx4_2 = comb_index(4,2)
+	idx_all_stars = comb_index(len(ss), 4)
+
+	stars = ss[idx_all_stars]
+	print(stars.shape)
+	dlist = stars[:,idx4_2]
+	print(dlist.shape)
+	#print((dlist[:,:,0,1:]-dlist[:,:,1,1:]).sum(axis=2))
+	idx_choice = np.argmax(((dlist[:,:,0,1:]-dlist[:,:,1,1:])**2).sum(axis=2), axis=1)
+	print(np.unique(idx_choice))
+	print(idx_choice.shape)
+	choice=[]
+	for idx, ele in enumerate(dlist):
+		choice.append(ele[idx_choice[idx]])
+	choice = np.array(choice)
+	#choice = np.take(dlist, np.array([idx_choice]).T, axis=1)
+	print(choice.shape)
+
+	starA=[]
+	starB=[]
+	for a, b in choice:
+		if a[1]<b[1]:
+			starA.append(a)
+			starB.append(b)
+		else:
+			starA.append(b)
+			starB.append(a)
+	starA = np.array(starA)
+	starB = np.array(starB)
+	#starA, starB = np.where(choice[:,0,1]<choice[:,1,1], choice, choice[:,::-1])
+	print(starA)
+	print(starA.shape)
+
+	Xb, Yb = starB[1], starB[2]
+	Xa, Ya = starA[1], starA[2]
+	starC, starD = np.delete(stars, idx4_2[idx_choice], axis=0) 
+	#starC, starD = np.delete(stars, dlist[[0,1]].astype(int), axis=0)
+	xc = (starC[1]-Xa)/(Xb-Xa)
+	yc = (starC[2]-Ya)/(Yb-Ya)
+	xd = (starD[1]-Xa)/(Xb-Xa)
+	yd = (starD[2]-Ya)/(Yb-Ya)
+	if xc>xd:
+		xc,yc,xd,yd = xd,yd,xc,yc
+		starC, starD = starD, starC
+	distAB = np.sqrt((Xa-Xb)**2+(Ya-Yb)**2)
+	quads=[xc, yc, xd, yd, starA[0], starB[0], starC[0], starD[0], distAB]
+
+	"""
 	for idx1, star1 in enumerate(ss[:-3]):
 		for idx2, star2 in enumerate(ss[idx1+1:-2]):
 			for idx3, star3 in enumerate(ss[idx1+idx2+2:-1]):
 				for idx4, star4 in enumerate(ss[idx1+idx2+idx3+3:]):
 					stars = np.array([star1, star2, star3, star4])
-					dlist = most_distant(stars)
-					choice = stars[dlist[[0,1]].astype(int)]
+					# dlist = most_distant(stars)
+					dlist = stars[idx4_2]
+					idx_choice = np.argmax(((dlist[:,0,1:]-dlist[:,1,1:])**2).sum(axis=1))
+					choice = dlist[idx_choice]
+					# choice = stars[dlist[[0,1]].astype(int)]
 					if choice[0,1]<choice[1,1]:
 						starA = choice[0]
 						starB = choice[1]
@@ -112,9 +172,11 @@ def generate_quads(ss):
 						starA = choice[1]
 						starB = choice[0]
 
+
 					Xb, Yb = starB[1], starB[2]
 					Xa, Ya = starA[1], starA[2]
-					starC, starD = np.delete(stars, dlist[[0,1]].astype(int), axis=0)
+					starC, starD = np.delete(stars, idx4_2[idx_choice], axis=0) 
+					#starC, starD = np.delete(stars, dlist[[0,1]].astype(int), axis=0)
 					xc = (starC[1]-Xa)/(Xb-Xa)
 					yc = (starC[2]-Ya)/(Yb-Ya)
 					xd = (starD[1]-Xa)/(Xb-Xa)
@@ -123,7 +185,7 @@ def generate_quads(ss):
 						xc,yc,xd,yd = xd,yd,xc,yc
 						starC, starD = starD, starC
 					distAB = np.sqrt((Xa-Xb)**2+(Ya-Yb)**2)
-					quads.append([xc, yc, xd, yd, starA[0], starB[0], starC[0], starD[0], distAB])
+					quads.append([xc, yc, xd, yd, starA[0], starB[0], starC[0], starD[0], distAB])"""
 	print(len(quads))
 	return np.array(quads)
 
@@ -195,6 +257,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	neros_stars = eros_stars.set_index('id_E')
 	nmacho_stars = subdf.set_index('id_M')
 
+	#M O S T   D I S T A N T
 	# e_quads_tmp = pd.DataFrame(e_quads, columns=['xc', 'yc', 'xd', 'yd', 'starA', 'starB', 'starC', 'starD', 'distAB'])
 	# e_quads_tmp.sort_values('distAB', inplace=True, ascending=False)#, kind='mergesort')
 	# print(e_quads_tmp.starA)
@@ -268,7 +331,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 				mask1 = ind2.index.values == ind1.loc[ind2.c1].c1.values
 				mask2 = ind1.index.values == ind2.loc[ind1.c1].c1.values
 
-				print(str(np.percentile(dist2[mask1][:,0], 0.99))+"<- new dist")
+				print(str(np.mean(dist2[mask1][:,0]))+"<- new dist")
 				print(str(curr_mean_dist)+"<- current_dist")
 				# i=0
 				# plt.scatter(subdf["am"], subdf["dm"], s=10, marker='o',color='gray')
@@ -303,7 +366,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 				if curr_mean_dist==0:
 					curr_mean_dist = np.mean(dist2[mask1][:,0])
-				bot.append((idx,np.percentile(dist2[mask1][:,0], 0.95)))
+				bot.append((idx,np.mean(dist2[mask1][:,0])))
 				# if np.percentile(dist2[mask1][:,0], 0.99) < 8e-6:
 				# 	# return pd.Series([seA['ae'], seA['de'], at, dt, scale, q1, q2, theta], index=["a0", "d0", "at", "dt", "scale", "q1", "q2", "theta"])
 				# 	subdf.loc[:,"am"] = subdf.loc[:,"t_am"]
@@ -349,20 +412,22 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	print("NO VALID QUADS !!!!")
 	return subdf.drop(['ae', 'alpha_E', 'blue_E', 'c1', 'c1_x', 'c1_y', 'c2_x', 'c2_y', 'c3_x', 'c3_y', 'de', 'delta_E', 'id_E', 'red_E'], axis=1)
 
-eros_stars = pd.DataFrame(load_eros_field_stars("032"))
+eros_field="032"
+eros_stars = pd.DataFrame(load_eros_field_stars(eros_field))
 eros_stars.columns = ["id_E", "alpha_E", "delta_E", "red_E", "blue_E"]
 eros_stars = eros_stars.astype({"id_E":object, "alpha_E":float, "delta_E":float, "red_E":float, "blue_E":float}, copy=False)
 eros_stars.loc[:,"alpha_E"] = eros_stars["alpha_E"]*np.pi/180.
 eros_stars.loc[:,"delta_E"] = eros_stars["delta_E"]*np.pi/180.
 
-macho_stars = pd.read_pickle("macho_mags49.pkl")
-# macho_stars = pd.DataFrame(load_macho_field_stars(49))
+macho_field=49
+macho_stars = pd.read_pickle("macho_mags"+str(macho_field)+".pkl")
+# macho_stars = pd.DataFrame(load_macho_field_stars(macho_field))
 # macho_stars.columns = ["id_M", "alpha_M", "delta_M", "template_pier", "chunk"]
 # macho_stars = macho_stars.astype({"id_M":object, "alpha_M":float, "delta_M":float, "template_pier":object, "chunk":float})
-# macho_mags = merger_library.load_macho_field("/Volumes/DisqueSauvegarde/MACHO/lightcurves/", 49)
+# macho_mags = merger_library.load_macho_field("/Volumes/DisqueSauvegarde/MACHO/lightcurves/", macho_field)
 # macho_mags = macho_mags.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_M', 'red_M']).groupby('id_M')[['red_M', 'blue_M']].agg('mean')
 # macho_stars = pd.merge(macho_stars, macho_mags, left_on='id_M', right_index=True)
-# macho_stars.to_pickle("macho_mags49.pkl")
+# macho_stars.to_pickle("macho_mags"+str(macho_field)+".pkl")
 # print(macho_stars)
 
 eros_stars.loc[:,"ae"], eros_stars.loc[:,"de"] = proj_ad(eros_stars["alpha_E"], eros_stars["delta_E"])
@@ -372,7 +437,7 @@ print("GO!")
 
 merged, mean_dist = fusion(macho_stars, eros_stars)
 print("QUADS")
-new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=20)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+new_macho_stars = merged[(merged.chunk==31) & (merged.template_pier == 'E')].groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=20)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
 pd.to_pickle(new_macho_stars, 'correct1.pkl')
 new_macho_stars = pd.read_pickle('correct1.pkl')
 print(new_macho_stars.columns)

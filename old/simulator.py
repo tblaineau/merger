@@ -45,7 +45,7 @@ class Sigma_Baseline:
 		index = np.where(index>=len(self.be)-2, len(self.bb)-1, index-1)
 		return self.bb[index]
 
-def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, parallax=False):
+def generate_microlensing_events(subdf, sigmag, raw_stats_df, generator, parallax=False):
 	""" For a given star, generate µ-lens event
 	
 	[description]
@@ -77,7 +77,7 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, pa
 		means[key] = subdf[color_filter['mag']].mean() # <---- use mean as baseline
 
 	#Generate µlens parameters
-	u0, t0, tE, blend_factors, delta_u, theta = generate_microlensing_parameters(current_id, blending=blending, parallax=parallax)
+	u0, t0, tE, blend_factors, delta_u, theta = generator.generate_parameters(current_id)
 	if parallax:
 		A = ma_parallax(subdf.time, u0, t0, tE, delta_u, theta)
 	else:
@@ -98,7 +98,7 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, blending=False, pa
 print("Loading stars")
 merged = pd.read_pickle(WORKING_DIR_PATH+"50_lm0220.pkl")
 
-print(merged.columns)
+print(str(len(merged))+" lines loaded.")
 
 # l o a d   b a s e l i n e s   a n d   s t d   d e v i a t i o n s 
 print("Loading mag and sig")
@@ -117,8 +117,10 @@ merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0
 #simulate on only x% of the lightcurves
 merged = merged.groupby("id_E").filter(lambda x: np.random.rand()<0.02)
 
+g = Microlensing_generator()
+
 print("Starting simulations...")
 start = time.time()
-simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, blending=False, parallax=True)
+simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, generator=g, parallax=True)
 print(time.time()-start)
 simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_parallax.pkl')
