@@ -2,6 +2,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+from matplotlib.widgets import Slider
 import time
 
 from scipy.stats import rv_continuous
@@ -169,15 +170,14 @@ def distance4(time_range, params_set):
 	int_mulens = (cnopa).sum(axis=0)
 	return int_diffs/int_mulens	
 
-def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta=10):
+def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	tE=500
 	mag=19
 	WIDTH_LENS = 50
-	delta_u = np.linspace(0.00001,0.03,WIDTH_LENS)
-	delta_u2 = delta_u# np.linspace(0,0.06,100)
-	tE = np.linspace(0.00001, 4000, WIDTH_LENS)
+	delta_u = np.linspace(*delta_u_range,WIDTH_LENS)
+	tE = np.linspace(*tE_range, WIDTH_LENS)
 	params = {
 		'mag':mag,
 		'blend':0.,
@@ -187,7 +187,7 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 		'delta_u':0.5,	#no parallax
 		'theta':theta*np.pi/180.
 	}
-	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None], delta_u2[None, None,:], params['theta']]
+	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None], delta_u[None, None,:], params['theta']]
 	max_diff = distance(time_range[:,None,None], params_set)
 
 	def on_click(event):
@@ -212,7 +212,7 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 
 	fig = plt.figure()
 
-	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap='plasma', extent=[delta_u2[0], delta_u2[-1], tE[0], tE[-1]], aspect='auto')
+	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap='plasma', extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
 	col = plt.colorbar()
 	NN_POINTS = 1000
 	delta_u = np.linspace(0.,0.03,NN_POINTS)
@@ -226,15 +226,14 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 	fig.canvas.mpl_connect('button_press_event', on_click)
 	plt.show()
 
-def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, theta=10):
+def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	tE=500
 	mag=19
 	WIDTH_LENS = 20
-	delta_u = np.linspace(0.00001,0.03,WIDTH_LENS)
-	delta_u2 = delta_u# np.linspace(0,0.06,100)
-	tE = np.linspace(0.00001, 4000, WIDTH_LENS)
+	delta_u = np.linspace(*delta_u_range, WIDTH_LENS)
+	tE = np.linspace(*tE_range, WIDTH_LENS)
 	params = {
 		'mag':mag,
 		'blend':0.,
@@ -250,7 +249,7 @@ def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, th
 	elif isinstance(theta, np.ndarray):
 		params['theta'] = theta[None,None,None,:]*np.pi/180.
 		var=theta
-	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None, None], delta_u2[None, None,:, None], params['theta']]
+	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None, None], delta_u[None, None,:, None], params['theta']]
 	max_diff = distance(time_range[:,None,None,None], params_set)
 	print(max_diff.shape)
 
@@ -285,5 +284,32 @@ def visualize_parameter_space(mass_range=np.array([10,30,100,300,1000])):
 		#surf = ax.plot_surface(*np.meshgrid(delta_u, tE), mass*np.ones(ptEdu.shape), facecolors=colors, shade=False)
 	plt.show()
 
-visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance2, theta=45)
-visualize_parallax_significance_3d(u0=0.1, mass=100, distance=distance2, theta=np.linspace(0.,360,40))
+def visualize_parameter_space_imshow(mass, nb_points=100, interpolation=None, cmap='viridis'):
+	delta_u = np.linspace(0.,0.06,nb_points)
+	tE = np.linspace(0.001, 4000, nb_points)
+	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+	plt.imshow(ptEdu, origin='lower', interpolation=interpolation, cmap=cmap, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
+	plt.xlabel(r'$\delta_u$')
+	plt.ylabel(r'$t_E$')
+	plt.show()
+
+def interactive_parameter_space(nb_points=100, cmap='viridis'):
+	delta_u = np.linspace(0.,0.06,nb_points)
+	tE = np.linspace(0.001, 4000, nb_points)
+	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], 60)
+	fig, axs = plt.subplots(2,1, gridspec_kw={'height_ratios':[3,1]})
+	def update_imshow(mass):
+		ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+		imshw1.set_data(ptEdu)
+	imshw1 = axs[0].imshow(ptEdu, origin='lower', cmap=cmap, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
+	update_imshow(60)
+
+	bt1 = Slider(axs[1], 'mass', 1, 1000)
+	bt1.on_changed(update_imshow)
+	plt.show()
+
+#visualize_parameter_space_imshow(600, 1000, cmap='inferno')
+interactive_parameter_space(1000, cmap='inferno')
+
+#visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance2, theta=45)
+#visualize_parallax_significance_3d(u0=0.1, mass=100, distance=distance2, theta=np.linspace(0.,360,40))
