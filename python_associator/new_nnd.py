@@ -11,7 +11,6 @@ sys.path.append("/Users/tristanblaineau/Documents/Work/Python/merger/clean/libra
 from lib_perso import *
 import merger_library
 
-
 def print_current(merged ,prefix=""):
 	a1, d1 = merged[prefix+"am"].values, merged[prefix+"dm"].values
 	a2, d2 = merged["ae"].values, merged["de"].values
@@ -27,10 +26,10 @@ def print_current(merged ,prefix=""):
 	a2 = np.array(a2)
 	d2 = np.array(d2)
 	for i, a in enumerate(a1):
-	    al = (a1[i]-a2[i])
-	    dl = (d1[i]-d2[i])
-	    segs.append(((a1[i]+scale*al, d1[i]+scale*dl), (a2[i]-scale*al, d2[i]-scale*dl)))
-	    widths.append(np.sqrt(al*al+dl*dl)*width_scale)
+		al = (a1[i]-a2[i])
+		dl = (d1[i]-d2[i])
+		segs.append(((a1[i]+scale*al, d1[i]+scale*dl), (a2[i]-scale*al, d2[i]-scale*dl)))
+		widths.append(np.sqrt(al*al+dl*dl)*width_scale)
 	ln_coll = LineCollection(segs, color="black", linewidth=widths)
 	ln_coll.set_antialiased(True)
 	ax.add_collection(ln_coll)
@@ -95,6 +94,55 @@ def most_distant(stars):
 	dlist = dlist[dlist[:, 2].argsort()[::-1]]
 	return dlist[0]
 
+def cartesian(arrays, out=None):
+	"""
+	Generate a cartesian product of input arrays. (from https://gist.github.com/hernamesbarbara)
+
+	Parameters
+	----------
+	arrays : list of array-like
+		1-D arrays to form the cartesian product of.
+	out : ndarray
+		Array to place the cartesian product in.
+
+	Returns
+	-------
+	out : ndarray
+		2-D array of shape (M, len(arrays)) containing cartesian products
+		formed of input arrays.
+
+	Examples
+	--------
+	>>> cartesian(([1, 2, 3], [4, 5], [6, 7]))
+	array([[1, 4, 6],
+		   [1, 4, 7],
+		   [1, 5, 6],
+		   [1, 5, 7],
+		   [2, 4, 6],
+		   [2, 4, 7],
+		   [2, 5, 6],
+		   [2, 5, 7],
+		   [3, 4, 6],
+		   [3, 4, 7],
+		   [3, 5, 6],
+		   [3, 5, 7]])
+
+	"""
+
+	arrays = [np.asarray(x) for x in arrays]
+	dtype = arrays[0].dtype
+
+	n = np.prod([x.size for x in arrays])
+	if out is None:
+		out = np.zeros([n, len(arrays)], dtype=dtype)
+
+	m = n / arrays[0].size
+	out[:,0] = np.repeat(arrays[0], m)
+	if arrays[1:]:
+		cartesian(arrays[1:], out=out[0:m,1:])
+		for j in xrange(1, arrays[0].size):
+			out[j*m:(j+1)*m,1:] = out[0:m,1:]
+	return out
 
 def generate_quads(ss):
 	quads=[]
@@ -126,6 +174,14 @@ def generate_quads(ss):
 					quads.append([xc, yc, xd, yd, starA[0], starB[0], starC[0], starD[0], distAB])
 	print(len(quads))
 	return np.array(quads)
+
+import numpy as np
+
+def vectorized_generate_quads(ss):
+	idx = cartesian([ss]*4)
+	stars = ss[idx]
+	
+	return quads
 
 def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	print(str(subdf.iloc[0].chunk)+" "+subdf.iloc[0].template_pier)
