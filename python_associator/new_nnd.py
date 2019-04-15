@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import time
 from matplotlib.collections import LineCollection
+from itertools import combinations, chain
+from scipy.special import comb
 
 import sys
 sys.path.append("/Users/tristanblaineau/Documents/Work/Python")
@@ -94,55 +96,13 @@ def most_distant(stars):
 	dlist = dlist[dlist[:, 2].argsort()[::-1]]
 	return dlist[0]
 
-def cartesian(arrays, out=None):
-	"""
-	Generate a cartesian product of input arrays. (from https://gist.github.com/hernamesbarbara)
+def comb_index(n, k):
+    count = comb(n, k, exact=True)
+    index = np.fromiter(chain.from_iterable(combinations(range(n), k)), 
+                        int, count=count*k)
+    return index.reshape(-1, k)
 
-	Parameters
-	----------
-	arrays : list of array-like
-		1-D arrays to form the cartesian product of.
-	out : ndarray
-		Array to place the cartesian product in.
-
-	Returns
-	-------
-	out : ndarray
-		2-D array of shape (M, len(arrays)) containing cartesian products
-		formed of input arrays.
-
-	Examples
-	--------
-	>>> cartesian(([1, 2, 3], [4, 5], [6, 7]))
-	array([[1, 4, 6],
-		   [1, 4, 7],
-		   [1, 5, 6],
-		   [1, 5, 7],
-		   [2, 4, 6],
-		   [2, 4, 7],
-		   [2, 5, 6],
-		   [2, 5, 7],
-		   [3, 4, 6],
-		   [3, 4, 7],
-		   [3, 5, 6],
-		   [3, 5, 7]])
-
-	"""
-
-	arrays = [np.asarray(x) for x in arrays]
-	dtype = arrays[0].dtype
-
-	n = np.prod([x.size for x in arrays])
-	if out is None:
-		out = np.zeros([n, len(arrays)], dtype=dtype)
-
-	m = n / arrays[0].size
-	out[:,0] = np.repeat(arrays[0], m)
-	if arrays[1:]:
-		cartesian(arrays[1:], out=out[0:m,1:])
-		for j in xrange(1, arrays[0].size):
-			out[j*m:(j+1)*m,1:] = out[0:m,1:]
-	return out
+# def cartesian_indices(nb):
 
 def generate_quads(ss):
 	quads=[]
@@ -175,13 +135,12 @@ def generate_quads(ss):
 	print(len(quads))
 	return np.array(quads)
 
-import numpy as np
-
 def vectorized_generate_quads(ss):
-	idx = cartesian([ss]*4)
-	stars = ss[idx]
-	
-	return quads
+	idx = comb_index(ss.shape[0], 4)
+	idx_dist = comb_index(4, 2)
+	pairs = ss[idx][:,idx_dist]
+	mindist_idx = pairs[np.arange(pairs.shape[0]), ((pairs[:,:,0,[1,2]] - pairs[:,:,1, [1,2]])**2).sum(axis=2).argmin(axis=1)]
+	print(mindist.shape)
 
 def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	print(str(subdf.iloc[0].chunk)+" "+subdf.iloc[0].template_pier)
@@ -236,8 +195,8 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 	print(len(es), len(ms))
 
-	m_quads = generate_quads(ms)
-	e_quads = generate_quads(es)
+	m_quads = vectorized_generate_quads(ms)
+	e_quads = vectorized_generate_quads(es)
 
 	tree = KDTree(m_quads[:,0:4])
 	dist, ind = tree.query(e_quads[:,0:4], 3)
@@ -410,6 +369,7 @@ eros_stars.columns = ["id_E", "alpha_E", "delta_E", "red_E", "blue_E"]
 eros_stars = eros_stars.astype({"id_E":object, "alpha_E":float, "delta_E":float, "red_E":float, "blue_E":float}, copy=False)
 eros_stars.loc[:,"alpha_E"] = eros_stars["alpha_E"]*np.pi/180.
 eros_stars.loc[:,"delta_E"] = eros_stars["delta_E"]*np.pi/180.
+print('EROS stars loaded.')
 
 macho_stars = pd.read_pickle("macho_mags49.pkl")
 # macho_stars = pd.DataFrame(load_macho_field_stars(49))
@@ -419,7 +379,7 @@ macho_stars = pd.read_pickle("macho_mags49.pkl")
 # macho_mags = macho_mags.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_M', 'red_M']).groupby('id_M')[['red_M', 'blue_M']].agg('mean')
 # macho_stars = pd.merge(macho_stars, macho_mags, left_on='id_M', right_index=True)
 # macho_stars.to_pickle("macho_mags49.pkl")
-# print(macho_stars)
+print('MACHO stars loaded.')
 
 eros_stars.loc[:,"ae"], eros_stars.loc[:,"de"] = proj_ad(eros_stars["alpha_E"], eros_stars["delta_E"])
 macho_stars.loc[:,"am"], macho_stars.loc[:,"dm"] = proj_ad(macho_stars["alpha_M"], macho_stars["delta_M"])
