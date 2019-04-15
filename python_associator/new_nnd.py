@@ -208,7 +208,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 	#RANDOM [["id_M", "am", "dm"]] [["id_E", "ae", "de"]]
 	ms = subdf.sample(n=nb_stars)
-	es = pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False)
+	es = np.unique(pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False))
 	ms = ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False)
 
 	# plt.scatter(es[:,1], es[:,2])
@@ -415,7 +415,7 @@ print("GO!")
 
 merged, mean_dist = fusion(macho_stars, eros_stars)
 print("QUADS")
-new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=30)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+new_macho_stars = merged[(merged.chunk==25) & (merged.template_pier == 'E')].groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=30)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
 pd.to_pickle(new_macho_stars, 'correct1.pkl')
 new_macho_stars = pd.read_pickle('correct1.pkl')
 print(new_macho_stars.columns)
