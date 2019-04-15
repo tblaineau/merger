@@ -97,12 +97,11 @@ def most_distant(stars):
 	return dlist[0]
 
 def comb_index(n, k):
+	#generate indices of combinations without repititon of a n*k array
     count = comb(n, k, exact=True)
     index = np.fromiter(chain.from_iterable(combinations(range(n), k)), 
                         int, count=count*k)
     return index.reshape(-1, k)
-
-# def cartesian_indices(nb):
 
 def generate_quads(ss):
 	quads=[]
@@ -136,11 +135,38 @@ def generate_quads(ss):
 	return np.array(quads)
 
 def vectorized_generate_quads(ss):
+	id_M, am, dm = ss.dtype.names
 	idx = comb_index(ss.shape[0], 4)
 	idx_dist = comb_index(4, 2)
-	pairs = ss[idx][:,idx_dist]
-	mindist_idx = pairs[np.arange(pairs.shape[0]), ((pairs[:,:,0,[1,2]] - pairs[:,:,1, [1,2]])**2).sum(axis=2).argmin(axis=1)]
-	print(mindist.shape)
+	stars = ss[idx]
+	stars_idxs = np.arange(stars.shape[0])
+	pairs = stars[:,idx_dist]
+	mindist_idx = ((pairs[:,:,0][am] - pairs[:,:,1][am])**2+(pairs[:,:,0][dm] - pairs[:,:,1][dm])**2).argmin(axis=1)
+	a = pairs[stars_idxs, mindist_idx]
+	c = a[:,0][am]<a[:,1][dm]
+	ABpairs_idx = idx_dist[mindist_idx]
+	CDpairs_idx = idx_dist[~mindist_idx]
+	A_idx = np.where(c, ABpairs_idx[:,0], ABpairs_idx[:,1])
+	B_idx = np.where(~c, ABpairs_idx[:,0], ABpairs_idx[:,1])
+	A = stars[stars_idxs, A_idx]
+	B = stars[stars_idxs, B_idx]
+	C = stars[stars_idxs, CDpairs_idx[:,0]]
+	D = stars[stars_idxs, CDpairs_idx[:,1]]
+	xc = (C[am] - A[am])/(B[am] - A[am])
+	yc = (C[dm] - A[dm])/(B[dm] - A[dm])
+	xd = (D[am] - A[am])/(B[am] - A[am])
+	yd = (D[dm] - A[dm])/(B[dm] - A[dm])
+	c = xc>xd
+	#==============================
+	#LENT
+	xc[c], xd[c] = xd[c], xc[c]
+	yc[c], yd[c] = yd[c], yc[c]
+	C[c], D[c] = D[c], C[c]
+	#==============================
+	distAB = np.sqrt((A[am]-B[am])**2+(A[dm]-B[dm])**2)
+	return np.array([xc, yc, xd, yd, A[id_M], B[id_M], C[id_M], D[id_M], distAB]).T
+	
+
 
 def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	print(str(subdf.iloc[0].chunk)+" "+subdf.iloc[0].template_pier)
@@ -182,8 +208,8 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 	#RANDOM [["id_M", "am", "dm"]] [["id_E", "ae", "de"]]
 	ms = subdf.sample(n=nb_stars)
-	es = pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].values
-	ms = ms[["id_M", "am", "dm"]].values
+	es = pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False)
+	ms = ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False)
 
 	# plt.scatter(es[:,1], es[:,2])
 	# plt.scatter(ms[:,1], ms[:,2])
@@ -194,6 +220,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	
 
 	print(len(es), len(ms))
+	print(ms.dtype)
 
 	m_quads = vectorized_generate_quads(ms)
 	e_quads = vectorized_generate_quads(es)
@@ -388,7 +415,7 @@ print("GO!")
 
 merged, mean_dist = fusion(macho_stars, eros_stars)
 print("QUADS")
-new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=20)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=30)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
 pd.to_pickle(new_macho_stars, 'correct1.pkl')
 new_macho_stars = pd.read_pickle('correct1.pkl')
 print(new_macho_stars.columns)
