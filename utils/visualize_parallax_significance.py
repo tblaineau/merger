@@ -1,19 +1,11 @@
 import numpy as np
-
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
 from matplotlib.widgets import Slider
-import time
-
-from scipy.stats import rv_continuous
-from scipy.integrate import dblquad
-from scipy.misc import derivative
-from scipy.signal import find_peaks
-
-from mpl_toolkits.mplot3d import Axes3D
-
+from scipy.signal import find_peaks, peak_prominences
 from astropy import constants
 from astropy import units
+import time
+from mpl_toolkits.mplot3d import Axes3D
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -53,12 +45,6 @@ def parallax(t, mag, u0, t0, tE, delta_u, theta):
 		-delta_u*np.sin(phi),
 		 delta_u*np.cos(phi)*sin_beta
 		])
-	# t1 = u0*u0
-	# t2 = ((t-t0)/tE)**2
-	# t3 = delta_u**2 * (np.cos(phi)**2 + (np.sin(phi) * np.cos(beta))**2)
-	# t4 = -delta_u * (t-t0)/tE * (np.cos(theta) * np.cos(phi) + np.cos(beta) * np.sin(theta) * np.sin(phi))
-	# t5 = u0 * delta_u * (np.sin(theta) * np.cos(phi) - np.cos(theta) * np.sin(phi) * np.cos(beta))
-	# u = np.sqrt(t1+t2+t3+t4+t5)
 	u = np.linalg.norm(u_D-u_t, axis=0)
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
@@ -74,12 +60,12 @@ def microlens_simple(t, params):
 
 def rho_halo(x):
 	"""pdf of dark halo density
-	
+
 	[description]
-	
+
 	Arguments:
 		x {float} -- x = d_OD/d_OS
-	
+
 	Returns:
 		{float} -- dark matter density at x
 	"""
@@ -171,24 +157,26 @@ def distance4(time_range, params_set):
 	int_mulens = (cnopa).sum(axis=0)
 	return int_diffs/int_mulens	
 
-def distance5(time_range, params_set):
-	cnopa = microlens_simple(time_range, params_set)/19.
-	cpara = microlens(time_range, params_set)/19.
+def distance5(time_range, params_set, min_prominence=0.05):
+	"""
+	Distance is number of peak detected with a certain minimum prominence.
+	:param time_range:
+	:param params_set:
+	:return:
+	"""
+	cpara = microlens(time_range, params_set)
 	nb_peaks = []
-	cpara_f = cpara.reshape((len(time_range), 400))
-	print(cnopa.shape)
-	print(cpara.shape)
-	print("ah")
+	cpara_f = cpara.reshape((len(time_range), np.prod(cpara.shape[1:])))
 	for c in cpara_f.T:
-		peaks, _ = find_peaks(c, prominence=0.1)
+		peaks, _ = find_peaks(params_set[0]-c, prominence=min_prominence)
 		nb_peaks.append(len(peaks))
 	r = np.array(nb_peaks)
+	print(np.unique(r))
 	return r.reshape(cpara.shape[1:])
 
-def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
+def visualize_parallax_significance(mass=MASS, distance=distance1, distance_args=[], u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
-	tE=500
 	mag=19
 	WIDTH_LENS = 50
 	delta_u = np.linspace(*delta_u_range,WIDTH_LENS)
@@ -203,7 +191,7 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 		'theta':theta*np.pi/180.
 	}
 	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None], delta_u[None, None,:], params['theta']]
-	max_diff = distance(time_range[:,None,None], params_set)
+	max_diff = distance(time_range[:,None,None], params_set, *distance_args)
 
 	def on_click(event):
 		print(event.x, event.y, event.xdata, event.ydata)
@@ -217,10 +205,21 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 			'theta':theta*np.pi/180.
 		}
 		fig, axs=plt.subplots(2,1,sharex=True)
-		axs[0].plot(time_range, microlens(time_range, params.values()))
-		axs[0].plot(time_range, microlens_simple(time_range, params.values()))
+
+		cnopa = microlens_simple(time_range, params.values())
+		cpara = microlens(time_range, params.values())
+
+		#prominences
+		peaks, _ = find_peaks(mag-cpara)
+		prominences = peak_prominences(mag-cpara, peaks)[0]
+		print(prominences)
+		contour_heights = cpara[peaks] + prominences
+		axs[0].vlines(x=time_range[peaks], ymin=contour_heights, ymax=cpara[peaks])
+
+		axs[0].plot(time_range, cpara)
+		axs[0].plot(time_range, cnopa)
 		axs[0].invert_yaxis()
-		axs[1].plot(time_range, microlens(time_range, params.values())-microlens_simple(time_range, params.values()))
+		axs[1].plot(time_range, cpara-cnopa)
 		axs[1].invert_yaxis()
 		fig.suptitle(r'$t_E = $'+str(event.ydata)+r', $\delta_u = $'+str(event.xdata))
 		plt.show()
@@ -241,7 +240,7 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 	fig.canvas.mpl_connect('button_press_event', on_click)
 	plt.show()
 
-def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
+def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, distance_args=[], theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	tE=500
@@ -265,14 +264,14 @@ def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, th
 		params['theta'] = theta[None,None,None,:]*np.pi/180.
 		var=theta
 	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None, None], delta_u[None, None,:, None], params['theta']]
-	max_diff = distance(time_range[:,None,None,None], params_set)
+	max_diff = distance(time_range[:,None,None,None], params_set, *distance_args)
 	print(max_diff.shape)
 
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='3d')
 	norm = plt.Normalize(max_diff.min(), max_diff.max())
 	levels=[0.1, 0.25]
-	levels=[2, 3]
+	levels=[2, 3, 4, 5, 6]
 	#p = ax.scatter(*np.meshgrid(delta_u, tE, u0), c=norm(max_diff.flatten()), cmap='inferno', s=100)
 	for idx, u0i in enumerate(var):
 		surf_dutE = np.meshgrid(delta_u, tE)
@@ -326,7 +325,7 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 # visualize_parameter_space_imshow(100, 1000, cmap='inferno')
 #interactive_parameter_space(1000, cmap='inferno')
 
-#visualize_parallax_significance(u0=0.3, theta=45)
+visualize_parallax_significance(mass=60, u0=0.3, theta=45, distance=distance5, distance_args=[0.05])
 
-visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, )
+#visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, )
 # visualize_parallax_significance_3d(u0=0.2, mass=100, distance=distance2, theta=np.linspace(0.,360,40))
