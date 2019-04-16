@@ -92,7 +92,7 @@ v_T0 = (220*units.km/units.s).to(units.pc/units.s).value
 def p_xvt(x, v_T=v_T0, mass=MASS):
 	u_lim = 1
 	R_E = r_0*np.sqrt(mass*x*(1-x))
-	return rho_halo(x)/MASS*r_lmc*(2*u_lim*R_E*t_obs*np.abs(v_T))
+	return rho_halo(x)/mass*r_lmc*(2*u_lim*R_E*t_obs*np.abs(v_T))
 
 def f_vt(v_T, v0=220):
 	return (2*v_T/(v0**2))*np.exp(-v_T**2/(v0**2))
@@ -117,7 +117,7 @@ def jacobian(delta_u, t_E, mass=MASS):
 def p_tEdu(delta_u, t_E, mass=MASS):
 	x = x_from_delta_u(delta_u, mass)
 	vt = v_T_from_tEdu(delta_u, t_E, mass)
-	return p_xvt(x, mass, vt)*rho_halo(x)/mass*x*x*f_vt(vt)*np.abs(jacobian(delta_u, t_E, mass))
+	return p_xvt(x, vt, mass)*rho_halo(x)/mass*x*x*f_vt(vt)*np.abs(jacobian(delta_u, t_E, mass))
 
 def distance1(time_range, params_set):
 	st1 = time.time()
@@ -174,7 +174,7 @@ def distance5(time_range, params_set, min_prominence=0.05):
 	print(np.unique(r))
 	return r.reshape(cpara.shape[1:])
 
-def visualize_parallax_significance(mass=MASS, distance=distance1, distance_args=[], u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
+def visualize_parallax_significance(mass=MASS, distance=distance1, distance_args=[], u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000), cmap_distance='inferno', cmap_distro='viridis'):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	mag=19
@@ -226,13 +226,13 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, distance_args
 
 	fig = plt.figure()
 
-	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap='plasma', extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
+	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap=cmap_distance, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
 	col = plt.colorbar()
 	NN_POINTS = 1000
 	delta_u = np.linspace(0.,0.03,NN_POINTS)
 	tE = np.linspace(0.001, 4000, NN_POINTS)
 	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
-	plt.contour(delta_u, tE, ptEdu, levels=7)
+	plt.contour(delta_u, tE, ptEdu, levels=7, cmap=cmap_distro)
 
 	plt.xlabel(r'$\delta_u$')
 	plt.ylabel(r'$t_E$')
@@ -314,8 +314,10 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 	fig, axs = plt.subplots(2,1, gridspec_kw={'height_ratios':[3,1]})
 	def update_imshow(mass):
 		ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+		col.set_clim(vmin=ptEdu.min(), vmax=ptEdu.max())
 		imshw1.set_data(ptEdu)
 	imshw1 = axs[0].imshow(ptEdu, origin='lower', cmap=cmap, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
+	col = plt.colorbar(imshw1)
 	update_imshow(60)
 
 	bt1 = Slider(axs[1], 'mass', 1, 1000)
@@ -323,9 +325,7 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 	plt.show()
 
 # visualize_parameter_space_imshow(100, 1000, cmap='inferno')
-#interactive_parameter_space(1000, cmap='inferno')
+# interactive_parameter_space(1000, cmap='inferno')
+# visualize_parallax_significance(mass=60, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
+# visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, distance_args=[0.])
 
-visualize_parallax_significance(mass=60, u0=0.3, theta=45, distance=distance5, distance_args=[0.05])
-
-#visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, )
-# visualize_parallax_significance_3d(u0=0.2, mass=100, distance=distance2, theta=np.linspace(0.,360,40))
