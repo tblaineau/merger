@@ -8,6 +8,7 @@ import time
 from scipy.stats import rv_continuous
 from scipy.integrate import dblquad
 from scipy.misc import derivative
+from scipy.signal import find_peaks
 
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -143,32 +144,46 @@ def distance1(time_range, params_set):
 
 
 def distance2(time_range, params_set):
-	cpara = microlens_simple(time_range, params_set)
-	cnopa = microlens(time_range, params_set)
-	diffs = cnopa-cpara
+	cnopa = microlens_simple(time_range, params_set)
+	cpara = microlens(time_range, params_set)
+	diffs = cpara-cnopa
 	print(diffs.shape)
 	ampli_para = np.abs(diffs.min(axis=0)-diffs.max(axis=0))
 	ampli_mulens = np.abs(cnopa.min(axis=0)-cnopa.max(axis=0))
 	return ampli_para/ampli_mulens
 
 def distance3(time_range, params_set):
-	cpara = microlens_simple(time_range, params_set)
-	cnopa = microlens(time_range, params_set)
-	diffs = cnopa-cpara
+	cnopa = microlens_simple(time_range, params_set)
+	cpara = microlens(time_range, params_set)
+	diffs = cpara-cnopa
 	print(diffs.shape)
 	ampli_para = np.mean(np.abs(diffs), axis=0)
 	ampli_mulens = np.abs(cnopa.min(axis=0)-cnopa.max(axis=0))
 	return ampli_para/ampli_mulens
 
 def distance4(time_range, params_set):
-	cpara = microlens_simple(time_range, params_set)/19.
-	cnopa = microlens(time_range, params_set)/19.
-	diffs = cnopa-cpara
+	cnopa = microlens_simple(time_range, params_set)/19.
+	cpara = microlens(time_range, params_set)/19.
+	diffs = cpara-cnopa
 	dt = time_range[1,0,0]- time_range[0,0,0]
 	print(diffs.shape)
 	int_diffs = (np.abs(diffs)).sum(axis=0)
 	int_mulens = (cnopa).sum(axis=0)
 	return int_diffs/int_mulens	
+
+def distance5(time_range, params_set):
+	cnopa = microlens_simple(time_range, params_set)/19.
+	cpara = microlens(time_range, params_set)/19.
+	nb_peaks = []
+	cpara_f = cpara.reshape((len(time_range), 400))
+	print(cnopa.shape)
+	print(cpara.shape)
+	print("ah")
+	for c in cpara_f.T:
+		peaks, _ = find_peaks(c, prominence=0.1)
+		nb_peaks.append(len(peaks))
+	r = np.array(nb_peaks)
+	return r.reshape(cpara.shape[1:])
 
 def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
@@ -256,8 +271,8 @@ def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, th
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='3d')
 	norm = plt.Normalize(max_diff.min(), max_diff.max())
-	levels=np.linspace(max_diff.min(), max_diff.max(), 5)
 	levels=[0.1, 0.25]
+	levels=[2, 3]
 	#p = ax.scatter(*np.meshgrid(delta_u, tE, u0), c=norm(max_diff.flatten()), cmap='inferno', s=100)
 	for idx, u0i in enumerate(var):
 		surf_dutE = np.meshgrid(delta_u, tE)
@@ -308,8 +323,10 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 	bt1.on_changed(update_imshow)
 	plt.show()
 
-#visualize_parameter_space_imshow(600, 1000, cmap='inferno')
-interactive_parameter_space(1000, cmap='inferno')
+# visualize_parameter_space_imshow(100, 1000, cmap='inferno')
+#interactive_parameter_space(1000, cmap='inferno')
 
-#visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance2, theta=45)
-#visualize_parallax_significance_3d(u0=0.1, mass=100, distance=distance2, theta=np.linspace(0.,360,40))
+#visualize_parallax_significance(u0=0.3, theta=45)
+
+visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, )
+# visualize_parallax_significance_3d(u0=0.2, mass=100, distance=distance2, theta=np.linspace(0.,360,40))

@@ -1,17 +1,12 @@
-import pandas as pd
 import numpy as np
 import astropy.units as units
 import astropy.constants as constants
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-import time
 
 from scipy.stats import rv_continuous
 from scipy.integrate import dblquad
-from scipy.misc import derivative
-
-from mpl_toolkits.mplot3d import Axes3D
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -21,6 +16,7 @@ COLOR_FILTERS = {
 }
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
+
 
 def rho_halo_cdf(x):
 	a=5000.			#pc
@@ -42,7 +38,9 @@ def rho_halo_cdf(x):
 
 	return A/r_lmc**3*((pt1(x)+pt2(x))-(pt1(0)+pt2(0)))
 
+
 norm_rho = rho_halo_cdf(1)
+
 
 def rho_halo(x):
 	"""pdf of dark halo density
@@ -55,11 +53,11 @@ def rho_halo(x):
 	Returns:
 		{float} -- dark matter density at x
 	"""
-	a=5000.			#pc
-	rho_0=0.0079	#M_sol/pc^3
-	d_sol = 8500	#pc
+	a=5000.				# pc
+	rho_0=0.0079		# M_sol/pc^3
+	d_sol = 8500		# pc
 	l_lmc, b_lmc = 280.4652/180.*np.pi, -32.8884/180.*np.pi
-	r_lmc = 55000	#pc
+	r_lmc = 55000		# pc
 	cosb_lmc = np.cos(b_lmc)
 	cosl_lmc = np.cos(l_lmc)
 
@@ -118,8 +116,8 @@ def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None):
 		max_funcx = pdf_max
 
 	while len(v)<nb:
-		x=np.random.uniform(min_x, max_x);
-		y=np.random.uniform(0, max_funcx);
+		x=np.random.uniform(min_x, max_x)
+		y=np.random.uniform(0, max_funcx)
 		if x!=0 and y<func(x):
 			v.append(x)
 	return v
