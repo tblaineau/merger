@@ -1,14 +1,17 @@
+import time
+import os
 import pandas as pd
 import numpy as np
-from iminuit import Minuit
-import time, os
 import matplotlib.pyplot as plt
+from iminuit import Minuit
 
-GLOBAL_COUNTER=0
+GLOBAL_COUNTER = 0
+
 
 def microlensing_event(t, u0, t0, tE, mag1):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
 	return -2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1 
+
 
 def fit_ml(subdf, cut5=False):
 	"""Fit on one star
@@ -149,38 +152,41 @@ def fit_ml(subdf, cut5=False):
 	#print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
 	return pd.Series(
 
-		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval] 
-		+ 
+		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval]
+		+
 		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
-		+[len(errRE)+len(errBE)+len(errRM)+len(errBM)], 
+		+ [len(errRE)+len(errBE)+len(errRM)+len(errBM)],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
 		m_flat.values.keys()+['flat_fmin', 'flat_fval']
-		+["dof"]
+		+ ["dof"]
 		)
 
+
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
+
+
 def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH, time_mask=None):
 	"""Fit all curves in filename
-	
+   
 	[description]
-	
+   
 	Arguments:
 		filename {str} -- Name of the file containing the merged curves.
 	"""
-	if filename[-4:]!='.pkl':
-		filename+='.pkl'
+	if filename[-4:] != '.pkl':
+		filename += '.pkl'
 	print("Loading "+filename)
 	merged = pd.read_pickle(os.path.join(input_dir_path, filename))
-	merged.replace(to_replace=[99.999,-99.], value=np.nan, inplace=True)
+	merged.replace(to_replace=[99.999, -99.], value=np.nan, inplace=True)
 	merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
 	if time_mask:
 		merged = merged[merged['time'].isin(time_mask)]
 	print("FILES LOADED")
 	start = time.time()
-	res= merged.groupby("id_E").apply(fit_ml)
-	end= time.time()
-	res.to_pickle(os.path.join(output_dir_path,'res_'+filename))
+	res = merged.groupby("id_E").apply(fit_ml)
+	end = time.time()
+	res.to_pickle(os.path.join(output_dir_path, 'res_'+filename))
 	print(str(end-start)+" seconds elapsed.")
 	print(str(len(res))+" stars fitted.")

@@ -2,18 +2,18 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+from matplotlib.widgets import Slider
 import time
 
 from scipy.stats import rv_continuous
 from scipy.integrate import dblquad
 from scipy.misc import derivative
+from scipy.signal import find_peaks
 
 from mpl_toolkits.mplot3d import Axes3D
 
 from astropy import constants
 from astropy import units
-
-import geometry
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -144,56 +144,55 @@ def distance1(time_range, params_set):
 
 
 def distance2(time_range, params_set):
-	cpara = microlens_simple(time_range, params_set)
-	cnopa = microlens(time_range, params_set)
-	diffs = cnopa-cpara
+	cnopa = microlens_simple(time_range, params_set)
+	cpara = microlens(time_range, params_set)
+	diffs = cpara-cnopa
 	print(diffs.shape)
 	ampli_para = np.abs(diffs.min(axis=0)-diffs.max(axis=0))
 	ampli_mulens = np.abs(cnopa.min(axis=0)-cnopa.max(axis=0))
 	return ampli_para/ampli_mulens
 
 def distance3(time_range, params_set):
-	cpara = microlens_simple(time_range, params_set)
-	cnopa = microlens(time_range, params_set)
-	diffs = cnopa-cpara
+	cnopa = microlens_simple(time_range, params_set)
+	cpara = microlens(time_range, params_set)
+	diffs = cpara-cnopa
 	print(diffs.shape)
 	ampli_para = np.mean(np.abs(diffs), axis=0)
 	ampli_mulens = np.abs(cnopa.min(axis=0)-cnopa.max(axis=0))
 	return ampli_para/ampli_mulens
 
 def distance4(time_range, params_set):
-	cpara = microlens_simple(time_range, params_set)/19.
-	cnopa = microlens(time_range, params_set)/19.
-	diffs = cnopa-cpara
-	dt = time_range.flatten()[1]- time_range.flatten()[0]
+	cnopa = microlens_simple(time_range, params_set)/19.
+	cpara = microlens(time_range, params_set)/19.
+	diffs = cpara-cnopa
+	dt = time_range[1,0,0]- time_range[0,0,0]
 	print(diffs.shape)
 	int_diffs = (np.abs(diffs)).sum(axis=0)
 	int_mulens = (cnopa).sum(axis=0)
 	return int_diffs/int_mulens	
 
 def distance5(time_range, params_set):
-	fixed_params = [params_set[0], params_set[1],params_set[2], params_set[3]]
-	det_mat = []
-	for tE in params_set[4].flatten():
-		for du in params_set[5].flatten():
-			cpara = microlens_simple(time_range.flatten(), [*fixed_params, tE, du, params_set[6]])
-			cnopa = microlens(time_range.flatten(), [*fixed_params, tE, du, params_set[6]])
-			X = np.array([time_range.flatten(), cpara])
-			Y = np.array([time_range.flatten(), cnopa])
-			mat = geometry.procrustes.best_orthogonal_transform(X, Y)
-			nX = mat*X
-			det_mat.append(np.abs(nX[1]-Y[1]))
-	return np.array(det_mat).reshape((len(params_set[4].flatten()), len(params_set[5].flatten())))
+	cnopa = microlens_simple(time_range, params_set)/19.
+	cpara = microlens(time_range, params_set)/19.
+	nb_peaks = []
+	cpara_f = cpara.reshape((len(time_range), 400))
+	print(cnopa.shape)
+	print(cpara.shape)
+	print("ah")
+	for c in cpara_f.T:
+		peaks, _ = find_peaks(c, prominence=0.1)
+		nb_peaks.append(len(peaks))
+	r = np.array(nb_peaks)
+	return r.reshape(cpara.shape[1:])
 
-def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta=10, cmap='plasma'):
+def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	tE=500
 	mag=19
 	WIDTH_LENS = 50
-	delta_u = np.linspace(0.00001,0.03,WIDTH_LENS)
-	delta_u2 = delta_u# np.linspace(0,0.06,100)
-	tE = np.linspace(0.00001, 4000, WIDTH_LENS)
+	delta_u = np.linspace(*delta_u_range,WIDTH_LENS)
+	tE = np.linspace(*tE_range, WIDTH_LENS)
 	params = {
 		'mag':mag,
 		'blend':0.,
@@ -203,7 +202,7 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 		'delta_u':0.5,	#no parallax
 		'theta':theta*np.pi/180.
 	}
-	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None], delta_u2[None, None,:], params['theta']]
+	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None], delta_u[None, None,:], params['theta']]
 	max_diff = distance(time_range[:,None,None], params_set)
 
 	def on_click(event):
@@ -228,7 +227,7 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 
 	fig = plt.figure()
 
-	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap=cmap, extent=[delta_u2[0], delta_u2[-1], tE[0], tE[-1]], aspect='auto')
+	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap='plasma', extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
 	col = plt.colorbar()
 	NN_POINTS = 1000
 	delta_u = np.linspace(0.,0.03,NN_POINTS)
@@ -242,15 +241,14 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, u0=0.5, theta
 	fig.canvas.mpl_connect('button_press_event', on_click)
 	plt.show()
 
-def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, theta=10, levels=None, cmap_ctf='viridis'):
+def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	tE=500
 	mag=19
 	WIDTH_LENS = 20
-	delta_u = np.linspace(0.00001,0.03,WIDTH_LENS)
-	delta_u2 = delta_u# np.linspace(0,0.06,100)
-	tE = np.linspace(0.001, 4000, WIDTH_LENS)
+	delta_u = np.linspace(*delta_u_range, WIDTH_LENS)
+	tE = np.linspace(*tE_range, WIDTH_LENS)
 	params = {
 		'mag':mag,
 		'blend':0.,
@@ -260,59 +258,29 @@ def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, th
 		'delta_u':0.5,	#no parallax
 		'theta':theta*np.pi/180.
 	}
-	fig = plt.figure()
-	ax = fig.add_subplot(111, projection='3d')
-	ax.set_xlabel(r'$\delta_u$')
-	ax.set_ylabel(r'$t_E$')
 	if isinstance(u0, np.ndarray):
 		params['u0'] = u0[None,None,None,:]
 		var = u0
-		ax.set_zlabel(r'$u_0$')
 	elif isinstance(theta, np.ndarray):
 		params['theta'] = theta[None,None,None,:]*np.pi/180.
 		var=theta
-		ax.set_zlabel(r'$\theta$')
-	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None, None], delta_u2[None, None,:, None], params['theta']]
+	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,None, None], delta_u[None, None,:, None], params['theta']]
 	max_diff = distance(time_range[:,None,None,None], params_set)
 	print(max_diff.shape)
 
-	if not levels:
-		levels = np.quantile(max_diff, np.linspace(0.1,0.9,5))
-		print(levels)
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
 	norm = plt.Normalize(max_diff.min(), max_diff.max())
-	#levels=np.linspace(max_diff.min(), max_diff.max(), 5)
-	#levels=[0.1, 0.25]
+	levels=[0.1, 0.25]
+	levels=[2, 3]
 	#p = ax.scatter(*np.meshgrid(delta_u, tE, u0), c=norm(max_diff.flatten()), cmap='inferno', s=100)
-	for idx, var_i in enumerate(var):
+	for idx, u0i in enumerate(var):
 		surf_dutE = np.meshgrid(delta_u, tE)
-		ax.contour(*surf_dutE, max_diff[:,:,idx], zdir='z', offset=var_i, cmap=cmap_ctf, levels=levels)
-	for idx, tEi in enumerate(tE):
-		surf1 = np.meshgrid(var, delta_u)
-		ax.contour(surf1[1], max_diff[idx,:,:], surf1[0], zdir='y', offset=tEi, cmap=cmap_ctf, levels=levels)
-	# for idx, dui in enumerate(delta_u):
-	# 	surf1 = np.meshgrid(var, tE)
-	# 	ax.contour(max_diff[:,idx,:], surf1[1], surf1[0], zdir='x', offset=dui, cmap='viridis', levels=levels)
-	delta_u2 = np.linspace(0.00001,0.03,1000)
-	tE2 = np.linspace(0.001, 4000, 1000)
-	ax.contourf(*np.meshgrid(delta_u2, tE2), p_tEdu(delta_u2[None,:], tE2[:,None], mass), zdir='z', offset=0, cmap='Greys')
+		ax.contour(*surf_dutE, max_diff[:,:,idx], zdir='z', offset=u0i, cmap='viridis', levels=levels)
+	ax.contourf(*surf_dutE, p_tEdu(delta_u[None,:], tE[:,None], mass), zdir='z', offset=0, cmap='inferno')
 	ax.set_zlim(var.min(),var.max())
-	ax.set_xlim(delta_u.min(),delta_u.max())
 	#fig.colorbar(p)
-	def on_click(event):
-		print(event.x, event.y, event.xdata, event.ydata)
-		params['tE']=event.ydata,
-		params['delta_u'] = event.xdata
-		params['u0']=var[None,:]
-		fig2 = plt.figure()
-		subax = fig2.add_subplot(111, projection='3d')
-		time_range1, var1 = np.meshgrid(var, time_range)
-		print(time_range1.shape)
-		print(microlens(time_range[:,None], params.values()))
-		subax.plot_surface(time_range1, var1, microlens(time_range[:,None], params.values()))
-		subax.invert_zaxis()
-		#fig.suptitle(r'$t_E = $'+str(event.ydata)+r', $\delta_u = $'+str(event.xdata))
-		plt.show()
-	#fig.canvas.mpl_connect('button_press_event', on_click)
+
 	plt.show()
 
 def visualize_parameter_space(mass_range=np.array([10,30,100,300,1000])):
@@ -321,35 +289,44 @@ def visualize_parameter_space(mass_range=np.array([10,30,100,300,1000])):
 	tE = np.linspace(0.001, 4000, NN_POINTS)
 	#fig = plt.figure()
 	#ax = fig.add_subplot(111, projection='3d')
-	#fig, axs = plt.subplots(len(mass_range), 1)
-	axs = plt.gca()
+	fig, axs = plt.subplots(len(mass_range), 1)
 	for idx, mass in enumerate(mass_range):
 		ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
-		axs.contour(delta_u, tE, ptEdu)
+		axs[idx].contourf(delta_u, tE, ptEdu)
 		#norm = plt.Normalize(ptEdu.min(), ptEdu.max())
 		#colors = plt.get_cmap('viridis')(norm(ptEdu))
 		#rcount, ccount, _ = colors.shape
 		#surf = ax.plot_surface(*np.meshgrid(delta_u, tE), mass*np.ones(ptEdu.shape), facecolors=colors, shade=False)
 	plt.show()
 
-def visualize_parameter_space_3d(mass_range=np.array([10,30,100,300,1000]), scale=None):
-	NN_POINTS = 1000
-	if not scale:
-		scale=lambda x:x
-	delta_u = np.linspace(0.,0.06,NN_POINTS)
-	tE = np.linspace(0.001, 4000, NN_POINTS)
-	fig = plt.figure()
-	ax = fig.add_subplot(111, projection='3d')
-	for idx, mass in enumerate(mass_range):
-		ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
-		ax.contour(delta_u, tE, ptEdu, zdir='z', offset=scale(mass))
-	ax.set_zlim(scale(mass_range).min(), scale(mass_range).max())
-	# ax.set_zscale('log')
+def visualize_parameter_space_imshow(mass, nb_points=100, interpolation=None, cmap='viridis'):
+	delta_u = np.linspace(0.,0.06,nb_points)
+	tE = np.linspace(0.001, 4000, nb_points)
+	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+	plt.imshow(ptEdu, origin='lower', interpolation=interpolation, cmap=cmap, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
+	plt.xlabel(r'$\delta_u$')
+	plt.ylabel(r'$t_E$')
 	plt.show()
 
-#visualize_parameter_space_3d(np.logspace(1,3,10), scale=np.log)
-visualize_parameter_space()
+def interactive_parameter_space(nb_points=100, cmap='viridis'):
+	delta_u = np.linspace(0.,0.06,nb_points)
+	tE = np.linspace(0.001, 4000, nb_points)
+	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], 60)
+	fig, axs = plt.subplots(2,1, gridspec_kw={'height_ratios':[3,1]})
+	def update_imshow(mass):
+		ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+		imshw1.set_data(ptEdu)
+	imshw1 = axs[0].imshow(ptEdu, origin='lower', cmap=cmap, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
+	update_imshow(60)
 
-# visualize_parallax_significance(mass=60, distance=distance2, cmap='coolwarm', theta=280)
-# visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45)#, levels=[0, 0.1,0.25], cmap_ctf='Reds')
-# visualize_parallax_significance_3d(u0=0.1, mass=60, distance=distance2, theta=np.linspace(0.,360,40), levels=[0, 0.1,0.25], cmap_ctf='Reds')
+	bt1 = Slider(axs[1], 'mass', 1, 1000)
+	bt1.on_changed(update_imshow)
+	plt.show()
+
+# visualize_parameter_space_imshow(100, 1000, cmap='inferno')
+#interactive_parameter_space(1000, cmap='inferno')
+
+#visualize_parallax_significance(u0=0.3, theta=45)
+
+visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, )
+# visualize_parallax_significance_3d(u0=0.2, mass=100, distance=distance2, theta=np.linspace(0.,360,40))
