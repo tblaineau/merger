@@ -6,6 +6,7 @@ import time
 from matplotlib.collections import LineCollection
 from itertools import combinations, chain
 from scipy.special import comb
+import numba
 
 import sys
 sys.path.append("/Users/tristanblaineau/Documents/Work/Python")
@@ -165,7 +166,57 @@ def vectorized_generate_quads(ss):
 	#==============================
 	distAB = np.sqrt((A[am]-B[am])**2+(A[dm]-B[dm])**2)
 	return np.array([xc, yc, xd, yd, A[id_M], B[id_M], C[id_M], D[id_M], distAB]).T
-	
+
+
+
+"""
+@numba.jit
+def quad_tester(subdf_np, seA, seB, smA, smB, SCALE_LIMIT):
+	v1 = [seB['ae']-seA['ae'], seB['de']-seA['de']]
+	v1prime = [smB['am']-smA['am'], smB['dm']-smA['dm']]
+	scale = np.linalg.norm(v1)/np.linalg.norm(v1prime)
+
+	if SCALE_LIMIT > scale > 1/SCALE_LIMIT:
+		counter+=1
+		at = seA['ae']-smA['am']
+		dt = seA['de']-smA['dm']
+		if True: #abs(at)<5*2.7e-4 and abs(dt) <5*2.7e-4:
+			subdf.loc[:,"t_am"] = subdf.loc[:,"am"]+at
+			subdf.loc[:,"t_dm"] = subdf.loc[:,"dm"]+dt
+
+			subdf.loc[:,"t_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
+			subdf.loc[:,"t_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
+
+			theta = np.arccos(np.dot(v1, v1prime)/(np.linalg.norm(v1)*np.linalg.norm(v1prime)))
+			cross = np.cross(v1, v1prime)
+			print(cross)
+			plane = np.cross([1,0], [0, 1])
+			if (np.dot(plane, cross)<0):
+				theta = -theta
+			print(str(theta)+" <- theta")
+			print(str(scale)+" <- scale")
+			subdf.loc[:,"rot_am"] = (subdf.loc[:,"t_am"]-seA['ae'])*np.cos(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.sin(theta) + seA['ae']
+			subdf.loc[:,"rot_dm"] = -(subdf.loc[:,"t_am"]-seA['ae'])*np.sin(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.cos(theta) + seA['de']
+
+			subdf.loc[:,"t_am"] = subdf.loc[:,"rot_am"]
+			subdf.loc[:,"t_dm"] = subdf.loc[:,"rot_dm"]
+			# theta=0
+
+			tree1 = KDTree(subdf[["t_am","t_dm"]], leaf_size=50)
+			tree2 = KDTree(eros_stars[["ae","de"]], leaf_size=50)
+
+			dist1, ind1 = tree1.query(eros_stars[["ae","de"]], k=3, return_distance=True, dualtree=True)
+			dist2, ind2 = tree2.query(subdf[["t_am","t_dm"]], k=3, return_distance=True, dualtree=True)
+
+			ind1 = pd.DataFrame(ind1, columns=['c1', 'c2', 'c3'])
+			ind2 = pd.DataFrame(ind2, columns=['c1', 'c2', 'c3'])
+
+			mask1 = ind2.index.values == ind1.loc[ind2.c1].c1.values
+			mask2 = ind1.index.values == ind2.loc[ind1.c1].c1.values
+
+			if curr_mean_dist==0:
+				curr_mean_dist = np.mean(dist2[mask1][:,0])
+	return idx, np.percentile(dist2[mask1][:,0], 0.95)"""
 
 
 def quads(subdf, eros_stars, macho_stars, nb_stars=10):
@@ -189,8 +240,8 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	# curr_mean_dist = 0.0005
 
 	# ON MAGNITUDE
-	# es = subdf.sort_values(["red_E", "blue_E"]).iloc[:nb_stars][["id_E", "ae", "de"]].values
-	# ms = subdf.sort_values(["red_M", "blue_M"]).iloc[:nb_stars][["id_M", "am", "dm"]].values
+	es = subdf.sort_values(["red_E", "blue_E"]).iloc[:nb_stars][["id_E", "ae", "de"]].to_records(index=False)
+	ms = subdf.sort_values(["red_M", "blue_M"]).iloc[:nb_stars][["id_M", "am", "dm"]].to_records(index=False)
 
 
 	#print(subdf.sort_values(["red_E", "blue_E"])["red_E"])
@@ -207,9 +258,9 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	# ms = macho_stars.loc[ms][["id_M", "am", "dm"]].values
 
 	#RANDOM [["id_M", "am", "dm"]] [["id_E", "ae", "de"]]
-	ms = subdf.sample(n=nb_stars)
-	es = np.unique(pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False))
-	ms = ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False)
+	# ms = subdf.sample(n=nb_stars)
+	# es = np.unique(pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False))
+	# ms = ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False)
 
 	# plt.scatter(es[:,1], es[:,2])
 	# plt.scatter(ms[:,1], ms[:,2])
@@ -346,11 +397,6 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 				if curr_mean_dist==0:
 					curr_mean_dist = np.mean(dist2[mask1][:,0])
 				bot.append((idx,np.percentile(dist2[mask1][:,0], 0.95)))
-				# if np.percentile(dist2[mask1][:,0], 0.99) < 8e-6:
-				# 	# return pd.Series([seA['ae'], seA['de'], at, dt, scale, q1, q2, theta], index=["a0", "d0", "at", "dt", "scale", "q1", "q2", "theta"])
-				# 	subdf.loc[:,"am"] = subdf.loc[:,"t_am"]
-				# 	subdf.loc[:,"dm"] = subdf.loc[:,"t_dm"]
-				# 	return subdf.drop(['c1', 'c1_x', 'c2_x', 'c3_x', 'id_E', 'alpha_E', 'delta_E', 'red_E', 'blue_E', 'ae', 'de', 'c1_y', 'c2_y', 'c3_y','t_am', 't_dm', 'rot_am', 'rot_dm'], axis=1)
 
 	print(bot)
 	bot = np.array(bot, dtype=[('idx', float), ('value', float)])
@@ -415,7 +461,7 @@ print("GO!")
 
 merged, mean_dist = fusion(macho_stars, eros_stars)
 print("QUADS")
-new_macho_stars = merged[(merged.chunk==25) & (merged.template_pier == 'E')].groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=30)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=40)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
 pd.to_pickle(new_macho_stars, 'correct1.pkl')
 new_macho_stars = pd.read_pickle('correct1.pkl')
 print(new_macho_stars.columns)
