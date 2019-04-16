@@ -1,4 +1,5 @@
 *.pkl
+*.npy
 seed_dict.npy
 res_fit_lm0322
 ms_temp_lm0322n
