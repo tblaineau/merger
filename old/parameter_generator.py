@@ -35,7 +35,8 @@ class Microlensing_parameters_generator():
 		return self.rho_0 * self.A / ((x * self.r_lmc) ** 2 - 2 * x * self.r_lmc * self.B + self.A) / self.mass
 
 	def p_xvT(self, x, v_T):
-		return self.rho_0(x) / self.mass * self.r_lmc * (2*self.u_lim*self.R_E(x)*self.t_obs*v_T)
+		q = self.rho_x(x) / self.mass * self.r_lmc * (2*self.u_lim*self.R_E(x)*self.t_obs * abs(v_T<<(u.km/u.s)))
+		return q.decompose().value
 
 	def f_x(self, x):
 		return self.rho_x(x) * x**2
@@ -46,6 +47,7 @@ class Microlensing_parameters_generator():
 g = Microlensing_parameters_generator(mass=100, u_lim=1, v0=220)
 
 x = np.linspace(0,1,100)
-res = g.f_x(x)
-plt.plot(x, res)
+v_T = np.linspace(-600, 600, 100)
+res = g.p_xvT(x[:,None], v_T[None,:])
+plt.imshow(res)
 plt.show()
