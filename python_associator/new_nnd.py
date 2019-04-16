@@ -2,17 +2,14 @@ from sklearn.neighbors import BallTree, KDTree
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import time
 from matplotlib.collections import LineCollection
 from itertools import combinations, chain
 from scipy.special import comb
-import numba
 
 import sys
 sys.path.append("/Users/tristanblaineau/Documents/Work/Python")
 sys.path.append("/Users/tristanblaineau/Documents/Work/Python/merger/clean/libraries")
 from lib_perso import *
-import merger_library
 
 def print_current(merged ,prefix=""):
 	a1, d1 = merged[prefix+"am"].values, merged[prefix+"dm"].values
@@ -168,57 +165,6 @@ def vectorized_generate_quads(ss):
 	return np.array([xc, yc, xd, yd, A[id_M], B[id_M], C[id_M], D[id_M], distAB]).T
 
 
-
-"""
-@numba.jit
-def quad_tester(subdf_np, seA, seB, smA, smB, SCALE_LIMIT):
-	v1 = [seB['ae']-seA['ae'], seB['de']-seA['de']]
-	v1prime = [smB['am']-smA['am'], smB['dm']-smA['dm']]
-	scale = np.linalg.norm(v1)/np.linalg.norm(v1prime)
-
-	if SCALE_LIMIT > scale > 1/SCALE_LIMIT:
-		counter+=1
-		at = seA['ae']-smA['am']
-		dt = seA['de']-smA['dm']
-		if True: #abs(at)<5*2.7e-4 and abs(dt) <5*2.7e-4:
-			subdf.loc[:,"t_am"] = subdf.loc[:,"am"]+at
-			subdf.loc[:,"t_dm"] = subdf.loc[:,"dm"]+dt
-
-			subdf.loc[:,"t_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
-			subdf.loc[:,"t_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
-
-			theta = np.arccos(np.dot(v1, v1prime)/(np.linalg.norm(v1)*np.linalg.norm(v1prime)))
-			cross = np.cross(v1, v1prime)
-			print(cross)
-			plane = np.cross([1,0], [0, 1])
-			if (np.dot(plane, cross)<0):
-				theta = -theta
-			print(str(theta)+" <- theta")
-			print(str(scale)+" <- scale")
-			subdf.loc[:,"rot_am"] = (subdf.loc[:,"t_am"]-seA['ae'])*np.cos(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.sin(theta) + seA['ae']
-			subdf.loc[:,"rot_dm"] = -(subdf.loc[:,"t_am"]-seA['ae'])*np.sin(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.cos(theta) + seA['de']
-
-			subdf.loc[:,"t_am"] = subdf.loc[:,"rot_am"]
-			subdf.loc[:,"t_dm"] = subdf.loc[:,"rot_dm"]
-			# theta=0
-
-			tree1 = KDTree(subdf[["t_am","t_dm"]], leaf_size=50)
-			tree2 = KDTree(eros_stars[["ae","de"]], leaf_size=50)
-
-			dist1, ind1 = tree1.query(eros_stars[["ae","de"]], k=3, return_distance=True, dualtree=True)
-			dist2, ind2 = tree2.query(subdf[["t_am","t_dm"]], k=3, return_distance=True, dualtree=True)
-
-			ind1 = pd.DataFrame(ind1, columns=['c1', 'c2', 'c3'])
-			ind2 = pd.DataFrame(ind2, columns=['c1', 'c2', 'c3'])
-
-			mask1 = ind2.index.values == ind1.loc[ind2.c1].c1.values
-			mask2 = ind1.index.values == ind2.loc[ind1.c1].c1.values
-
-			if curr_mean_dist==0:
-				curr_mean_dist = np.mean(dist2[mask1][:,0])
-	return idx, np.percentile(dist2[mask1][:,0], 0.95)"""
-
-
 def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	print(str(subdf.iloc[0].chunk)+" "+subdf.iloc[0].template_pier)
 	if len(subdf)<100 or subdf.iloc[0].chunk==255:
@@ -240,8 +186,8 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	# curr_mean_dist = 0.0005
 
 	# ON MAGNITUDE
-	es = subdf.sort_values(["red_E", "blue_E"]).iloc[:nb_stars][["id_E", "ae", "de"]].to_records(index=False)
-	ms = subdf.sort_values(["red_M", "blue_M"]).iloc[:nb_stars][["id_M", "am", "dm"]].to_records(index=False)
+	# es = subdf.sort_values(["red_E", "blue_E"]).iloc[:nb_stars][["id_E", "ae", "de"]].to_records(index=False)
+	# ms = subdf.sort_values(["red_M", "blue_M"]).iloc[:nb_stars][["id_M", "am", "dm"]].to_records(index=False)
 
 
 	#print(subdf.sort_values(["red_E", "blue_E"])["red_E"])
@@ -261,6 +207,13 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	# ms = subdf.sample(n=nb_stars)
 	# es = np.unique(pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False))
 	# ms = ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False)
+
+	#MIXED
+	es1 = subdf.sort_values(["red_E", "blue_E"]).iloc[:int(nb_stars/2)][["id_E", "ae", "de"]].to_records(index=False)
+	ms1 = subdf.sort_values(["red_M", "blue_M"]).iloc[:int(nb_stars/2)][["id_M", "am", "dm"]].to_records(index=False)
+	ms = subdf.sample(n=int(nb_stars/2))
+	es = np.unique(np.hstack((es1, pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False))))
+	ms = np.unique(np.hstack((ms1, ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False))))
 
 	# plt.scatter(es[:,1], es[:,2])
 	# plt.scatter(ms[:,1], ms[:,2])
@@ -301,7 +254,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 	counter=0
 	for row in distind.itertuples(name='star'):
-		if counter>=10:
+		if counter>=50:
 			break
 		idx = row.Index
 		print(idx)
@@ -321,45 +274,42 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 			at = seA['ae']-smA['am']
 			dt = seA['de']-smA['dm']
 			if True:#abs(at)<5*2.7e-4 and abs(dt) <5*2.7e-4:
-				subdf.loc[:,"t_am"] = subdf.loc[:,"am"]+at
-				subdf.loc[:,"t_dm"] = subdf.loc[:,"dm"]+dt
+				t_am = subdf.loc[:,"am"]+at
+				t_dm = subdf.loc[:,"dm"]+dt
 
 				# for idx in q1:
 				# 	tmp = subdf[eros_stars.id_E==idx]
 				# 	plt.scatter(tmp.t_am, tmp.t_dm, marker='x', color='green')
 
-				subdf.loc[:,"t_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
-				subdf.loc[:,"t_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
+				t_am = seA['ae'] + (t_am-seA['ae'])*scale
+				t_dm = seA['de'] + (t_dm-seA['de'])*scale
 
-				# subdf.loc[:,"s_am"] = seA['ae'] + (subdf.loc[:,"t_am"]-seA['ae'])*scale
-				# subdf.loc[:,"s_dm"] = seA['de'] + (subdf.loc[:,"t_dm"]-seA['de'])*scale
+				# subdf.loc[:,"s_am"] = seA['ae'] + (t_am-seA['ae'])*scale
+				# subdf.loc[:,"s_dm"] = seA['de'] + (t_dm-seA['de'])*scale
 
 				theta = np.arccos(np.dot(v1, v1prime)/(np.linalg.norm(v1)*np.linalg.norm(v1prime)))
 				cross = np.cross(v1, v1prime)
 				print(cross)
 				plane = np.cross([1,0], [0, 1])
-				if (np.dot(plane, cross)<0):
+				if np.dot(plane, cross)<0:
 					theta = -theta
 				print(str(theta)+" <- theta")
 				print(str(scale)+" <- scale")
-				subdf.loc[:,"rot_am"] = (subdf.loc[:,"t_am"]-seA['ae'])*np.cos(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.sin(theta) + seA['ae']
-				subdf.loc[:,"rot_dm"] = -(subdf.loc[:,"t_am"]-seA['ae'])*np.sin(theta) + (subdf.loc[:,"t_dm"]-seA['de'])*np.cos(theta) + seA['de']
 
-				subdf.loc[:,"t_am"] = subdf.loc[:,"rot_am"]
-				subdf.loc[:,"t_dm"] = subdf.loc[:,"rot_dm"]
-				# theta=0
+				t_am = (t_am-seA['ae'])*np.cos(theta) + (t_dm-seA['de'])*np.sin(theta) + seA['ae']
+				t_dm = -(t_am-seA['ae'])*np.sin(theta) + (t_dm-seA['de'])*np.cos(theta) + seA['de']
 
-				tree1 = KDTree(subdf[["t_am","t_dm"]], leaf_size=50)
+
+				tree1 = KDTree(np.array([t_am, t_dm]).T, leaf_size=50)
 				tree2 = KDTree(eros_stars[["ae","de"]], leaf_size=50)
 
 				dist1, ind1 = tree1.query(eros_stars[["ae","de"]], k=3, return_distance=True, dualtree=True)
-				dist2, ind2 = tree2.query(subdf[["t_am","t_dm"]], k=3, return_distance=True, dualtree=True)
+				dist2, ind2 = tree2.query(np.array([t_am, t_dm]).T, k=3, return_distance=True, dualtree=True)
 
 				ind1 = pd.DataFrame(ind1, columns=['c1', 'c2', 'c3'])
 				ind2 = pd.DataFrame(ind2, columns=['c1', 'c2', 'c3'])
 
 				mask1 = ind2.index.values == ind1.loc[ind2.c1].c1.values
-				mask2 = ind1.index.values == ind2.loc[ind1.c1].c1.values
 
 				print(str(np.percentile(dist2[mask1][:,0], 0.99))+"<- new dist")
 				print(str(curr_mean_dist)+"<- current_dist")
