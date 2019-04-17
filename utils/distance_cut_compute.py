@@ -140,11 +140,34 @@ params = {
 	'theta':20.*np.pi/180.
 }
 
-#@nb.jit(nopython=True)
-def pdf_xvt_infdist(x, vt, u0, theta, mag=19., blend=0., t0=50000., mass=MASS, dist_threshold=2, time_range=np.linspace(48928, 52697, 10000), min_prominence=0):
+sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
+beta = np.arcsin(sin_beta) #ok because beta is in -pi/2; pi/2
+if abs(beta)==np.pi/2:
+	lambda_star = 0
+else:
+	lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
+
+@nb.jit(nopython=True)
+def nb_microlens(t_range, mag, blend, u0, t0, tE, delta_u, theta):
+	out = np.zeros(t_range.shape)
+	for i in range(len(t_range)):
+		t = t_range[i]
+		tau = (t-t0)/tE
+		phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
+		t1 = u0**2 + tau**2
+		t2 = delta_u**2 * (np.sin(phi)**2 + np.cos(phi)**2*sin_beta**2)
+		t3 = -2*delta_u*u0 * (np.sin(phi)*np.sin(theta) + np.cos(phi)*np.cos(theta)*sin_beta)
+		t4 = 2*tau*delta_u * (np.sin(phi)*np.cos(theta) - np.cos(phi)*np.sin(theta)*sin_beta)
+		u = np.sqrt(t1+t2+t3+t4)
+		parallax  = (u**2+2)/(u*np.sqrt(u**2+4))
+		out[i] = - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax)
+	return out
+
+
+def pdf_xvt_infdist(x, vt, u0, theta, time_range=np.linspace(48928, 52697, 1000), mag=19., blend=0., t0=50000., mass=MASS, dist_threshold=2, min_prominence=0):
 	delta_u = delta_u_from_x(x, mass)
 	tE = tE_from_xvt(x, vt, mass)
-	c = microlens(time_range, [mag, blend, u0, t0, tE, delta_u, theta])
+	c = nb_microlens(time_range, mag, blend, u0, t0, tE, delta_u, theta)
 	peaks, _ = find_peaks(mag-c, prominence=min_prominence)
 	if len(peaks)>dist_threshold:
 		return pdf_xvt(x, vt)
@@ -156,7 +179,8 @@ x = np.linspace(0, 1, resolution)
 st1 = time.time()
 #tot = dblquad(pdf_xvt, -np.inf, np.inf, gfun=lambda x: 0, hfun=lambda x: 1, epsrel=0.01)
 #tot = dblquad(pdf_xvt_infdist, -np.inf, np.inf, gfun=lambda x: 0, hfun=lambda x: 1, args=(params,), epsrel=0.1)
-tot = nquad(pdf_xvt_infdist, ranges=[(0,1), (-np.inf, np.inf), (0, 1), (0, 360*np.pi/180.)], opts={'epsrel':0.5})
+t_range = np.linspace(48928, 52697, 1000)
+tot = nquad(pdf_xvt_infdist, ranges=[(0,1), (-np.inf, np.inf), (0, 1), (0, 360*np.pi/180.)], args=[t_range], opts={'epsrel':0.5})
 st2 = time.time()
 print(tot)
 print(str(st2-st1)+" sec")
