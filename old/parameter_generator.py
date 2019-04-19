@@ -87,10 +87,14 @@ def pdf_tEdu(t_E, delta_u, mass):
 def randomizer(x, vt):
 	return np.array([np.random.triangular(x-0.1, x, x+0.1), np.random.triangular(vt-100, vt, vt + 100)])
 
+@nb.njit
+def randomizer_gauss(x, vt):
+	return np.array([np.random.normal(loc=x, scale=0.1), np.random.normal(loc=vt, scale=300)])
 
 def metropolis_hastings(func, g, nb_samples, start, kwargs={}):
 	samples = []
 	current_x = start
+	accepted=0
 	while nb_samples > len(samples):
 		proposed_x = g(*current_x)
 		tmp = func(*current_x, **kwargs)
@@ -100,5 +104,42 @@ def metropolis_hastings(func, g, nb_samples, start, kwargs={}):
 			threshold = 1
 		if np.random.uniform() < threshold:
 			current_x = proposed_x
+			accepted+=1
 		samples.append(current_x)
+	print(accepted, accepted/nb_samples)
 	return np.array(samples)
+
+def generate_parameters(mass, seed=None, blending=False, parallax=False):
+	"""
+	Parameters to generate : u0, tE, 𝛅u, theta, t0, blends factors
+	:param mass:
+	:param seed:
+	:return:
+	"""
+	if seed:
+		seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
+		np.random.seed(seed)
+	if parallax:
+
+	u0 = np.random.uniform(0,u_max)
+	s = np.load('xvt_samples.npy')
+	x , vt = np.random.choice(s, 1)
+	delta_u = delta_u_from_x(x, mass=mass)
+	tE = tE_from_xvt(x, vt, mass=mass)
+	t0 = np.random.uniform(tmin - tE / 2., tmax + tE / 2.)
+	blend_factors = {}
+	for key in COLOR_FILTERS.keys():
+		if blending:
+			blend_factors[key] = np.random.uniform(0, max_blend)
+		else:
+			blend_factors[key] = 0
+	theta = np.random.uniform(0, 2 * np.pi)
+	params = {
+		'blend':blend_factors,
+		'u0':u0,
+		't0':t0,
+		'tE':tE,
+		'delta_u':delta_u,
+		'theta':theta,
+	}
+	return params
