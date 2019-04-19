@@ -186,8 +186,8 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	# curr_mean_dist = 0.0005
 
 	# ON MAGNITUDE
-	# es = subdf.sort_values(["red_E", "blue_E"]).iloc[:nb_stars][["id_E", "ae", "de"]].to_records(index=False)
-	# ms = subdf.sort_values(["red_M", "blue_M"]).iloc[:nb_stars][["id_M", "am", "dm"]].to_records(index=False)
+	es = subdf.sort_values(["red_E", "blue_E"]).iloc[:nb_stars][["id_E", "ae", "de"]].to_records(index=False)
+	ms = subdf.sort_values(["red_M", "blue_M"]).iloc[:nb_stars][["id_M", "am", "dm"]].to_records(index=False)
 
 
 	#print(subdf.sort_values(["red_E", "blue_E"])["red_E"])
@@ -209,11 +209,11 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	# ms = ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False)
 
 	#MIXED
-	es1 = subdf.sort_values(["red_E", "blue_E"]).iloc[:int(nb_stars/2)][["id_E", "ae", "de"]].to_records(index=False)
-	ms1 = subdf.sort_values(["red_M", "blue_M"]).iloc[:int(nb_stars/2)][["id_M", "am", "dm"]].to_records(index=False)
-	ms = subdf.sample(n=int(nb_stars/2))
-	es = np.unique(np.hstack((es1, pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False))))
-	ms = np.unique(np.hstack((ms1, ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False))))
+	# es1 = subdf.sort_values(["red_E", "blue_E"]).iloc[:int(nb_stars/2)][["id_E", "ae", "de"]].to_records(index=False)
+	# ms1 = subdf.sort_values(["red_M", "blue_M"]).iloc[:int(nb_stars/2)][["id_M", "am", "dm"]].to_records(index=False)
+	# ms = subdf.sample(n=int(nb_stars/2))
+	# es = np.unique(np.hstack((es1, pd.concat([eros_stars.loc[ms["c1_y"]], eros_stars.loc[ms["c2_y"]], eros_stars.loc[ms["c3_y"]]])[["id_E", "ae", "de"]].dropna(how='any').to_records(index=False))))
+	# ms = np.unique(np.hstack((ms1, ms[["id_M", "am", "dm"]].dropna(how='any').to_records(index=False))))
 
 	# plt.scatter(es[:,1], es[:,2])
 	# plt.scatter(ms[:,1], ms[:,2])
@@ -254,7 +254,7 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 	counter=0
 	for row in distind.itertuples(name='star'):
-		if counter>=50:
+		if counter>=10:
 			break
 		idx = row.Index
 		print(idx)
@@ -311,7 +311,8 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 				mask1 = ind2.index.values == ind1.loc[ind2.c1].c1.values
 
-				print(str(np.percentile(dist2[mask1][:,0], 0.99))+"<- new dist")
+				# print(str(np.percentile(dist2[mask1][:,0], 0.99))+"<- new dist")
+				print(str(dist2[mask1][:,0].mean())+"<- new dist")
 				print(str(curr_mean_dist)+"<- current_dist")
 				# i=0
 				# plt.scatter(subdf["am"], subdf["dm"], s=10, marker='o',color='gray')
@@ -346,7 +347,8 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 
 				if curr_mean_dist==0:
 					curr_mean_dist = np.mean(dist2[mask1][:,0])
-				bot.append((idx,np.percentile(dist2[mask1][:,0], 0.95)))
+				#bot.append((idx,np.percentile(dist2[mask1][:,0], 0.95)))
+				bot.append((idx,dist2[mask1][:,0].mean()))
 
 	print(bot)
 	bot = np.array(bot, dtype=[('idx', float), ('value', float)])
@@ -411,11 +413,11 @@ print("GO!")
 
 merged, mean_dist = fusion(macho_stars, eros_stars)
 print("QUADS")
-new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=40)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=80)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
+
 pd.to_pickle(new_macho_stars, 'correct1.pkl')
 new_macho_stars = pd.read_pickle('correct1.pkl')
-print(new_macho_stars.columns)
-# print((new_macho_stars["am"]-macho_stars["am"]).dropna())
+
 
 print_current(merged)
 new_macho_stars = new_macho_stars[new_macho_stars.chunk!=255].reset_index(drop=True)

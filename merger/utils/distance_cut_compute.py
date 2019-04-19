@@ -87,26 +87,20 @@ deltaS = -69.7561111*np.pi/180.
 epsilon = (90. - 66.56070833)*np.pi/180.
 t_origin = 51442 #(21 septembre 1999) #58747 #(21 septembre 2019)
 
-@nb.jit
+@nb.njit
 def parallax(t, mag, u0, t0, tE, delta_u, theta):
-	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
-	beta = np.arcsin(sin_beta) #ok because beta is in -pi/2; pi/2
-	if abs(beta)==np.pi/2:
-		lambda_star = 0
-	else:
-		lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
-	tau = (t-t0)/tE
-	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
-	u_D = np.array([
-		-u0*np.sin(theta) + tau*np.cos(theta),
-		 u0*np.cos(theta) + tau*np.sin(theta)
-		])
-	u_t = np.array([
-		-delta_u*np.sin(phi),
-		 delta_u*np.cos(phi)*sin_beta
-		])
-	u = np.linalg.norm(u_D-u_t, axis=0)
-	return (u**2+2)/(u*np.sqrt(u**2+4))
+	out = np.zeros(t.shape)
+	for i in range(len(t)):
+		ti = t[i]
+		tau = (ti-t0)/tE
+		phi = 2*np.pi * (ti-t_origin)/PERIOD_EARTH - lambda_star
+		t1 = u0**2 + tau**2
+		t2 = delta_u**2 * (np.sin(phi)**2 + np.cos(phi)**2*sin_beta**2)
+		t3 = -2*delta_u*u0 * (np.sin(phi)*np.sin(theta) + np.cos(phi)*np.cos(theta)*sin_beta)
+		t4 = 2*tau*delta_u * (np.sin(phi)*np.cos(theta) - np.cos(phi)*np.sin(theta)*sin_beta)
+		u = np.sqrt(t1+t2+t3+t4)
+		out[i] = (u**2+2)/(u*np.sqrt(u**2+4))
+	return out
 
 @nb.jit
 def microlens(t, params):
@@ -147,7 +141,7 @@ if abs(beta)==np.pi/2:
 else:
 	lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
 
-@nb.jit(nopython=True)
+@nb.njit
 def nb_microlens(t_range, mag, blend, u0, t0, tE, delta_u, theta):
 	out = np.zeros(t_range.shape)
 	for i in range(len(t_range)):
@@ -180,7 +174,8 @@ st1 = time.time()
 #tot = dblquad(pdf_xvt, -np.inf, np.inf, gfun=lambda x: 0, hfun=lambda x: 1, epsrel=0.01)
 #tot = dblquad(pdf_xvt_infdist, -np.inf, np.inf, gfun=lambda x: 0, hfun=lambda x: 1, args=(params,), epsrel=0.1)
 t_range = np.linspace(48928, 52697, 1000)
-tot = nquad(pdf_xvt_infdist, ranges=[(0,1), (-np.inf, np.inf), (0, 1), (0, 360*np.pi/180.)], args=[t_range], opts={'epsrel':0.5})
+# tot = nquad(pdf_xvt_infdist, ranges=[(0,1), (-np.inf, np.inf), (0, 1), (0, 360*np.pi/180.)], args=[t_range], opts={'epsrel':0.5})
+tot = nquad(pdf_xvt, ranges=[(0,1), (-np.inf, np.inf)], opts={'epsrel':0.5})[0]*360*np.pi/180.
 st2 = time.time()
 print(tot)
 print(str(st2-st1)+" sec")
@@ -190,3 +185,11 @@ plt.ylabel(r'$v_T [km/s]$')
 plt.show()
 
 #TODO: 0.009705106119492435
+
+# 0.5035429397763278
+# (0.5035429397763278, 0.10013537088425556)
+# 58203.84471487999 sec
+# for tot = nquad(pdf_xvt_infdist, ranges=[(0,1), (-np.inf, np.inf), (0, 1), (0, 360*np.pi/180.)], args=[t_range], opts={'epsrel':0.5})
+#
+# (5.101654634398505, 1.3790603843369689) -> 32.05464144115733
+# 0.45479512214660645 sec

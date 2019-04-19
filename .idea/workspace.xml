@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
+    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="no class, corrected functions">
+      <change afterPath="$PROJECT_DIR$/merger/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/merger/old/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/merger/test/test_generator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/old/parameter_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/old/parameter_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/visualize_parallax_significance.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/visualize_parallax_significance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clean/libraries/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clean/merger.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/merger.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/old/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/iminuit_fitter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/old/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/merger_library.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/old/merger_pandas2.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/merger_pandas2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/old/parameter_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/parameter_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/old/sigma-mag-histo.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/sigma-mag-histo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/old/simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/simulator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python_associator/new_nnd.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/python_associator/new_nnd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/bad_time_spotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/distance_cut_compute.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/distance_cut_compute.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/en_masse_fit_visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/en_masse_fit_visualizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/fit_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/fit_analyzer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/load_macho_to_pickle.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/load_macho_to_pickle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/physical_params_generator_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/physical_params_generator_testing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/toy_simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/toy_simulator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/visualize_parallax_significance.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/visualize_parallax_significance_xvt.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/visualize_parallax_significance_xvt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/visualize_parameters_space.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/visualize_parameters_space.py" afterDir="false" />
     </list>
-    <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files">
-      <change beforePath="$PROJECT_DIR$/utils/visualize_parallax_significance.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/visualize_parallax_significance.py" afterDir="false" />
-    </list>
+    <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,10 +37,10 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python_associator/new_nnd.py">
+        <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1003">
-              <caret line="256" column="21" selection-start-line="256" selection-start-column="21" selection-end-line="256" selection-end-column="21" />
+            <state relative-caret-position="6640">
+              <caret line="415" column="133" selection-start-line="415" selection-start-column="133" selection-end-line="415" selection-end-column="133" />
               <folding>
                 <element signature="e#0#46#0" expanded="true" />
               </folding>
@@ -30,22 +49,31 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/old/parameter_generator.py">
+        <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="155">
-              <caret line="34" column="27" selection-start-line="34" selection-start-column="27" selection-end-line="34" selection-end-column="27" />
+            <state relative-caret-position="880">
+              <caret line="55" column="11" selection-start-line="55" selection-start-column="4" selection-end-line="55" selection-end-column="11" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/setup.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="32">
+              <caret line="2" column="60" selection-start-line="2" selection-start-column="60" selection-end-line="2" selection-end-column="60" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/utils/visualize_parallax_significance.py">
+        <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="553">
-              <caret line="327" column="2" selection-start-line="327" selection-start-column="2" selection-end-line="327" selection-end-column="2" />
+            <state relative-caret-position="192">
+              <caret line="12" column="24" lean-forward="true" selection-start-line="12" selection-start-column="24" selection-end-line="12" selection-end-column="24" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -54,22 +82,15 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utils/visualize_parallax_significance_xvt.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="592">
-              <caret line="37" column="23" lean-forward="true" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/merger/old/__init__.py">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/old/merger_library.py">
+        <entry file="file://$PROJECT_DIR$/merger/old/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="586">
-              <caret line="148" selection-start-line="148" selection-end-line="148" />
+            <state relative-caret-position="32">
+              <caret line="7" selection-start-line="7" selection-end-line="12" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -91,10 +112,17 @@
       <find>subdf.loc[:,&quot;t_dm&quot;]</find>
       <find>mass</find>
       <find>interac</find>
+      <find>params_se</find>
+      <find>numba</find>
+      <find>d_lmc</find>
+      <find>abs</find>
+      <find>=MASS</find>
+      <find>MASS</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
       <replace>t_dm</replace>
+      <replace>nb</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -105,29 +133,18 @@
       <list>
         <option value="$PROJECT_DIR$/utils/visualize_parameters_space.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/python_associator/new_nnd.py" />
-        <option value="$PROJECT_DIR$/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/utils/visualize_parallax_significance.py" />
+        <option value="$PROJECT_DIR$/python_associator/new_nnd.py" />
+        <option value="$PROJECT_DIR$/utils/distance_cut_compute.py" />
+        <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/old/parameter_generator.py" />
+        <option value="$PROJECT_DIR$/old/__init__.py" />
+        <option value="$PROJECT_DIR$/test/test_generator.py" />
+        <option value="$PROJECT_DIR$/merger/test/test_generator.py" />
       </list>
     </option>
   </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/utils/visualize_parallax_significance.py">
-      <ranges>
-        <range start1="94" end1="95" start2="94" end2="95" changelist="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" />
-        <range start1="119" end1="120" start2="119" end2="120" changelist="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" />
-        <range start1="176" end1="177" start2="176" end2="177" changelist="df1a86f7-5d42-428c-9a96-d9b80e88147b" />
-        <range start1="228" end1="229" start2="228" end2="229" changelist="df1a86f7-5d42-428c-9a96-d9b80e88147b" />
-        <range start1="234" end1="235" start2="234" end2="235" changelist="df1a86f7-5d42-428c-9a96-d9b80e88147b" />
-        <range start1="316" end1="316" start2="316" end2="317" changelist="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" />
-        <range start1="318" end1="318" start2="319" end2="320" changelist="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" />
-        <range start1="325" end1="326" start2="327" end2="330" changelist="df1a86f7-5d42-428c-9a96-d9b80e88147b" />
-        <range start1="327" end1="328" start2="331" end2="331" changelist="df1a86f7-5d42-428c-9a96-d9b80e88147b" />
-        <range start1="329" end1="331" start2="332" end2="332" changelist="df1a86f7-5d42-428c-9a96-d9b80e88147b" />
-      </ranges>
-    </file>
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
     <option name="x" value="1280" />
     <option name="y" value="-685" />
     <option name="width" value="1920" />
@@ -135,9 +152,11 @@
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
+      <showExcludedFiles Scope="true" ProjectPane="true" />
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -148,23 +167,12 @@
             <path>
               <item name="merger" type="b2602c69:ProjectViewProjectNode" />
               <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="old" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="merger" type="b2602c69:ProjectViewProjectNode" />
               <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="python_associator" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="merger" type="b2602c69:ProjectViewProjectNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -172,6 +180,13 @@
     <property name="TODO_SCOPE" value="All Places" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Python" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/merger" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/utils" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -185,8 +200,29 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.visualize_parallax_significance">
-    <configuration name="parameter_generator" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.test_generator">
+    <configuration name="new_nnd" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="merger" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python_associator" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python_associator/new_nnd.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="parameter_generator (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -207,7 +243,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="visualize_parallax_significance" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="parameter_generator" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -215,20 +251,20 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/old" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/visualize_parallax_significance.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/distance_cut_compute.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="visualize_parallax_significance_xvt" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="test_generator" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -236,11 +272,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/visualize_parallax_significance_xvt.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/test_generator.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -270,12 +306,20 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.new_nnd" />
+      <item itemvalue="Python.parameter_generator" />
+      <item itemvalue="Python.visualize_parameters_space" />
+      <item itemvalue="Python.parameter_generator (1)" />
+      <item itemvalue="Python.test_generator" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.visualize_parallax_significance" />
+        <item itemvalue="Python.test_generator" />
+        <item itemvalue="Python.parameter_generator (1)" />
+        <item itemvalue="Python.new_nnd" />
         <item itemvalue="Python.parameter_generator" />
-        <item itemvalue="Python.visualize_parallax_significance_xvt" />
-        <item itemvalue="Python.visualize_parameters_space" />
+        <item itemvalue="Python.parameter_generator" />
       </list>
     </recent_temporary>
   </component>
@@ -340,7 +384,56 @@
       <option name="project" value="LOCAL" />
       <updated>1555419910496</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="corrected functions, update interactive">
+      <created>1555421550792</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1555421550792</updated>
+    </task>
+    <task id="LOCAL-00009" summary="no class, corrected functions">
+      <created>1555421593424</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1555421593424</updated>
+    </task>
+    <task id="LOCAL-00010" summary="test integral distancemin vs integral">
+      <created>1555502134296</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1555502134296</updated>
+    </task>
+    <task id="LOCAL-00011" summary="reorganization, speed improvements">
+      <created>1555507959168</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1555507959168</updated>
+    </task>
+    <task id="LOCAL-00012" summary="clean metropolis hastings algorithm">
+      <created>1555662672696</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1555662672696</updated>
+    </task>
+    <task id="LOCAL-00013" summary="better randomizer(tested) and real parameter generator(not tested)">
+      <created>1555666143233</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1555666143233</updated>
+    </task>
+    <task id="LOCAL-00014" summary="setup file for pip installation(no tested)">
+      <created>1555666306013</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1555666306013</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TodoView">
@@ -353,23 +446,23 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="-685" width="1920" height="1200" extended-state="6" />
+    <frame x="1280" y="-685" width="1920" height="1200" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12796208" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12796208" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32851985" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4997367" visible="true" weight="0.366426" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3998195" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32942238" />
-      <window_info anchor="bottom" id="Terminal" order="8" />
-      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.4997367" weight="0.32942238" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32942238" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5002633" side_tool="true" weight="0.32851985" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.21028881" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -383,7 +476,14 @@
     <MESSAGE value="mixed search, 50 test quads" />
     <MESSAGE value="delete useless files" />
     <MESSAGE value="corrected pxvt method" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected pxvt method" />
+    <MESSAGE value="corrected functions, update interactive" />
+    <MESSAGE value="no class, corrected functions" />
+    <MESSAGE value="test integral distancemin vs integral" />
+    <MESSAGE value="reorganization, speed improvements" />
+    <MESSAGE value="clean metropolis hastings algorithm" />
+    <MESSAGE value="better randomizer(tested) and real parameter generator(not tested)" />
+    <MESSAGE value="setup file for pip installation(no tested)" />
+    <option name="LAST_COMMIT_MESSAGE" value="setup file for pip installation(no tested)" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/stats/_distn_infrastructure.py">
@@ -393,7 +493,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/visualize_parameters_space.py">
+    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parameters_space.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2130">
           <caret line="142" lean-forward="true" selection-start-line="142" selection-end-line="142" />
@@ -424,23 +524,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/old/merger_library.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="586">
-          <caret line="148" selection-start-line="148" selection-end-line="148" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python_associator/new_nnd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1003">
-          <caret line="256" column="21" selection-start-line="256" selection-start-column="21" selection-end-line="256" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#46#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.7/site-packages/matplotlib/pyplot.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="239">
@@ -455,30 +538,96 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/visualize_parallax_significance_xvt.py">
+    <entry file="file:///usr/local/lib/python3.7/site-packages/numba/npyufunc/decorators.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="592">
-          <caret line="37" column="23" lean-forward="true" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
+        <state relative-caret-position="239">
+          <caret line="52" column="4" selection-start-line="52" selection-start-column="4" selection-end-line="52" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/integrate/quadpack.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="447" selection-start-line="447" selection-end-line="447" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance_xvt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="28" column="17" selection-start-line="28" selection-start-column="17" selection-end-line="28" selection-end-column="17" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/old/parameter_generator.py">
+    <entry file="file://$PROJECT_DIR$/../../Association/result_MACHO.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="34" column="27" selection-start-line="34" selection-start-column="27" selection-end-line="34" selection-end-column="27" />
+        <state relative-caret-position="-806" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4880">
+          <caret line="305" column="29" selection-start-line="305" selection-start-column="29" selection-end-line="305" selection-end-column="29" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/visualize_parallax_significance.py">
+    <entry file="file://$PROJECT_DIR$/merger/utils/distance_cut_compute.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="553">
-          <caret line="327" column="2" selection-start-line="327" selection-start-column="2" selection-end-line="327" selection-end-column="2" />
+        <state relative-caret-position="-40">
+          <caret line="155" column="16" selection-start-line="155" selection-start-column="8" selection-end-line="155" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6640">
+          <caret line="415" column="133" selection-start-line="415" selection-start-column="133" selection-end-line="415" selection-end-column="133" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="880">
+          <caret line="55" column="11" selection-start-line="55" selection-start-column="4" selection-end-line="55" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" column="60" selection-start-line="2" selection-start-column="60" selection-end-line="2" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/merger_library.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="7" selection-start-line="7" selection-end-line="12" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="12" column="24" lean-forward="true" selection-start-line="12" selection-start-column="24" selection-end-line="12" selection-end-column="24" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

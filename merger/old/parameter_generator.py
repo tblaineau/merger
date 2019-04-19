@@ -7,6 +7,13 @@ import numba as nb
 
 from scipy.integrate import quad
 
+COLOR_FILTERS = {
+	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
+	'red_M':{'mag':'red_M', 'err': 'rederr_M'},
+	'blue_E':{'mag':'blue_E', 'err': 'blueerr_E'},
+	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
+}
+
 a=5000
 rho_0=0.0079
 d_sol = 8500
@@ -114,12 +121,17 @@ def generate_parameters(mass, seed=None, blending=False, parallax=False):
 	Parameters to generate : u0, tE, 𝛅u, theta, t0, blends factors
 	:param mass:
 	:param seed:
+	:param blending:
 	:return:
 	"""
+	tmin = 48928
+	tmax = 52697
+	u_max = 1.
+	max_blend=0.7
+
 	if seed:
 		seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
 		np.random.seed(seed)
-	if parallax:
 
 	u0 = np.random.uniform(0,u_max)
 	s = np.load('xvt_samples.npy')

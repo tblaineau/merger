@@ -326,6 +326,6 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 
 # visualize_parameter_space_imshow(100, 1000, cmap='inferno')
 # interactive_parameter_space(1000, cmap='inferno')
-# visualize_parallax_significance(mass=60, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
+visualize_parallax_significance(mass=60, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
 # visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, distance_args=[0.])
 
