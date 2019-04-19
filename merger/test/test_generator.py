@@ -2,14 +2,18 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import numba as nb
-from merger.old.parameter_generator import metropolis_hastings, randomizer_gauss, pdf_xvt, pdf_tEdu, tE_from_xvt, delta_u_from_x, f_vt, quad, p_xvt, rho_halo
+from merger.old.parameter_generator import metropolis_hastings, randomizer_gauss, pdf_xvt, pdf_tEdu, tE_from_xvt, delta_u_from_x, f_vt, p_xvt, rho_halo
+from scipy.integrate import quad
+from scipy.stats import kstest
+from scipy.stats import rv_continuous
 
 def test_generator(mass, nb_samples=100000, save=False, load=False):
 	x = np.linspace(0,1, 100)
 	vt = np.linspace(0,1000,100)
 	nb_bins = 100
 	st1 = time.time()
-	s = metropolis_hastings(pdf_xvt, randomizer_gauss, nb_samples, np.array([0.01, 0]), kwargs={'mass':mass})
+	if not load:
+		s = metropolis_hastings(pdf_xvt, randomizer_gauss, nb_samples, np.array([0.01, 0]), kwargs={'mass':mass})
 	print(time.time()-st1)
 	if save:
 		np.save('xvt_samples.npy', s)
@@ -18,11 +22,15 @@ def test_generator(mass, nb_samples=100000, save=False, load=False):
 	xrdm = s[:,0]
 	vtrdm = s[:,1]
 
+	def p_x(x, mass):
+		return p_xvt(x, 110, mass) * rho_halo(x) / mass * x * x
+
 	RANGE = ((0,1), (-1000,1000))
 	fig, axs = plt.subplots(2,2, sharex='col', sharey='row')
 	axs[0,0].hist(xrdm, bins=nb_bins, histtype='step', color='red', range=RANGE[0])
 	tmpa = axs[0,0].twinx()
-	tmpa.plot(x, p_xvt(x,110, mass=mass)*rho_halo(x)/mass*x*x)
+
+	tmpa.plot(xrdm, p_x(xrdm, mass=mass))
 	tmpa.set_ylim(0)
 	axs[1,0].hist2d(xrdm, vtrdm, bins=100, range=RANGE)
 	#plt.contour(x, vT, pdf_xvt(x[None, :], vT[:, None], mass))
@@ -56,6 +64,28 @@ def test_generator(mass, nb_samples=100000, save=False, load=False):
 	plt.ylim(0)
 	#plt.hist2d(, bins=100, range=((0,1), (-1000,1000)))
 	plt.show()
+
+
+	class Xgenerator(rv_continuous):
+		def __init__(self, mass):
+			rv_continuous.__init__(self)
+			self.mass = mass
+
+		def _pdf(self, x, *args, **kwargs):
+			return p_x(x, mass=self.mass)
+
+		def _cdf(self, x, *args, **kwargs):
+			return np.array([quad(xgen._pdf,0, xi)[0] for xi in x])/quad(xgen._pdf,0, 1)[0]
+
+	xgen = Xgenerator(mass)
+	xrange = np.linspace(0., 1., 100)
+	cdf = [quad(xgen._pdf,0, xi)[0] for xi in xrange]
+	plt.plot(xrange, xgen._cdf(xrange))
+	plt.ylim(0)
+	plt.gca().twinx().hist(xrdm, histtype='step', cumulative=True, bins=100)
+	plt.show()
+
+	#print(kstest(xrdm, xgen._cdf))
 
 def parallax_cut(mass):
 	PERIOD_EARTH = 365.2422
@@ -114,4 +144,4 @@ def parallax_cut(mass):
 	plt.plot(t, np.abs(cpara-cnopa)/(cpara))
 	plt.show()
 
-test_generator(100, 1000000)
+test_generator(100, 1000000, load=True)
