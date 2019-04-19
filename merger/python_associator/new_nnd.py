@@ -79,58 +79,12 @@ def correction(merged, macho_stars):
 	new_macho_stars.dropna(subset=["am", "dm"], how='any', inplace=True)
 	return new_macho_stars.reset_index()
 
-def compute_distances(stars, dlist=[], i=1):
-	for idx, s in enumerate(stars[i:]):
-		dlist.append([i-1, i+idx, (stars[i-1][1]-s[1])**2 + (stars[i-1][2]-s[2])**2])
-	if len(stars)==i+1:
-		return 0
-	else:
-		compute_distances(stars, dlist, i+1)
-
-def most_distant(stars):
-	dlist = []
-	compute_distances(stars, dlist)
-	dlist=np.array(dlist)
-	dlist = dlist[dlist[:, 2].argsort()[::-1]]
-	return dlist[0]
-
 def comb_index(n, k):
 	#generate indices of combinations without repititon of a n*k array
-    count = comb(n, k, exact=True)
-    index = np.fromiter(chain.from_iterable(combinations(range(n), k)), 
-                        int, count=count*k)
-    return index.reshape(-1, k)
-
-def generate_quads(ss):
-	quads=[]
-	for idx1, star1 in enumerate(ss[:-3]):
-		for idx2, star2 in enumerate(ss[idx1+1:-2]):
-			for idx3, star3 in enumerate(ss[idx1+idx2+2:-1]):
-				for idx4, star4 in enumerate(ss[idx1+idx2+idx3+3:]):
-					stars = np.array([star1, star2, star3, star4])
-					dlist = most_distant(stars)
-					choice = stars[dlist[[0,1]].astype(int)]
-					if choice[0,1]<choice[1,1]:
-						starA = choice[0]
-						starB = choice[1]
-					else:
-						starA = choice[1]
-						starB = choice[0]
-
-					Xb, Yb = starB[1], starB[2]
-					Xa, Ya = starA[1], starA[2]
-					starC, starD = np.delete(stars, dlist[[0,1]].astype(int), axis=0)
-					xc = (starC[1]-Xa)/(Xb-Xa)
-					yc = (starC[2]-Ya)/(Yb-Ya)
-					xd = (starD[1]-Xa)/(Xb-Xa)
-					yd = (starD[2]-Ya)/(Yb-Ya)
-					if xc>xd:
-						xc,yc,xd,yd = xd,yd,xc,yc
-						starC, starD = starD, starC
-					distAB = np.sqrt((Xa-Xb)**2+(Ya-Yb)**2)
-					quads.append([xc, yc, xd, yd, starA[0], starB[0], starC[0], starD[0], distAB])
-	print(len(quads))
-	return np.array(quads)
+	count = comb(n, k, exact=True)
+	index = np.fromiter(chain.from_iterable(combinations(range(n), k)),
+						int, count=count*k)
+	return index.reshape(-1, k)
 
 def vectorized_generate_quads(ss):
 	id_M, am, dm = ss.dtype.names
