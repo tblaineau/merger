@@ -116,7 +116,7 @@ def metropolis_hastings(func, g, nb_samples, start, kwargs={}):
 	print(accepted, accepted/nb_samples)
 	return np.array(samples)
 
-def generate_parameters(mass, seed=None, blending=False, parallax=False):
+def generate_parameters(mass, seed=None, blending=False, parallax=False, s=None):
 	"""
 	Parameters to generate : u0, tE, 𝛅u, theta, t0, blends factors
 	:param mass:
@@ -124,8 +124,8 @@ def generate_parameters(mass, seed=None, blending=False, parallax=False):
 	:param blending:
 	:return:
 	"""
-	tmin = 48928
-	tmax = 52697
+	tmin = 48928.
+	tmax = 52697.
 	u_max = 1.
 	max_blend=0.7
 
@@ -134,8 +134,9 @@ def generate_parameters(mass, seed=None, blending=False, parallax=False):
 		np.random.seed(seed)
 
 	u0 = np.random.uniform(0,u_max)
-	s = np.load('xvt_samples.npy')
-	x , vt = np.random.choice(s, 1)
+	if not isinstance(s, np.ndarray):
+		s = np.load('xvt_samples.npy')
+	x , vt = s[np.random.randint(0, s.shape[0])]
 	delta_u = delta_u_from_x(x, mass=mass)
 	tE = tE_from_xvt(x, vt, mass=mass)
 	t0 = np.random.uniform(tmin - tE / 2., tmax + tE / 2.)
@@ -153,5 +154,121 @@ def generate_parameters(mass, seed=None, blending=False, parallax=False):
 		'tE':tE,
 		'delta_u':delta_u,
 		'theta':theta,
+		'mass':mass,
 	}
 	return params
+
+
+PERIOD_EARTH = 365.2422
+alphaS = 80.8941667*np.pi/180.
+deltaS = -69.7561111*np.pi/180.
+epsilon = (90. - 66.56070833)*np.pi/180.
+t_origin = 51442 #(21 septembre 1999) #58747 #(21 septembre 2019)
+
+sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
+beta = np.arcsin(sin_beta) #ok because beta is in -pi/2; pi/2
+if abs(beta)==np.pi/2:
+	lambda_star = 0
+else:
+	lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
+
+@nb.njit
+def microlens_parallax(t_range, mag, blend, u0, t0, tE, delta_u, theta):
+	out = np.zeros(t_range.shape)
+	for i in range(len(t_range)):
+		t = t_range[i]
+		tau = (t-t0)/tE
+		phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
+		t1 = u0**2 + tau**2
+		t2 = delta_u**2 * (np.sin(phi)**2 + np.cos(phi)**2*sin_beta**2)
+		t3 = -2*delta_u*u0 * (np.sin(phi)*np.sin(theta) + np.cos(phi)*np.cos(theta)*sin_beta)
+		t4 = 2*tau*delta_u * (np.sin(phi)*np.cos(theta) - np.cos(phi)*np.sin(theta)*sin_beta)
+		u = np.sqrt(t1+t2+t3+t4)
+		parallax  = (u**2+2)/(u*np.sqrt(u**2+4))
+		out[i] = - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax)
+	return out
+
+@nb.jit
+def microlens_simple(t, mag, blend, u0, t0, tE, delta_u, theta):
+	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
+	amp = (u**2+2)/(u*np.sqrt(u**2+4))
+	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * amp)
+
+import pandas as pd
+
+def distance1(cnopa, cpara):
+	return np.max(np.abs(cnopa-cpara))/np.max((19.-cnopa))
+
+def distance2(cnopa, cpara):
+	return np.abs(cnopa-cpara).sum()/np.sum(19.-cnopa)
+
+#@nb.njit
+def compute_distance(params_set, distance, time_sampling=1000):
+	tmin = 48928
+	tmax = 52697
+	t = np.linspace(tmin, tmax, time_sampling)
+	ds = []
+	for params in params_set:
+		del params['mass']
+		params['mag']=19.
+		params['blend']=0.
+		ds.append(distance(microlens_simple(t, **params), microlens_parallax(t, **params)))
+	return ds
+
+import time
+import seaborn as sns
+from matplotlib.colors import LogNorm
+
+# s = np.load('xvt_samples.npy')
+# s = s[(s[:,0]>0) & (s[:,1]>0)]
+# all_params=[]
+# for mass in np.random.uniform(10, 1000, size=100000):
+# 	all_params.append(generate_parameters(mass=mass, s=s))
+# df = pd.DataFrame.from_records(all_params)
+#
+#
+# st1 = time.time()
+# ds = compute_distance(all_params, distance=distance1)
+# print(time.time()-st1)
+#
+# df = df.assign(distance=ds)
+# df.to_pickle('temp.pkl')
+
+df = pd.read_pickle('temp.pkl')
+
+# fig, axs = plt.subplots(ncols=6, nrows=1, sharey='all')
+# scatter_params = {'marker':'+', 's':1}
+# hist2d_prams = {'bins':(20,100), 'norm':LogNorm()}
+# for idx, curr_muparameter in enumerate(['u0', 'tE', 'delta_u', 'theta', 'mass']):
+# 	axs[idx].hist2d(df[curr_muparameter], df['distance'], **hist2d_prams)
+# 	axs[idx].set_title(curr_muparameter)
+# # axs[0].hist2d(df['u0'], df['distance'], bins=(20,100), norm=LogNorm())
+# # axs[1].hist2d(df['tE'], df['distance'], bins=(20,100), norm=LogNorm(), range=((0,4000)))
+# # axs[2].hist2d(df['delta_u'], df['distance'], bins=(20,100), norm=LogNorm())
+# # axs[3].hist2d(df['theta'], df['distance'], bins=(20,100), norm=LogNorm())
+# # axs[4].hist2d(df['mass'], df['distance'], bins=(20,100), norm=LogNorm())
+#
+# axs[5].hist(df['distance'], bins=100, histtype='step', orientation='horizontal')
+# axs[5].set_xscale('log')
+# plt.show()
+
+tmin = 48928
+tmax = 52697
+# p1 = df[df.distance>0.1].iloc[0].to_dict()
+p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
+print(p1)
+p1['blend']=0.
+p1['mag']=19.
+del p1['distance']
+del p1['mass']
+t = np.linspace(tmin, tmax, 1000)
+cnopa = microlens_simple(t, **p1)
+cpara = microlens_parallax(t, **p1)
+plt.subplot(211)
+plt.plot(t, cnopa)
+plt.plot(t, cpara)
+plt.gca().invert_yaxis()
+plt.subplot(212)
+plt.plot(t, cnopa*cpara-19*19)
+plt.gca().invert_yaxis()
+plt.show()

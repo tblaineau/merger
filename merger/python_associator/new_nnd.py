@@ -8,8 +8,8 @@ from scipy.special import comb
 
 import sys
 sys.path.append("/Users/tristanblaineau/Documents/Work/Python")
-sys.path.append("/Users/tristanblaineau/Documents/Work/Python/merger/clean/libraries")
 from lib_perso import *
+from merger.clean.libraries import merger_library
 
 def print_current(merged ,prefix=""):
 	a1, d1 = merged[prefix+"am"].values, merged[prefix+"dm"].values
@@ -56,7 +56,12 @@ def fusion(stars1, stars2, prefix=''):
 	m_stars1 = ind2.join(stars1)
 
 	mask = m_stars2.index.values == m_stars1.loc[m_stars2.c1].c1.values
-	return pd.merge(m_stars2[mask], m_stars1, right_index=True, left_on="c1"), np.median(dist1[mask])
+	print(m_stars1.shape)
+	print(m_stars2.shape)
+	print(mask.shape)
+	print(m_stars2[mask].shape)
+	print()
+	return pd.merge(m_stars2[mask], m_stars1, right_index=True, left_on="c1")
 
 def correction(merged, macho_stars):
 	"""Corrects macho_stars positions from merged
@@ -343,12 +348,29 @@ def quads(subdf, eros_stars, macho_stars, nb_stars=10):
 	print("NO VALID QUADS !!!!")
 	return subdf.drop(['ae', 'alpha_E', 'blue_E', 'c1', 'c1_x', 'c1_y', 'c2_x', 'c2_y', 'c3_x', 'c3_y', 'de', 'delta_E', 'id_E', 'red_E'], axis=1)
 
-eros_stars = pd.DataFrame(load_eros_field_stars("032"))
-eros_stars.columns = ["id_E", "alpha_E", "delta_E", "red_E", "blue_E"]
-eros_stars = eros_stars.astype({"id_E":object, "alpha_E":float, "delta_E":float, "red_E":float, "blue_E":float}, copy=False)
-eros_stars.loc[:,"alpha_E"] = eros_stars["alpha_E"]*np.pi/180.
-eros_stars.loc[:,"delta_E"] = eros_stars["delta_E"]*np.pi/180.
-print('EROS stars loaded.')
+# eros_fields = [41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+# 			   28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+# 			   15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+# 			   1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13,
+# 			   53, 54, 55, 56, 57, 58, 59, 60, 61,
+# 			   66, 67, 68, 69, 70, 71, 72, 73]
+# eros_stars_pds = []
+# for i in eros_fields:
+# 	if i<10:
+# 		field_id = "00"+str(i)
+# 	else:
+# 		field_id = "0"+str(i)
+# 	print(field_id)
+# 	eros_stars_pds.append(pd.DataFrame(load_eros_field_stars(field_id)))
+# eros_stars = pd.concat(eros_stars_pds)
+# eros_stars.columns = ["id_E", "alpha_E", "delta_E", "red_E", "blue_E"]
+# eros_stars = eros_stars.astype({"id_E":object, "alpha_E":float, "delta_E":float, "red_E":float, "blue_E":float}, copy=False)
+# eros_stars.loc[:,"alpha_E"] = eros_stars["alpha_E"]*np.pi/180.
+# eros_stars.loc[:,"delta_E"] = eros_stars["delta_E"]*np.pi/180.
+# print('EROS stars loaded.')
+# eros_stars.to_pickle('all_eros_fields.pkl')
+eros_stars = pd.read_pickle('all_eros_fields.pkl')
+
 
 macho_stars = pd.read_pickle("macho_mags49.pkl")
 # macho_stars = pd.DataFrame(load_macho_field_stars(49))
@@ -365,7 +387,7 @@ macho_stars.loc[:,"am"], macho_stars.loc[:,"dm"] = proj_ad(macho_stars["alpha_M"
 
 print("GO!")
 
-merged, mean_dist = fusion(macho_stars, eros_stars)
+merged = fusion(macho_stars, eros_stars)
 print("QUADS")
 new_macho_stars = merged.groupby(["template_pier", "chunk"]).apply(quads, eros_stars=eros_stars, macho_stars=macho_stars, nb_stars=80)	#[(merged.chunk==31) & (merged.template_pier == 'E')]
 
@@ -375,7 +397,7 @@ new_macho_stars = pd.read_pickle('correct1.pkl')
 
 print_current(merged)
 new_macho_stars = new_macho_stars[new_macho_stars.chunk!=255].reset_index(drop=True)
-merged, mean_dist = fusion(new_macho_stars, eros_stars)
+merged = fusion(new_macho_stars, eros_stars)
 plt.figure()
 print_current(merged)
 plt.show()
