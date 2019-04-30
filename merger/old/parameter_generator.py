@@ -2,7 +2,15 @@ import numpy as np
 import astropy.units as units
 import astropy.constants as constants
 
+#fastdtw
+import fastdtw
+from scipy.spatial.distance import euclidean
+from scipy.signal import find_peaks
+
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize, LogNorm
+import seaborn as sns
+import time
 import numba as nb
 
 from scipy.integrate import quad
@@ -202,6 +210,47 @@ def distance1(cnopa, cpara):
 def distance2(cnopa, cpara):
 	return np.abs(cnopa-cpara).sum()/np.sum(19.-cnopa)
 
+@nb.jit(nopython=True)
+def dtw_distance(cnopa, cpara):
+	dtw = list(np.full(shape=(len(cpara), len(cnopa)), fill_value=np.inf))
+	dtw[0][0] = 0.
+	for i in range(1, len(cnopa)):
+		for j in range(1, len(cpara)):
+			cost = (cnopa[i]-cpara[j])**2
+			dtw[i][j] = cost #+ np.min([dtw[i][j-1], dtw[i-1][j-1], dtw[i-1][j]])
+	print(dtw[-1][-1])
+	return dtw[-1][-1]
+
+
+def fastdtw_distance(cnopa, cpara):
+	distance, path = fastdtw.fastdtw(cnopa, cpara, dist=euclidean)
+	print(distance)
+	# print(path)
+	# path = np.array(path)
+	# plt.plot(cnopa[path[:,0]])
+	# plt.plot(cpara[path[:,1]])
+	# plt.plot(cnopa, linestyle=":")
+	# plt.plot(cpara, linestyle=":")
+	# plt.gca().invert_yaxis()
+	# plt.show()
+	return distance
+
+def peak_distance(cnopa, cpara, min_prominence=0., base_mag=19.):
+	peaks, infos = find_peaks(cpara-base_mag, prominence=min_prominence)
+	if len(peaks):
+		return len(peaks)
+	else :
+		return 0
+
+@nb.njit
+def numba_weighted_mean(a, w):
+	s = 0
+	n = 0
+	for i in range(len(a)):
+		s+=a[i]*w[i]
+		n+=w[i]
+	return s/n
+
 #@nb.njit
 def compute_distance(params_set, distance, time_sampling=1000):
 	tmin = 48928
@@ -212,50 +261,108 @@ def compute_distance(params_set, distance, time_sampling=1000):
 		del params['mass']
 		params['mag']=19.
 		params['blend']=0.
+		# cnopa = microlens_simple(t, **params)
+		# cpara = microlens_parallax(t, **params)
+		# nopa_center = numba_weighted_mean(t, 19 - cnopa)
+		# para_center = numba_weighted_mean(t, 19 - cpara)
+		# shift = nopa_center - para_center
 		ds.append(distance(microlens_simple(t, **params), microlens_parallax(t, **params)))
 	return ds
-
-import time
-import seaborn as sns
-from matplotlib.colors import LogNorm
 
 # s = np.load('xvt_samples.npy')
 # s = s[(s[:,0]>0) & (s[:,1]>0)]
 # all_params=[]
-# for mass in np.random.uniform(10, 1000, size=100000):
+# np.random.seed(1234567890)
+# for mass in np.random.uniform(10, 1000, size=500000):
 # 	all_params.append(generate_parameters(mass=mass, s=s))
 # df = pd.DataFrame.from_records(all_params)
 #
 #
 # st1 = time.time()
-# ds = compute_distance(all_params, distance=distance1)
+# ds = compute_distance(all_params, distance=peak_distance)
 # print(time.time()-st1)
 #
 # df = df.assign(distance=ds)
-# df.to_pickle('temp.pkl')
+# df.to_pickle('temp_peaknb.pkl')
 
-df = pd.read_pickle('temp.pkl')
+# df = pd.read_pickle('temp_peaknb.pkl')
+df = pd.read_pickle('temp_maxpeaksprom.pkl')
+# df = pd.read_pickle('temp_meanpeaksprom.pkl')
+# df = pd.read_pickle('temp_peaksprom.pkl')
 
-# fig, axs = plt.subplots(ncols=6, nrows=1, sharey='all')
-# scatter_params = {'marker':'+', 's':1}
-# hist2d_prams = {'bins':(20,100), 'norm':LogNorm()}
-# for idx, curr_muparameter in enumerate(['u0', 'tE', 'delta_u', 'theta', 'mass']):
-# 	axs[idx].hist2d(df[curr_muparameter], df['distance'], **hist2d_prams)
-# 	axs[idx].set_title(curr_muparameter)
-# # axs[0].hist2d(df['u0'], df['distance'], bins=(20,100), norm=LogNorm())
-# # axs[1].hist2d(df['tE'], df['distance'], bins=(20,100), norm=LogNorm(), range=((0,4000)))
-# # axs[2].hist2d(df['delta_u'], df['distance'], bins=(20,100), norm=LogNorm())
-# # axs[3].hist2d(df['theta'], df['distance'], bins=(20,100), norm=LogNorm())
-# # axs[4].hist2d(df['mass'], df['distance'], bins=(20,100), norm=LogNorm())
-#
-# axs[5].hist(df['distance'], bins=100, histtype='step', orientation='horizontal')
-# axs[5].set_xscale('log')
-# plt.show()
+
+def display(dfi, cutoff=0.):
+	df = dfi[dfi['distance']>=cutoff]
+	print(len(df)/len(dfi))
+	fig, axs = plt.subplots(ncols=5, nrows=1, sharey='all')
+	scatter_params = {'marker':'+', 's':1}
+	hist2d_prams = {'bins':(20,100), 'norm':LogNorm()}
+	for idx, curr_muparameter in enumerate(['u0', 'tE', 'delta_u', 'mass']):
+		axs[idx].hist2d(df[curr_muparameter], df['distance'], **hist2d_prams)
+		axs[idx].set_title(curr_muparameter)
+
+	axs[-1].hist(df['distance'], bins=100, histtype='step', orientation='horizontal')
+	axs[-1].set_xscale('log')
+	plt.show()
+
+	fig, axs = plt.subplots(ncols=4, nrows=1, sharey='all')
+	for idx, curr_muparameter in enumerate(['u0', 'tE', 'delta_u', 'mass']):
+		df.loc[:,curr_muparameter+'_bins'], bins = pd.cut(df[curr_muparameter], 20, retbins=True)
+		ratios = df[curr_muparameter+'_bins'].value_counts(sort=False)/pd.cut(dfi[curr_muparameter], bins).value_counts(sort=False)
+		colormap = plt.cm.magma_r
+		color_val = (pd.cut(dfi[curr_muparameter], bins).value_counts(sort=False)/len(dfi)).to_numpy()
+		norm = Normalize(vmin=color_val.min(), vmax=color_val.max())
+		axs[idx].bar((bins[:-1]+bins[1:])/2., ratios, align='center', width=1*(bins[1]-bins[0]), color='blue', edgecolor='white')#color=colormap(norm(color_val)))
+		axs[idx].twinx().bar((bins[:-1]+bins[1:])/2., color_val, align='center', width=0.7*(bins[1]-bins[0]), color='none', edgecolor='orange')
+		axs[idx].set_title(curr_muparameter)
+	plt.show()
+
+def cuttoffs_scatter_plots(df, cutoffs=[0.01, 0.05, 0.1]):
+	for cutoff in cutoffs:
+		tdf = df[df['distance']>cutoff]
+		print(len(tdf)/len(df))
+		#plt.hist2d(tdf['u0'], tdf['delta_u'], range=((0,1), (0,0.06)), bins=100, norm=LogNorm())
+		sns.scatterplot(tdf['u0'], tdf['delta_u'], size=tdf['mass'], hue=tdf['tE'])
+		plt.plot([[0,0], [1,1]], ls="--", c=".3")
+		plt.show()
+
+def fraction(dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, condition=True, binfunc=lambda x:x):
+	if isinstance(cutoff, list):
+		cutoff = np.array(cutoff)
+	elif not isinstance(cutoff, np.ndarray):
+		cutoff = np.array([cutoff])
+	ax = plt.gca()
+	lctf = len(cutoff)
+	for idx, ct in enumerate(cutoff):
+		df = dfi[(dfi['distance']>=ct) & condition].copy()
+		print(len(df),len(df) / len(dfi))
+		df.loc[:, curr_muparameter + '_bins'], rbins = pd.cut(df[curr_muparameter], bins=binfunc(bins), retbins=True)
+		ratios = df[curr_muparameter + '_bins'].value_counts(sort=False) / pd.cut(dfi[curr_muparameter], bins=rbins).value_counts(sort=False)
+		color_val = (pd.cut(dfi[curr_muparameter], bins=rbins).value_counts(sort=False) / len(dfi)).to_numpy()
+		ax.set_title(curr_muparameter)
+		cmp1 = plt.cm.Blues
+		norm = Normalize(0,1)
+		# ax.xaxis.set_major_locator(plt.MaxNLocator(21))
+		ax.bar((bins[:-1] + bins[1:]) / 2., ratios, align='center', width=1 * (bins[1:] - bins[:-1]), color=cmp1(norm(idx/lctf)*0.5+0.25),edgecolor='white', label='cutoff {:.3f}'.format(ct))  # color=colormap(norm(color_val)))
+		if show_tot:
+			ax.twinx().bar((bins[:-1] + bins[1:]) / 2., color_val, align='center', width=0.7 * (bins[1:] - bins[:-1]),color='none', edgecolor='orange', label='tot_prop')
+		ax.set_xticks(bins)
+		ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: "{:.1f}".format(binfunc(value))))
+	plt.legend()
+	ax.legend()
+	plt.show()
+
+
+fraction(df, cutoff=[0.01, 0.05, 0.127], bins=np.linspace(1, 3, 20), binfunc=lambda x: np.power(10, x), show_tot=False)
+fraction(df, curr_muparameter='u0', cutoff=[0.01, 0.05, 0.127], bins=np.linspace(0, 1, 20), show_tot=False)
+fraction(df, curr_muparameter='tE', cutoff=[0.01, 0.05, 0.127], bins=np.linspace(2, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+cuttoffs_scatter_plots(df, cutoffs=[0.01, 0.05, 0.127])
+# display(df, cutoff=0.)
 
 tmin = 48928
 tmax = 52697
-# p1 = df[df.distance>0.1].iloc[0].to_dict()
-p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
+p1 = df.sort_values(by='distance', ascending=False).iloc[0].to_dict()
+# p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p1)
 p1['blend']=0.
 p1['mag']=19.
@@ -264,11 +371,18 @@ del p1['mass']
 t = np.linspace(tmin, tmax, 1000)
 cnopa = microlens_simple(t, **p1)
 cpara = microlens_parallax(t, **p1)
+
+# nopa_center = numba_weighted_mean(t, 19 - cnopa)
+# para_center = numba_weighted_mean(t, 19 - cpara)
+# shift = nopa_center - para_center
+# print(shift)
+# cpara = microlens_parallax(t+shift, **p1)
+
 plt.subplot(211)
 plt.plot(t, cnopa)
 plt.plot(t, cpara)
 plt.gca().invert_yaxis()
 plt.subplot(212)
-plt.plot(t, cnopa*cpara-19*19)
+plt.plot(t, cnopa-cpara)
 plt.gca().invert_yaxis()
 plt.show()
