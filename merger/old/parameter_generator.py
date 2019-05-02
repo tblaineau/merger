@@ -13,6 +13,8 @@ import seaborn as sns
 import time
 import numba as nb
 
+from iminuit import Minuit
+
 from scipy.integrate import quad
 
 COLOR_FILTERS = {
@@ -120,11 +122,12 @@ def metropolis_hastings(func, g, nb_samples, start, kwargs={}):
 		if np.random.uniform() < threshold:
 			current_x = proposed_x
 			accepted+=1
-		samples.append(current_x)
+		if current_x[0]>0 and current_x[0]<1:
+			samples.append(current_x)
 	print(accepted, accepted/nb_samples)
 	return np.array(samples)
 
-def generate_parameters(mass, seed=None, blending=False, parallax=False, s=None):
+def generate_parameters(mass, seed=None, blending=False, parallax=False, s=None, x=None, vt=None):
 	"""
 	Parameters to generate : u0, tE, 𝛅u, theta, t0, blends factors
 	:param mass:
@@ -142,9 +145,10 @@ def generate_parameters(mass, seed=None, blending=False, parallax=False, s=None)
 		np.random.seed(seed)
 
 	u0 = np.random.uniform(0,u_max)
-	if not isinstance(s, np.ndarray):
-		s = np.load('xvt_samples.npy')
-	x , vt = s[np.random.randint(0, s.shape[0])]
+	if not x or not vt:
+		if not isinstance(s, np.ndarray):
+			s = np.load('../test/xvt_samples.npy')
+		x , vt = s[np.random.randint(0, s.shape[0])]
 	delta_u = delta_u_from_x(x, mass=mass)
 	tE = tE_from_xvt(x, vt, mass=mass)
 	t0 = np.random.uniform(tmin - tE / 2., tmax + tE / 2.)
@@ -163,6 +167,8 @@ def generate_parameters(mass, seed=None, blending=False, parallax=False, s=None)
 		'delta_u':delta_u,
 		'theta':theta,
 		'mass':mass,
+		'x':x,
+		'vt':vt,
 	}
 	return params
 
@@ -205,7 +211,7 @@ def microlens_simple(t, mag, blend, u0, t0, tE, delta_u, theta):
 import pandas as pd
 
 def distance1(cnopa, cpara):
-	return np.max(np.abs(cnopa-cpara))/np.max((19.-cnopa))
+	return np.max(np.abs(cnopa-cpara))
 
 def distance2(cnopa, cpara):
 	return np.abs(cnopa-cpara).sum()/np.sum(19.-cnopa)
@@ -238,9 +244,26 @@ def fastdtw_distance(cnopa, cpara):
 def peak_distance(cnopa, cpara, min_prominence=0., base_mag=19.):
 	peaks, infos = find_peaks(cpara-base_mag, prominence=min_prominence)
 	if len(peaks):
-		return len(peaks)
+		return len(peaks)#np.max(infos["prominences"])
 	else :
 		return 0
+
+def simple_fit_distance(cnopa, cpara, time_range, init_params):
+	def fitter_func(u0, t0, tE):
+		return np.max(np.abs((cpara - microlens_simple(time_range, 19., 0., u0, t0, tE, 0., 0.))))
+	m = Minuit(fitter_func,
+			   u0=init_params['u0'],
+			   t0=init_params['t0'],
+			   tE=init_params['tE'],
+			   error_u0=0.1,
+			   error_t0=500,
+			   error_tE=10,
+			   limit_u0=(0, 2),
+			   errordef=1,
+			   print_level=0
+			   )
+	m.migrad()
+	return m.get_fmin()
 
 @nb.njit
 def numba_weighted_mean(a, w):
@@ -259,8 +282,11 @@ def compute_distance(params_set, distance, time_sampling=1000):
 	ds = []
 	for params in params_set:
 		del params['mass']
+		del params['x']
+		del params['vt']
 		params['mag']=19.
 		params['blend']=0.
+		# distance_args = {'time_range': t, 'init_params':{'u0':params['u0'], 'tE':params['tE'], 't0':params['t0']}}
 		# cnopa = microlens_simple(t, **params)
 		# cpara = microlens_parallax(t, **params)
 		# nopa_center = numba_weighted_mean(t, 19 - cnopa)
@@ -269,26 +295,32 @@ def compute_distance(params_set, distance, time_sampling=1000):
 		ds.append(distance(microlens_simple(t, **params), microlens_parallax(t, **params)))
 	return ds
 
-# s = np.load('xvt_samples.npy')
-# s = s[(s[:,0]>0) & (s[:,1]>0)]
+
 # all_params=[]
 # np.random.seed(1234567890)
-# for mass in np.random.uniform(10, 1000, size=500000):
-# 	all_params.append(generate_parameters(mass=mass, s=s))
+# all_xvts = np.load('../test/xvt_samples.npy')
+# for mass in np.geomspace(0.1, 1000, 9):
+# 	for x, vt in all_xvts:
+# 		all_params.append(generate_parameters(mass=mass, x=x, vt=vt))
 # df = pd.DataFrame.from_records(all_params)
 #
 #
 # st1 = time.time()
-# ds = compute_distance(all_params, distance=peak_distance)
+# ds = compute_distance(all_params, distance=peak_distance, time_sampling=1000)
 # print(time.time()-st1)
 #
 # df = df.assign(distance=ds)
 # df.to_pickle('temp_peaknb.pkl')
 
-# df = pd.read_pickle('temp_peaknb.pkl')
-df = pd.read_pickle('temp_maxpeaksprom.pkl')
+# df = pd.read_pickle('temp_maxdiff.pkl')
+df = pd.read_pickle('temp_peaknb.pkl')
+# df = pd.read_pickle('temp_maxpeaksprom.pkl')
 # df = pd.read_pickle('temp_meanpeaksprom.pkl')
 # df = pd.read_pickle('temp_peaksprom.pkl')
+# df = pd.read_pickle('temp_fitter.pkl')
+# df = df.join(pd.DataFrame(df.pop('distance').to_list())[['fval', 'is_valid']])
+# df.rename(columns={'fval':'distance'}, inplace=True)
+# df = df[df.is_valid]
 
 
 def display(dfi, cutoff=0.):
@@ -322,8 +354,8 @@ def cuttoffs_scatter_plots(df, cutoffs=[0.01, 0.05, 0.1]):
 		tdf = df[df['distance']>cutoff]
 		print(len(tdf)/len(df))
 		#plt.hist2d(tdf['u0'], tdf['delta_u'], range=((0,1), (0,0.06)), bins=100, norm=LogNorm())
-		sns.scatterplot(tdf['u0'], tdf['delta_u'], size=tdf['mass'], hue=tdf['tE'])
-		plt.plot([[0,0], [1,1]], ls="--", c=".3")
+		sns.scatterplot(tdf['tE'], tdf['delta_u'], size=tdf['distance'], hue=tdf['distance'])
+		# plt.plot([[0,0], [1,1]], ls="--", c=".3")
 		plt.show()
 
 def fraction(dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, condition=True, binfunc=lambda x:x):
@@ -347,27 +379,77 @@ def fraction(dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, co
 		if show_tot:
 			ax.twinx().bar((bins[:-1] + bins[1:]) / 2., color_val, align='center', width=0.7 * (bins[1:] - bins[:-1]),color='none', edgecolor='orange', label='tot_prop')
 		ax.set_xticks(bins)
-		ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: "{:.1f}".format(binfunc(value))))
+		for label in ax.get_xticklabels():
+			label.set_ha("right")
+			label.set_rotation(45)
+		ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: "{:.3f}".format(binfunc(value))))
 	plt.legend()
 	ax.legend()
 	plt.show()
 
+def parameter_space(dfi):
+	dfdist = dfi[dfi.distance>1]
+	fig, axs = plt.subplots(nrows=3, ncols=3, sharex='col')
+	range_u0 = (0, 1)
+	range_tE = (10, 10000)
+	range_delta_u = (0, 0.08)
+	nb_bins = 200
+	nb_levels =3
+	axs[0, 0].hist(dfdist['u0'], bins=nb_bins, histtype='step', range=range_u0)
+	axs[0, 0].twinx().hist(df['u0'], bins=nb_bins, histtype='step', range=range_u0, color='orange')
+	axs[1, 0].hist2d(dfi['u0'], dfi['tE'], bins=nb_bins, range=(range_u0, range_tE))
+	# axs[1, 0].scatter(dfdist['u0'], dfdist['tE'], marker='.', s=0.1)
+	sns.kdeplot(dfdist['u0'], dfdist['tE'], clip=(range_u0, range_tE), ax=axs[1, 0], levels = nb_levels)
+	axs[1, 1].hist(dfdist['tE'], bins=nb_bins, histtype='step', range=range_tE)
+	axs[1, 1].twinx().hist(df['tE'], bins=nb_bins, histtype='step', range=range_tE, color='orange')
+	axs[2, 0].hist2d(dfi['u0'], dfi['delta_u'], bins=nb_bins, range=(range_u0, range_delta_u))
+	# axs[2, 0].scatter(dfdist['u0'], dfdist['delta_u'], marker='.',  s=0.1)
+	sns.kdeplot(dfdist['u0'], dfdist['delta_u'], clip=(range_u0, range_delta_u), ax=axs[2, 0], levels = nb_levels)
+	axs[2, 2].hist(dfdist['delta_u'], bins=nb_bins, histtype='step', range=range_delta_u)
+	axs[2, 2].twinx().hist(df['delta_u'], bins=nb_bins, histtype='step', range=range_delta_u, color='orange')
+	axs[2, 1].hist2d(dfi['tE'], dfi['delta_u'], bins=nb_bins, range=(range_tE, range_delta_u))
+	# axs[2, 1].scatter(dfdist['tE'], dfdist['delta_u'], marker='.',  s=0.1)
+	sns.kdeplot(dfdist['tE'], dfdist['delta_u'], clip=(range_tE, range_delta_u), ax=axs[2, 1], levels = nb_levels)
+	plt.show()
 
-fraction(df, cutoff=[0.01, 0.05, 0.127], bins=np.linspace(1, 3, 20), binfunc=lambda x: np.power(10, x), show_tot=False)
-fraction(df, curr_muparameter='u0', cutoff=[0.01, 0.05, 0.127], bins=np.linspace(0, 1, 20), show_tot=False)
-fraction(df, curr_muparameter='tE', cutoff=[0.01, 0.05, 0.127], bins=np.linspace(2, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
-cuttoffs_scatter_plots(df, cutoffs=[0.01, 0.05, 0.127])
+df['distance'].hist(bins=50)
+plt.show()
+# cutoff_list = [0.01, 0.05, 0.1, 1]
+for mass in np.geomspace(0.1, 1000, 9):
+	print(mass)
+	print(len(df[(df.mass==mass) & (df.distance>1)]) / len(df[df.mass==mass]))
+	print("------------")
+print(len(df))
+cutoff_list = [1, 2]
+
+parameter_space(df[df['mass']==10.])
+parameter_space(df[df['mass']==100.])
+# sns.pairplot(df[df.mass==10.], hue='distance', vars=['u0', 'tE', 'delta_u'])
+
+# fraction(df, cutoff=cutoff_list, bins=np.linspace(0.9, 3.1, 10), binfunc=lambda x: np.power(10, x), show_tot=True)
+# fraction(df, curr_muparameter='u0', cutoff=cutoff_list, bins=np.linspace(0, 1, 20), show_tot=False)
+# fraction(df, curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+# fraction(df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0, 0.2, 20), show_tot=True)
+# cuttoffs_scatter_plots(df, cutoffs=[0, 1])
+# c1 = df['mass']>0
+# plt.hist2d(df[c1]['x'], df[c1]['tE'], bins=300, range=((0, 1), (0, 5000)))
+# plt.xlabel(r'$x$')
+# plt.ylabel(r'$t_E$')
+# plt.show()
 # display(df, cutoff=0.)
+
 
 tmin = 48928
 tmax = 52697
-p1 = df.sort_values(by='distance', ascending=False).iloc[0].to_dict()
+p1 = df.sort_values(by='distance', ascending=False).iloc[50].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p1)
 p1['blend']=0.
 p1['mag']=19.
 del p1['distance']
 del p1['mass']
+del p1['x']
+del p1['vt']
 t = np.linspace(tmin, tmax, 1000)
 cnopa = microlens_simple(t, **p1)
 cpara = microlens_parallax(t, **p1)
@@ -378,11 +460,10 @@ cpara = microlens_parallax(t, **p1)
 # print(shift)
 # cpara = microlens_parallax(t+shift, **p1)
 
-plt.subplot(211)
-plt.plot(t, cnopa)
-plt.plot(t, cpara)
-plt.gca().invert_yaxis()
-plt.subplot(212)
-plt.plot(t, cnopa-cpara)
-plt.gca().invert_yaxis()
+fig, axs = plt.subplots(nrows=2, ncols=1, sharex='col')
+axs[0].plot(t, cnopa)
+axs[0].plot(t, cpara)
+axs[0].invert_yaxis()
+axs[1].plot(t, cnopa-cpara)
+axs[1].invert_yaxis()
 plt.show()
