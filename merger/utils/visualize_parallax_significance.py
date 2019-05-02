@@ -5,6 +5,7 @@ from scipy.signal import find_peaks, peak_prominences
 from astropy import constants
 from astropy import units
 import time
+import numba as nb
 from mpl_toolkits.mplot3d import Axes3D
 
 COLOR_FILTERS = {
@@ -28,6 +29,7 @@ r_lmc = 55000
 r_earth = (150*1e6*units.km).to(units.pc).value
 r_0 = np.sqrt(4*constants.G/(constants.c**2)*r_lmc*units.pc).decompose([units.Msun, units.pc]).value
 
+
 def parallax(t, mag, u0, t0, tE, delta_u, theta):
 	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
 	beta = np.arcsin(sin_beta) #ok because beta is in -pi/2; pi/2
@@ -48,9 +50,11 @@ def parallax(t, mag, u0, t0, tE, delta_u, theta):
 	u = np.linalg.norm(u_D-u_t, axis=0)
 	return (u**2+2)/(u*np.sqrt(u**2+4))
 
+
 def microlens(t, params):
 	mag, blend, u0, t0, tE, delta_u, theta = params
 	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax(t, mag, u0, t0, tE, delta_u, theta))
+
 
 def microlens_simple(t, params):
 	mag, blend, u0, t0, tE, delta_u, theta = params
@@ -58,66 +62,94 @@ def microlens_simple(t, params):
 	A = (u**2+2)/(u*np.sqrt(u**2+4))
 	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * A)
 
-def rho_halo(x):
-	"""pdf of dark halo density
 
-	[description]
+a=5000
+rho_0=0.0079
+d_sol = 8500
+l_lmc, b_lmc = 280.4652/180.*np.pi, -32.8884/180.*np.pi
+r_lmc = 55000
+r_earth = (150*1e6*units.km).to(units.pc).value
+t_obs = ((52697 - 48928) << units.d).to(units.s).value
 
-	Arguments:
-		x {float} -- x = d_OD/d_OS
+pc_to_km = (units.pc.to(units.km))
+kms_to_pcd = (units.km/units.s).to(units.pc/units.d)
 
-	Returns:
-		{float} -- dark matter density at x
-	"""
-	a=5000.			#pc
-	rho_0=0.0079	#M_sol/pc^3
-	d_sol = 8500	#pc
-	l_lmc, b_lmc = 280.4652/180.*np.pi, -32.8884/180.*np.pi
-	r_lmc = 55000	#pc
-	cosb_lmc = np.cos(b_lmc)
-	cosl_lmc = np.cos(l_lmc)
+cosb_lmc = np.cos(b_lmc)
+cosl_lmc = np.cos(l_lmc)
+A = d_sol ** 2 + a ** 2
+B = d_sol * cosb_lmc * cosl_lmc
+r_0 = np.sqrt(4*constants.G/(constants.c**2)*r_lmc*units.pc).decompose([units.Msun, units.pc]).value
 
-	A = d_sol**2+a**2
-	B = d_sol*cosb_lmc*cosl_lmc
 
-	return rho_0*A/((x*r_lmc)**2-2*x*r_lmc*B+A)
-
-def r(mass=MASS):
+@nb.njit
+def r(mass):
 	R_0 = r_0*np.sqrt(mass)
 	return r_earth/R_0
 
-t_obs = (10.5*units.year).to(units.s).value
-v_T0 = (220*units.km/units.s).to(units.pc/units.s).value
 
-def p_xvt(x, v_T=v_T0, mass=MASS):
-	u_lim = 1
-	R_E = r_0*np.sqrt(mass*x*(1-x))
-	return rho_halo(x)/mass*r_lmc*(2*u_lim*R_E*t_obs*np.abs(v_T))
+@nb.njit
+def R_E(x, mass):
+	return r_0*np.sqrt(mass*x*(1-x))
 
+
+@nb.njit
+def rho_halo(x):
+	return rho_0*A/((x*r_lmc)**2-2*x*r_lmc*B+A)
+
+
+@nb.njit
 def f_vt(v_T, v0=220):
 	return (2*v_T/(v0**2))*np.exp(-v_T**2/(v0**2))
 
-def x_from_delta_u(delta_u, mass=MASS):
+
+@nb.njit
+def p_xvt(x, v_T, mass):
+	return rho_halo(x)/mass*r_lmc*(2*r_0*np.sqrt(mass*x*(1-x))*t_obs*v_T)
+
+
+@nb.njit
+def pdf_xvt(x, vt, mass):
+	if x<0 or x>1 or vt<0:
+		return 0
+	return p_xvt(x, vt, mass)*rho_halo(x)/mass*x*x*f_vt(vt)
+
+
+@nb.njit
+def x_from_delta_u(delta_u, mass):
 	return r(mass)**2/(r(mass)**2+delta_u**2)
 
-pc_to_km = (units.pc.to(units.km))
 
-def v_T_from_tEdu(delta_u, t_E, mass=MASS):
+@nb.njit
+def v_T_from_tEdu(delta_u, t_E, mass):
 	R_0 = r_0*np.sqrt(mass)*pc_to_km
 	ri = r(mass)
 	return R_0/(t_E*86400) * ri*delta_u/(ri**2+delta_u**2)
 
-def jacobian(delta_u, t_E, mass=MASS):
+
+@nb.njit
+def delta_u_from_x(x, mass):
+	return r(mass)*np.sqrt((1-x)/x)
+
+
+@nb.njit
+def tE_from_xvt(x, vt, mass):
+	return r_0 * np.sqrt(mass*x*(1-x)) / (vt*kms_to_pcd)
+
+
+@nb.njit
+def jacobian(delta_u, t_E, mass):
 	R_0 = r_0*np.sqrt(mass)*pc_to_km
 	ri = r(mass)
 	h1 = -2*ri**2*delta_u/(ri**2+delta_u**2)**2
 	sqrth2 = ri*delta_u/(ri**2+delta_u**2)
 	return -h1*sqrth2*R_0/(t_E*86400)**2
 
-def p_tEdu(delta_u, t_E, mass=MASS):
+
+def pdf_tEdu(delta_u, t_E, mass):
 	x = x_from_delta_u(delta_u, mass)
 	vt = v_T_from_tEdu(delta_u, t_E, mass)
 	return p_xvt(x, vt, mass)*rho_halo(x)/mass*x*x*f_vt(vt)*np.abs(jacobian(delta_u, t_E, mass))
+
 
 def distance1(time_range, params_set):
 	st1 = time.time()
@@ -138,6 +170,7 @@ def distance2(time_range, params_set):
 	ampli_mulens = np.abs(cnopa.min(axis=0)-cnopa.max(axis=0))
 	return ampli_para/ampli_mulens
 
+
 def distance3(time_range, params_set):
 	cnopa = microlens_simple(time_range, params_set)
 	cpara = microlens(time_range, params_set)
@@ -146,6 +179,7 @@ def distance3(time_range, params_set):
 	ampli_para = np.mean(np.abs(diffs), axis=0)
 	ampli_mulens = np.abs(cnopa.min(axis=0)-cnopa.max(axis=0))
 	return ampli_para/ampli_mulens
+
 
 def distance4(time_range, params_set):
 	cnopa = microlens_simple(time_range, params_set)/19.
@@ -156,6 +190,7 @@ def distance4(time_range, params_set):
 	int_diffs = (np.abs(diffs)).sum(axis=0)
 	int_mulens = (cnopa).sum(axis=0)
 	return int_diffs/int_mulens	
+
 
 def distance5(time_range, params_set, min_prominence=0.05):
 	"""
@@ -174,7 +209,8 @@ def distance5(time_range, params_set, min_prominence=0.05):
 	print(np.unique(r))
 	return r.reshape(cpara.shape[1:])
 
-def visualize_parallax_significance(mass=MASS, distance=distance1, distance_args=[], u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000), cmap_distance='inferno', cmap_distro='viridis'):
+
+def visualize_parallax_significance(mass, distance=distance1, distance_args=[], u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000), cmap_distance='inferno', cmap_distro='viridis'):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	mag=19
@@ -229,9 +265,7 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, distance_args
 	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap=cmap_distance, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
 	col = plt.colorbar()
 	NN_POINTS = 1000
-	delta_u = np.linspace(0.,0.03,NN_POINTS)
-	tE = np.linspace(0.001, 4000, NN_POINTS)
-	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+	ptEdu = pdf_tEdu(delta_u[None,:], tE[:,None], mass)
 	plt.contour(delta_u, tE, ptEdu, levels=7, cmap=cmap_distro)
 
 	plt.xlabel(r'$\delta_u$')
@@ -240,7 +274,75 @@ def visualize_parallax_significance(mass=MASS, distance=distance1, distance_args
 	fig.canvas.mpl_connect('button_press_event', on_click)
 	plt.show()
 
-def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, distance_args=[], theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
+
+def visualize_parallax_significance_xvt(mass, distance=distance1, distance_args=[], u0=0.5, theta=10, x_range=(0.0, 1.0), vt_range=(0., 600), cmap_distance='inferno', cmap_distro='viridis', vmax=None):
+	time_range = np.linspace(48928, 52697, 10000)
+	t0=50000
+	mag=19
+	WIDTH_LENS = 50
+	x = np.linspace(*x_range, WIDTH_LENS)
+	vt = np.linspace(*vt_range, WIDTH_LENS)
+	delta_u = delta_u_from_x(x=x[None,:], mass=mass)
+	tE = tE_from_xvt(x=x[None,:], vt=vt[:,None], mass=mass)
+	params = {
+		'mag':mag,
+		'blend':0.,
+		'u0':u0,
+		't0':t0,
+		'tE':tE,
+		'delta_u':0.5,	#no parallax
+		'theta':theta*np.pi/180.
+	}
+	params_set = [params['mag'], params['blend'], params['u0'], params['t0'], tE[None,:,:], delta_u[None,:,:], params['theta']]
+	max_diff = distance(time_range[:,None,None], params_set, *distance_args)
+
+	def on_click(event):
+		print(event.x, event.y, event.xdata, event.ydata)
+		params = {
+			'mag':mag,
+			'blend':0.,
+			'u0':u0,
+			't0':t0,
+			'tE':tE_from_xvt(x = event.xdata, vt = event.ydata, mass=mass),
+			'delta_u':delta_u_from_x(x = event.xdata, mass=mass),
+			'theta':theta*np.pi/180.
+		}
+		fig, axs=plt.subplots(2,1,sharex=True)
+
+		cnopa = microlens_simple(time_range, params.values())
+		cpara = microlens(time_range, params.values())
+
+		#prominences
+		peaks, _ = find_peaks(mag-cpara)
+		prominences = peak_prominences(mag-cpara, peaks)[0]
+		print(prominences)
+		contour_heights = cpara[peaks] + prominences
+		axs[0].vlines(x=time_range[peaks], ymin=contour_heights, ymax=cpara[peaks])
+
+		axs[0].plot(time_range, cpara)
+		axs[0].plot(time_range, cnopa)
+		axs[0].invert_yaxis()
+		axs[1].plot(time_range, cpara-cnopa)
+		axs[1].invert_yaxis()
+		fig.suptitle(r'$t_E = $'+str(event.ydata)+r', $\delta_u = $'+str(event.xdata))
+		plt.show()
+
+	fig = plt.figure()
+
+	plt.imshow(max_diff, origin='lower', interpolation='nearest', cmap=cmap_distance, extent=[x[0], x[-1], vt[0], vt[-1]], aspect='auto', vmax=vmax)
+	col = plt.colorbar()
+	NN_POINTS = 1000
+	ptEdu = pdf_tEdu(delta_u, tE, mass)
+	plt.contour(x, vt, ptEdu, levels=7, cmap=cmap_distro)
+
+	plt.xlabel(r'$x$')
+	plt.ylabel(r'$v_T$')
+	#col.set_label("mean magnitude difference")
+	fig.canvas.mpl_connect('button_press_event', on_click)
+	plt.show()
+
+
+def visualize_parallax_significance_3d(mass, u0=0.1, distance=distance1, distance_args=[], theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000)):
 	time_range = np.linspace(48928, 52697, 10000)
 	t0=50000
 	tE=500
@@ -276,11 +378,12 @@ def visualize_parallax_significance_3d(u0=0.1, mass=MASS, distance=distance1, di
 	for idx, u0i in enumerate(var):
 		surf_dutE = np.meshgrid(delta_u, tE)
 		ax.contour(*surf_dutE, max_diff[:,:,idx], zdir='z', offset=u0i, cmap='viridis', levels=levels)
-	ax.contourf(*surf_dutE, p_tEdu(delta_u[None,:], tE[:,None], mass), zdir='z', offset=0, cmap='inferno')
+	ax.contourf(*surf_dutE, pdf_tEdu(delta_u[None,:], tE[:,None], mass), zdir='z', offset=0, cmap='inferno')
 	ax.set_zlim(var.min(),var.max())
 	#fig.colorbar(p)
 
 	plt.show()
+
 
 def visualize_parameter_space(mass_range=np.array([10,30,100,300,1000])):
 	NN_POINTS = 1000
@@ -290,7 +393,7 @@ def visualize_parameter_space(mass_range=np.array([10,30,100,300,1000])):
 	#ax = fig.add_subplot(111, projection='3d')
 	fig, axs = plt.subplots(len(mass_range), 1)
 	for idx, mass in enumerate(mass_range):
-		ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+		ptEdu = pdf_tEdu(delta_u[None,:], tE[:,None], mass)
 		axs[idx].contourf(delta_u, tE, ptEdu)
 		#norm = plt.Normalize(ptEdu.min(), ptEdu.max())
 		#colors = plt.get_cmap('viridis')(norm(ptEdu))
@@ -298,22 +401,24 @@ def visualize_parameter_space(mass_range=np.array([10,30,100,300,1000])):
 		#surf = ax.plot_surface(*np.meshgrid(delta_u, tE), mass*np.ones(ptEdu.shape), facecolors=colors, shade=False)
 	plt.show()
 
+
 def visualize_parameter_space_imshow(mass, nb_points=100, interpolation=None, cmap='viridis'):
 	delta_u = np.linspace(0.,0.06,nb_points)
 	tE = np.linspace(0.001, 4000, nb_points)
-	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+	ptEdu = pdf_tEdu(delta_u[None,:], tE[:,None], mass)
 	plt.imshow(ptEdu, origin='lower', interpolation=interpolation, cmap=cmap, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
 	plt.xlabel(r'$\delta_u$')
 	plt.ylabel(r'$t_E$')
 	plt.show()
 
+
 def interactive_parameter_space(nb_points=100, cmap='viridis'):
 	delta_u = np.linspace(0.,0.06,nb_points)
 	tE = np.linspace(0.001, 4000, nb_points)
-	ptEdu = p_tEdu(delta_u[None,:], tE[:,None], 60)
+	ptEdu = pdf_tEdu(delta_u[None,:], tE[:,None], 60)
 	fig, axs = plt.subplots(2,1, gridspec_kw={'height_ratios':[3,1]})
 	def update_imshow(mass):
-		ptEdu = p_tEdu(delta_u[None,:], tE[:,None], mass)
+		ptEdu = pdf_tEdu(delta_u[None,:], tE[:,None], mass)
 		col.set_clim(vmin=ptEdu.min(), vmax=ptEdu.max())
 		imshw1.set_data(ptEdu)
 	imshw1 = axs[0].imshow(ptEdu, origin='lower', cmap=cmap, extent=[delta_u[0], delta_u[-1], tE[0], tE[-1]], aspect='auto')
@@ -327,5 +432,6 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 # visualize_parameter_space_imshow(100, 1000, cmap='inferno')
 # interactive_parameter_space(1000, cmap='inferno')
 visualize_parallax_significance(mass=60, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
+# visualize_parallax_significance_xvt(mass=10., u0=0.1, theta=45, vt_range=(0,100.), distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno', vmax=None)
 # visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, distance_args=[0.])
 
