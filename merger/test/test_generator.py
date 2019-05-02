@@ -14,9 +14,9 @@ def test_generator(mass, nb_samples=100000, save=False, load=False):
 	st1 = time.time()
 	if not load:
 		s = metropolis_hastings(pdf_xvt, randomizer_gauss, nb_samples, np.array([0.01, 0]), kwargs={'mass':mass})
-	print(time.time()-st1)
-	if save:
-		np.save('xvt_samples.npy', s)
+		print(time.time() - st1)
+		if save:
+			np.save('xvt_samples.npy', s)
 	if save or load:
 		s = np.load('xvt_samples.npy')
 	xrdm = s[:,0]
