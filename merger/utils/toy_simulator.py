@@ -17,8 +17,15 @@ def microlensing_amplification(t, u0, t0, tE):
 # 	return mag - 2.5*np.log10(microlensing_amplification(t, u0, t0, tE))
 
 PERIOD_EARTH = 365.2422
+
+#LMC
 alphaS = 80.8941667*np.pi/180.
 deltaS = -69.7561111*np.pi/180.
+
+#event OGLE3-ULENS-PAR-01
+# alphaS = (18+(4+48.79/60.)/60.)*360./24.*np.pi/180.
+# deltaS = -(29+(40.+31.1/60.)/60.)*np.pi/180.
+
 epsilon = (90. - 66.56070833)*np.pi/180.
 t_origin = 51442 #(21 septembre 1999) #58747 #(21 septembre 2019)
 

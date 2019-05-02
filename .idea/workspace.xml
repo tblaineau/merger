@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/old/parameter_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/parameter_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/utils/toy_simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/toy_simulator.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,10 +17,52 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="492">
-              <caret line="118" column="24" lean-forward="true" selection-start-line="118" selection-start-column="24" selection-end-line="118" selection-end-column="24" />
+            <state relative-caret-position="656">
+              <caret line="434" column="96" selection-start-line="434" selection-start-column="96" selection-end-line="434" selection-end-column="96" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#268#456#0" />
+                <element signature="e#940#1646#0" />
+                <element signature="e#1405#1492#0" />
+                <element signature="e#1510#1571#0" />
+                <element signature="e#1675#1857#0" />
+                <element signature="e#1893#2106#0" />
+                <element signature="e#2636#2679#0" />
+                <element signature="e#2709#2741#0" />
+                <element signature="e#2770#2813#0" />
+                <element signature="e#2848#2894#0" />
+                <element signature="e#2931#3000#0" />
+                <element signature="e#3038#3128#0" />
+                <element signature="e#3175#3216#0" />
+                <element signature="e#3267#3369#0" />
+                <element signature="e#3410#3441#0" />
+                <element signature="e#3483#3535#0" />
+                <element signature="e#3581#3750#0" />
+                <element signature="e#3448#3615#0" />
+                <element signature="e#3657#3908#0" />
+                <element signature="e#3951#4233#0" />
+                <element signature="e#4275#4544#0" />
+                <element signature="e#4586#4874#0" />
+                <element signature="e#4937#5394#0" />
+                <element signature="e#4937#5067#1" />
+                <element signature="e#5605#7548#0" />
+                <element signature="e#5787#5908#0" />
+                <element signature="e#6140#6980#0" />
+                <element signature="e#6201#6334#0" />
+                <element signature="e#7941#8062#0" />
+                <element signature="e#8641#9510#0" />
+                <element signature="e#7714#9057#0" />
+                <element signature="e#7905#8026#0" />
+                <element signature="e#8061#8107#0" />
+                <element signature="e#8147#8211#0" />
+                <element signature="e#8755#8888#0" />
+                <element signature="e#9134#9737#0" />
+                <element signature="e#9236#9255#0" />
+                <element signature="e#9389#9478#0" />
+                <element signature="e#9481#9528#0" />
+                <element signature="e#9835#10168#0" />
+                <element signature="e#10235#10839#0" />
+                <element signature="e#10841#10902#0" />
               </folding>
             </state>
           </provider>
@@ -40,10 +81,15 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="83">
-              <caret line="188" selection-start-line="188" selection-end-line="202" selection-end-column="14" />
+            <state relative-caret-position="492">
+              <caret line="423" selection-start-line="423" selection-end-line="423" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -66,8 +112,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="222" column="19" selection-start-line="222" selection-start-column="19" selection-end-line="222" selection-end-column="19" />
+            <state relative-caret-position="693">
+              <caret line="302" column="30" lean-forward="true" selection-start-line="302" selection-start-column="30" selection-end-line="302" selection-end-column="30" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -139,6 +185,7 @@
       <find>microlens(</find>
       <find>MASS</find>
       <find>params_set</find>
+      <find>p_tEdu</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
@@ -149,6 +196,7 @@
       <replace>microlens_parallax</replace>
       <replace>microlens_parallax(</replace>
       <replace>**params_set</replace>
+      <replace>pdf_tEdu</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -169,8 +217,9 @@
         <option value="$PROJECT_DIR$/../lib_perso.py" />
         <option value="$PROJECT_DIR$/merger/python_associator/new_nnd.py" />
         <option value="$PROJECT_DIR$/merger/test/test_generator.py" />
-        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" />
+        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
+        <option value="$PROJECT_DIR$/merger/utils/toy_simulator.py" />
       </list>
     </option>
   </component>
@@ -268,7 +317,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.visualize_parallax_significance">
+  <component name="RunManager" selected="Python.toy_simulator">
     <configuration name="parameter_generator (2)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -383,9 +432,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.toy_simulator" />
         <item itemvalue="Python.visualize_parallax_significance" />
         <item itemvalue="Python.parameter_generator (2)" />
-        <item itemvalue="Python.toy_simulator" />
         <item itemvalue="Python.test_generator (1)" />
         <item itemvalue="Python.test_generator" />
       </list>
@@ -557,7 +606,21 @@
       <option name="project" value="LOCAL" />
       <updated>1556798717156</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="added fitter distance, new display">
+      <created>1556806237700</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1556806237700</updated>
+    </task>
+    <task id="LOCAL-00024" summary="new display (x vs vt)">
+      <created>1556808898387</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1556808898387</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TodoView">
@@ -571,19 +634,19 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="-685" width="1920" height="1200" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13954712" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4997367" visible="true" weight="0.29151624" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4997367" weight="0.29151624" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3998195" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.4997367" weight="0.23555957" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.4997367" visible="true" weight="0.23555957" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32942238" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5002633" side_tool="true" weight="0.32851985" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.21028881" />
@@ -615,7 +678,9 @@
     <MESSAGE value="too much modifications" />
     <MESSAGE value="workspace update" />
     <MESSAGE value="minor changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="minor changes" />
+    <MESSAGE value="added fitter distance, new display" />
+    <MESSAGE value="new display (x vs vt)" />
+    <option name="LAST_COMMIT_MESSAGE" value="new display (x vs vt)" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/stats/_distn_infrastructure.py">
@@ -770,9 +835,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger/old/sigma-mag-histo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -790,30 +852,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="375" column="56" selection-start-line="375" selection-start-column="56" selection-end-line="375" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#46#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger/utils/distance_cut_compute.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="41" column="57" selection-start-line="41" selection-start-column="57" selection-end-line="41" selection-end-column="57" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="222" column="19" selection-start-line="222" selection-start-column="19" selection-end-line="222" selection-end-column="19" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -840,25 +882,90 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
+    <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="118" column="24" lean-forward="true" selection-start-line="118" selection-start-column="24" selection-end-line="118" selection-end-column="24" />
+        <state relative-caret-position="264">
+          <caret line="375" column="56" selection-start-line="375" selection-start-column="56" selection-end-line="375" selection-end-column="56" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#46#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="83">
-          <caret line="188" selection-start-line="188" selection-end-line="202" selection-end-column="14" />
+        <state relative-caret-position="492">
+          <caret line="423" selection-start-line="423" selection-end-line="423" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="656">
+          <caret line="434" column="96" selection-start-line="434" selection-start-column="96" selection-end-line="434" selection-end-column="96" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#268#456#0" />
+            <element signature="e#940#1646#0" />
+            <element signature="e#1405#1492#0" />
+            <element signature="e#1510#1571#0" />
+            <element signature="e#1675#1857#0" />
+            <element signature="e#1893#2106#0" />
+            <element signature="e#2636#2679#0" />
+            <element signature="e#2709#2741#0" />
+            <element signature="e#2770#2813#0" />
+            <element signature="e#2848#2894#0" />
+            <element signature="e#2931#3000#0" />
+            <element signature="e#3038#3128#0" />
+            <element signature="e#3175#3216#0" />
+            <element signature="e#3267#3369#0" />
+            <element signature="e#3410#3441#0" />
+            <element signature="e#3483#3535#0" />
+            <element signature="e#3581#3750#0" />
+            <element signature="e#3448#3615#0" />
+            <element signature="e#3657#3908#0" />
+            <element signature="e#3951#4233#0" />
+            <element signature="e#4275#4544#0" />
+            <element signature="e#4586#4874#0" />
+            <element signature="e#4937#5394#0" />
+            <element signature="e#4937#5067#1" />
+            <element signature="e#5605#7548#0" />
+            <element signature="e#5787#5908#0" />
+            <element signature="e#6140#6980#0" />
+            <element signature="e#6201#6334#0" />
+            <element signature="e#7941#8062#0" />
+            <element signature="e#8641#9510#0" />
+            <element signature="e#7714#9057#0" />
+            <element signature="e#7905#8026#0" />
+            <element signature="e#8061#8107#0" />
+            <element signature="e#8147#8211#0" />
+            <element signature="e#8755#8888#0" />
+            <element signature="e#9134#9737#0" />
+            <element signature="e#9236#9255#0" />
+            <element signature="e#9389#9478#0" />
+            <element signature="e#9481#9528#0" />
+            <element signature="e#9835#10168#0" />
+            <element signature="e#10235#10839#0" />
+            <element signature="e#10841#10902#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="693">
+          <caret line="302" column="30" lean-forward="true" selection-start-line="302" selection-start-column="30" selection-end-line="302" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>
