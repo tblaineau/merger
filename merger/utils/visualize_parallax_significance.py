@@ -106,14 +106,6 @@ def f_vt(v_T, v0=220):
 def p_xvt(x, v_T, mass):
 	return rho_halo(x)/mass*r_lmc*(2*r_0*np.sqrt(mass*x*(1-x))*t_obs*v_T)
 
-
-@nb.njit
-def pdf_xvt(x, vt, mass):
-	if x<0 or x>1 or vt<0:
-		return 0
-	return p_xvt(x, vt, mass)*rho_halo(x)/mass*x*x*f_vt(vt)
-
-
 @nb.njit
 def x_from_delta_u(delta_u, mass):
 	return r(mass)**2/(r(mass)**2+delta_u**2)
@@ -148,14 +140,14 @@ def jacobian(delta_u, t_E, mass):
 def pdf_tEdu(delta_u, t_E, mass):
 	x = x_from_delta_u(delta_u, mass)
 	vt = v_T_from_tEdu(delta_u, t_E, mass)
-	return p_xvt(x, vt, mass)*rho_halo(x)/mass*x*x*f_vt(vt)*np.abs(jacobian(delta_u, t_E, mass))
+	return p_xvt(x, vt, mass)*f_vt(vt)*np.abs(jacobian(delta_u, t_E, mass))
 
 
 def distance1(time_range, params_set):
 	st1 = time.time()
 	absolute_diffs = np.abs(microlens(time_range, params_set)-microlens_simple(time_range, params_set))
 	print(absolute_diffs.shape)
-	max_diff = absolute_diffs.mean(axis=0)
+	max_diff = absolute_diffs.max(axis=0)
 	print(max_diff.shape)
 	print(time.time()-st1)
 	return max_diff
@@ -240,10 +232,17 @@ def visualize_parallax_significance(mass, distance=distance1, distance_args=[], 
 			'delta_u':event.xdata,
 			'theta':theta*np.pi/180.
 		}
-		fig, axs=plt.subplots(2,1,sharex=True)
+		fig, axs=plt.subplots(2, 1, sharex=True)
 
-		cnopa = microlens_simple(time_range, params.values())
-		cpara = microlens(time_range, params.values())
+		for cu0 in np.linspace(0, 1, 5):
+			params["u0"] = cu0
+
+			cnopa = microlens_simple(time_range, params.values())
+			cpara = microlens(time_range, params.values())
+
+			axs[0].plot(time_range, cpara)
+			axs[1].plot(time_range, cpara-cnopa)
+
 
 		#prominences
 		peaks, _ = find_peaks(mag-cpara)
@@ -252,10 +251,8 @@ def visualize_parallax_significance(mass, distance=distance1, distance_args=[], 
 		contour_heights = cpara[peaks] + prominences
 		axs[0].vlines(x=time_range[peaks], ymin=contour_heights, ymax=cpara[peaks])
 
-		axs[0].plot(time_range, cpara)
 		axs[0].plot(time_range, cnopa)
 		axs[0].invert_yaxis()
-		axs[1].plot(time_range, cpara-cnopa)
 		axs[1].invert_yaxis()
 		fig.suptitle(r'$t_E = $'+str(event.ydata)+r', $\delta_u = $'+str(event.xdata))
 		plt.show()
@@ -431,7 +428,7 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 
 # visualize_parameter_space_imshow(100, 1000, cmap='inferno')
 # interactive_parameter_space(1000, cmap='inferno')
-visualize_parallax_significance(mass=60, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
-# visualize_parallax_significance_xvt(mass=10., u0=0.1, theta=45, vt_range=(0,100.), distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno', vmax=None)
+visualize_parallax_significance(mass=30, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
+# visualize_parallax_significance_xvt(mass=60., u0=0.01, theta=45, vt_range=(0,100.), distance=distance1, distance_args=[], cmap_distance='viridis', cmap_distro='inferno', vmax=0.1)
 # visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, distance_args=[0.])
 
