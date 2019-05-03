@@ -7,6 +7,8 @@ from astropy import units
 import time
 import numba as nb
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.optimize import minimize
+import itertools
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -62,6 +64,14 @@ def microlens_simple(t, params):
 	A = (u**2+2)/(u*np.sqrt(u**2+4))
 	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * A)
 
+@nb.njit
+def nb_microlens_simple(t, mag, u0, t0, tE):
+	if tE==0:
+		return 0
+	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
+	if u==0:
+		return np.inf
+	return mag - 2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))
 
 a=5000
 rho_0=0.0079
@@ -201,9 +211,30 @@ def distance5(time_range, params_set, min_prominence=0.05):
 	print(np.unique(r))
 	return r.reshape(cpara.shape[1:])
 
+def scipy_simple_fit_distance(time_range, params_set):
+	cpara = microlens(time_range, params_set)
+	r=[]
+	cpara_f = cpara.reshape((len(time_range), np.prod(cpara.shape[1:]))).T
+	time_range = time_range.flatten()
+	params_set_f = [list(a) for a in np.broadcast(*params_set)]
+	for idx, cp in enumerate(cpara_f):
+		pps = params_set_f[idx]
+		print(pps)
+		print(idx)
+		@nb.njit
+		def fitter_func(params):
+			u0, t0, tE = params
+			tot = 0
+			for i in range(len(cp)):
+				tot += abs(cp[i] - nb_microlens_simple(time_range[i], 19., u0, t0, tE))
+			return tot
+
+		res = minimize(fitter_func, x0=[pps[2], pps[3], pps[4]], method='Nelder-Mead')
+		r.append(res.fun)
+	return np.array(r).reshape(cpara.shape[1:])
 
 def visualize_parallax_significance(mass, distance=distance1, distance_args=[], u0=0.5, theta=10, delta_u_range=(0.00001,0.03), tE_range=(0.00001, 4000), cmap_distance='inferno', cmap_distro='viridis'):
-	time_range = np.linspace(48928, 52697, 10000)
+	time_range = np.linspace(48928, 52697, 1000)
 	t0=50000
 	mag=19
 	WIDTH_LENS = 50
@@ -428,7 +459,8 @@ def interactive_parameter_space(nb_points=100, cmap='viridis'):
 
 # visualize_parameter_space_imshow(100, 1000, cmap='inferno')
 # interactive_parameter_space(1000, cmap='inferno')
-visualize_parallax_significance(mass=30, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
+# visualize_parallax_significance(mass=30, u0=0.3, theta=45, distance=distance5, distance_args=[0.0], cmap_distance='viridis', cmap_distro='inferno')
+visualize_parallax_significance(mass=30, u0=0.3, theta=45, distance=scipy_simple_fit_distance, cmap_distance='viridis', cmap_distro='inferno')
 # visualize_parallax_significance_xvt(mass=60., u0=0.01, theta=45, vt_range=(0,100.), distance=distance1, distance_args=[], cmap_distance='viridis', cmap_distro='inferno', vmax=0.1)
 # visualize_parallax_significance_3d(u0=np.linspace(0.05,1,20), mass=100, distance=distance5, theta=45, distance_args=[0.])
 
