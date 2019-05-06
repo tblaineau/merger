@@ -4,7 +4,6 @@
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/old/parameter_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/parameter_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,43 +17,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="339">
+            <state relative-caret-position="3488">
               <caret line="228" column="36" selection-start-line="228" selection-start-column="36" selection-end-line="228" selection-end-column="36" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-                <element signature="e#268#456#0" />
-                <element signature="e#940#1646#0" />
-                <element signature="e#1405#1492#0" />
-                <element signature="e#1510#1571#0" />
-                <element signature="e#1675#1857#0" />
-                <element signature="e#2636#2679#0" />
-                <element signature="e#2709#2741#0" />
-                <element signature="e#2770#2813#0" />
-                <element signature="e#2848#2894#0" />
-                <element signature="e#3175#3216#0" />
-                <element signature="e#3267#3369#0" />
-                <element signature="e#3410#3441#0" />
-                <element signature="e#3483#3535#0" />
-                <element signature="e#3581#3750#0" />
-                <element signature="e#3951#4233#0" />
-                <element signature="e#4275#4544#0" />
-                <element signature="e#4586#4874#0" />
-                <element signature="e#5787#5908#0" />
-                <element signature="e#6201#6334#0" />
-                <element signature="e#7941#8062#0" />
-                <element signature="e#8641#9510#0" />
-                <element signature="e#7714#9057#0" />
-                <element signature="e#7905#8026#0" />
-                <element signature="e#8061#8107#0" />
-                <element signature="e#8147#8211#0" />
-                <element signature="e#8755#8888#0" />
-                <element signature="e#9134#9737#0" />
-                <element signature="e#9236#9255#0" />
-                <element signature="e#9389#9478#0" />
-                <element signature="e#9481#9528#0" />
-                <element signature="e#9835#10168#0" />
-                <element signature="e#10235#10839#0" />
-                <element signature="e#10841#10902#0" />
               </folding>
             </state>
           </provider>
@@ -63,7 +29,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
+            <state relative-caret-position="5872">
               <caret line="375" column="56" selection-start-line="375" selection-start-column="56" selection-end-line="375" selection-end-column="56" />
               <folding>
                 <element signature="e#0#46#0" expanded="true" />
@@ -75,8 +41,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3028">
-              <caret line="248" column="10" lean-forward="true" selection-start-line="248" selection-start-column="10" selection-end-line="248" selection-end-column="10" />
+            <state relative-caret-position="360">
+              <caret line="266" column="28" selection-start-line="266" selection-start-column="28" selection-end-line="266" selection-end-column="28" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -85,10 +51,28 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/_minimize.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="9408">
+              <caret line="588" selection-start-line="588" selection-end-line="588" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/optimize.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4784">
+              <caret line="299" selection-start-line="299" selection-end-line="299" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="497">
-              <caret line="153" selection-start-line="153" selection-end-line="153" />
+            <state relative-caret-position="1856">
+              <caret line="121" column="22" selection-start-line="121" selection-start-column="22" selection-end-line="121" selection-end-column="22" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -99,20 +83,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="693">
-              <caret line="302" column="30" selection-start-line="302" selection-start-column="30" selection-end-line="302" selection-end-column="30" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/utils/distance_cut_compute.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="41" column="57" selection-start-line="41" selection-start-column="57" selection-end-line="41" selection-end-column="57" />
+            <state relative-caret-position="4528">
+              <caret line="292" column="25" selection-start-line="292" selection-start-column="16" selection-end-line="292" selection-end-column="25" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -132,7 +104,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
+            <state relative-caret-position="144">
               <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -208,14 +180,14 @@
         <option value="$PROJECT_DIR$/merger/python_associator/new_nnd.py" />
         <option value="$PROJECT_DIR$/merger/test/test_generator.py" />
         <option value="$PROJECT_DIR$/merger/utils/toy_simulator.py" />
-        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" />
+        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="1280" />
-    <option name="y" value="-685" />
+    <option name="y" value="-753" />
     <option name="width" value="1920" />
     <option name="height" value="1200" />
   </component>
@@ -307,7 +279,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.visualize_parallax_significance">
+  <component name="RunManager" selected="Python.parameter_generator (2)">
     <configuration name="parameter_generator (2)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -422,8 +394,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.visualize_parallax_significance" />
         <item itemvalue="Python.parameter_generator (2)" />
+        <item itemvalue="Python.visualize_parallax_significance" />
         <item itemvalue="Python.toy_simulator" />
         <item itemvalue="Python.test_generator (1)" />
         <item itemvalue="Python.test_generator" />
@@ -624,7 +596,14 @@
       <option name="project" value="LOCAL" />
       <updated>1556882809770</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="added scipy minimize distance">
+      <created>1556888436778</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1556888436778</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TodoView">
@@ -637,31 +616,30 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="-685" width="1920" height="1200" extended-state="6" />
+    <frame x="1280" y="-753" width="1920" height="1200" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13954712" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.29151624" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.29151624" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3998195" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49921012" visible="true" weight="0.23555957" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49921012" weight="0.23555957" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32942238" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5007899" side_tool="true" weight="0.23555957" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.21028881" />
+      <window_info anchor="bottom" id="Messages" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="setting up pycharm files" />
     <MESSAGE value="added distance5 (number of peaks)" />
     <MESSAGE value="added some generator methods (not func.)" />
     <MESSAGE value="mixed search, 50 test quads" />
@@ -686,7 +664,8 @@
     <MESSAGE value="new display (x vs vt)" />
     <MESSAGE value="added near galactic center coordinates (comments)" />
     <MESSAGE value="corrected pdf_dutE, new fitter distance" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected pdf_dutE, new fitter distance" />
+    <MESSAGE value="added scipy minimize distance" />
+    <option name="LAST_COMMIT_MESSAGE" value="added scipy minimize distance" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/stats/_distn_infrastructure.py">
@@ -851,53 +830,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="32">
-          <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/distance_cut_compute.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="41" column="57" selection-start-line="41" selection-start-column="57" selection-end-line="41" selection-end-column="57" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="497">
-          <caret line="153" selection-start-line="153" selection-end-line="153" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="693">
-          <caret line="302" column="30" selection-start-line="302" selection-start-column="30" selection-end-line="302" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -908,9 +840,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/distance_cut_compute.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="191" column="39" lean-forward="true" selection-start-line="191" selection-start-column="39" selection-end-line="191" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3488">
+          <caret line="228" column="36" selection-start-line="228" selection-start-column="36" selection-end-line="228" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
+        <state relative-caret-position="5872">
           <caret line="375" column="56" selection-start-line="375" selection-start-column="56" selection-end-line="375" selection-end-column="56" />
           <folding>
             <element signature="e#0#46#0" expanded="true" />
@@ -918,53 +870,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
+    <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/_minimize.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="339">
-          <caret line="228" column="36" selection-start-line="228" selection-start-column="36" selection-end-line="228" selection-end-column="36" />
+        <state relative-caret-position="9408">
+          <caret line="588" selection-start-line="588" selection-end-line="588" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/optimize.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4784">
+          <caret line="299" selection-start-line="299" selection-end-line="299" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1856">
+          <caret line="121" column="22" selection-start-line="121" selection-start-column="22" selection-end-line="121" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4528">
+          <caret line="292" column="25" selection-start-line="292" selection-start-column="16" selection-end-line="292" selection-end-column="25" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#268#456#0" />
-            <element signature="e#940#1646#0" />
-            <element signature="e#1405#1492#0" />
-            <element signature="e#1510#1571#0" />
-            <element signature="e#1675#1857#0" />
-            <element signature="e#2636#2679#0" />
-            <element signature="e#2709#2741#0" />
-            <element signature="e#2770#2813#0" />
-            <element signature="e#2848#2894#0" />
-            <element signature="e#3175#3216#0" />
-            <element signature="e#3267#3369#0" />
-            <element signature="e#3410#3441#0" />
-            <element signature="e#3483#3535#0" />
-            <element signature="e#3581#3750#0" />
-            <element signature="e#3951#4233#0" />
-            <element signature="e#4275#4544#0" />
-            <element signature="e#4586#4874#0" />
-            <element signature="e#5787#5908#0" />
-            <element signature="e#6201#6334#0" />
-            <element signature="e#7941#8062#0" />
-            <element signature="e#8641#9510#0" />
-            <element signature="e#7714#9057#0" />
-            <element signature="e#7905#8026#0" />
-            <element signature="e#8061#8107#0" />
-            <element signature="e#8147#8211#0" />
-            <element signature="e#8755#8888#0" />
-            <element signature="e#9134#9737#0" />
-            <element signature="e#9236#9255#0" />
-            <element signature="e#9389#9478#0" />
-            <element signature="e#9481#9528#0" />
-            <element signature="e#9835#10168#0" />
-            <element signature="e#10235#10839#0" />
-            <element signature="e#10841#10902#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3028">
-          <caret line="248" column="10" lean-forward="true" selection-start-line="248" selection-start-column="10" selection-end-line="248" selection-end-column="10" />
+        <state relative-caret-position="360">
+          <caret line="266" column="28" selection-start-line="266" selection-start-column="28" selection-end-line="266" selection-end-column="28" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

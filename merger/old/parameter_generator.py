@@ -14,7 +14,7 @@ import time
 import numba as nb
 
 from iminuit import Minuit
-from scipy.optimize import minimize
+import scipy.optimize
 
 from scipy.integrate import quad
 
@@ -252,15 +252,19 @@ def peak_distance(cnopa, cpara, min_prominence=0., base_mag=19.):
 def scipy_simple_fit_distance(cnopa, cpara, time_range, init_params):
 	def fitter_func(params):
 		u0, t0, tE = params
-		return np.sum(np.abs((cpara - microlens_simple(time_range, 19., 0., u0, t0, tE, 0., 0.))))
+		return np.max(np.abs((cpara - microlens_simple(time_range, 19., 0., u0, t0, tE, 0., 0.))))
 
-	res = minimize(fitter_func, x0=[init_params['u0'], init_params['t0'], init_params['tE']], method='Nelder-Mead')
+	res = scipy.optimize.minimize(fitter_func, x0=[init_params['u0'], init_params['t0'], init_params['tE']], method='Nelder-Mead')
 	return res.fun
 
-def simple_fit_distance(cnopa, cpara, time_range, init_params):
-	def fitter_func(u0, t0, tE):
-		return np.sum(np.abs((cpara - microlens_simple(time_range, 19., 0., u0, t0, tE, 0., 0.))))
-	m = Minuit(fitter_func,
+def max_fitter(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	return -np.abs((microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)))
+
+def fitter_minmax(u0, t0, tE):
+	return scipy.optimize.differential_evolution(max_fitter, bounds=[(tmin, tmax)], args=(u0, t0, tE, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']), disp=False, popsize=20, mutation=(0.5, 1.0)).fun
+
+def fit_minmax_distance(cnopa, cpara, time_range, init_params):
+	m = Minuit(fitter_minmax,
 			   u0=init_params['u0'],
 			   t0=init_params['t0'],
 			   tE=init_params['tE'],
@@ -299,19 +303,23 @@ def compute_distance(params_set, distance, time_sampling=1000):
 		del params['vt']
 		params['mag']=19.
 		params['blend']=0.
-		distance_args = {'time_range': t, 'init_params':{'u0':params['u0'], 'tE':params['tE'], 't0':params['t0']}}
+		distance_args = {'time_range': t, 'init_params':{'u0':params['u0'], 'tE':params['tE'], 't0':params['t0'], 'delta_u':params['delta_u'], 'theta':params['theta']}}
 		# cnopa = microlens_simple(t, **params)
 		# cpara = microlens_parallax(t, **params)
 		# nopa_center = numba_weighted_mean(t, 19 - cnopa)
 		# para_center = numba_weighted_mean(t, 19 - cpara)
 		# shift = nopa_center - para_center
+		st1 = time.time()
 		ds.append(distance(microlens_simple(t, **params), microlens_parallax(t, **params), **distance_args))
+		print(time.time()-st1)
 	return ds
 
 
 # all_params=[]
 # np.random.seed(1234567890)
-# all_xvts = np.load('../test/xvt_samples.npy')[:60000]
+# all_xvts = np.load('../test/xvt_samples.npy')
+# all_xvts = all_xvts[np.random.choice(len(all_xvts), size=100, replace=True)]
+# print(all_xvts.shape)
 # for mass in np.geomspace(0.1, 1000, 5):
 # 	for x, vt in all_xvts:
 # 		all_params.append(generate_parameters(mass=mass, x=x, vt=vt))
@@ -319,18 +327,19 @@ def compute_distance(params_set, distance, time_sampling=1000):
 #
 #
 # st1 = time.time()
-# ds = compute_distance(all_params, distance=scipy_simple_fit_distance, time_sampling=1000)
+# ds = compute_distance(all_params, distance=simple_fit_distance, time_sampling=1000)
 # print(time.time()-st1)
 #
 # df = df.assign(distance=ds)
-# df.to_pickle('temp_fitter.pkl')
+# df.to_pickle('temp_fittermax.pkl')
 
 # df = pd.read_pickle('temp_maxdiff.pkl')
 # df = pd.read_pickle('temp_peaknb.pkl')
 # df = pd.read_pickle('temp_maxpeaksprom.pkl')
 # df = pd.read_pickle('temp_meanpeaksprom.pkl')
 # df = pd.read_pickle('temp_peaksprom.pkl')
-df = pd.read_pickle('temp_fitter.pkl')
+# df = pd.read_pickle('temp_fitter.pkl')
+df = pd.read_pickle('temp_fittermax.pkl')
 # df = df.join(pd.DataFrame(df.pop('distance').to_list())[['fval', 'is_valid']])
 # df.rename(columns={'fval':'distance'}, inplace=True)
 # df = df[df.is_valid]
@@ -400,7 +409,7 @@ def fraction(dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, co
 	ax.legend()
 	plt.show()
 
-def parameter_space(dfi):
+def parameter_space(dfi, params_pt=None):
 	dfdist = dfi[dfi.distance>1]
 	fig, axs = plt.subplots(nrows=3, ncols=3, sharex='col')
 	range_u0 = (0, 1)
@@ -423,11 +432,11 @@ def parameter_space(dfi):
 	axs[2, 1].hist2d(dfi['tE'], dfi['delta_u'], bins=nb_bins, range=(range_tE, range_delta_u))
 	# axs[2, 1].scatter(dfdist['tE'], dfdist['delta_u'], marker='.',  s=0.1)
 	sns.kdeplot(dfdist['tE'], dfdist['delta_u'], clip=(range_tE, range_delta_u), ax=axs[2, 1], levels = nb_levels)
+	if params_pt:
+		axs[1, 0].scatter(params_pt['u0'], params_pt['tE'], marker='x', s=100, color='black')
+		axs[2, 0].scatter(params_pt['u0'], params_pt['delta_u'], marker='x', s=100, color='black')
+		axs[2, 1].scatter(params_pt['tE'], params_pt['delta_u'], marker='x', s=100, color='black')
 	plt.show()
-
-df['distance'].hist(bins=50)
-plt.show()
-
 
 # cutoff_list = [0.01, 0.05, 0.1, 1]
 # for mass in np.geomspace(0.1, 1000, 9):
@@ -443,10 +452,10 @@ cutoff_list = [1, 10, 100]
 # sns.pairplot(df[df.mass==10.], hue='distance', vars=['u0', 'tE', 'delta_u'])
 
 df = df[df.mass == 10.]
-fraction(df, cutoff=cutoff_list, bins=np.linspace(0.9, 3.1, 10), binfunc=lambda x: np.power(10, x), show_tot=True)
-fraction(df, curr_muparameter='u0', cutoff=cutoff_list, bins=np.linspace(0, 1, 20), show_tot=False)
-fraction(df, curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
-fraction(df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0, 0.2, 20), show_tot=True)
+# fraction(df, cutoff=cutoff_list, bins=np.linspace(0.9, 3.1, 10), binfunc=lambda x: np.power(10, x), show_tot=True)
+# fraction(df, curr_muparameter='u0', cutoff=cutoff_list, bins=np.linspace(0, 1, 20), show_tot=False)
+# fraction(df, curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+# fraction(df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0, 0.2, 20), show_tot=True)
 # cuttoffs_scatter_plots(df, cutoffs=[0, 1])
 # c1 = df['mass']>0
 # plt.hist2d(df[c1]['x'], df[c1]['tE'], bins=300, range=((0, 1), (0, 5000)))
@@ -458,7 +467,7 @@ fraction(df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0,
 
 tmin = 48928
 tmax = 52697
-p1 = df.sort_values(by='distance', ascending=False).iloc[4].to_dict()
+p1 = df.sort_values(by='distance', ascending=False).iloc[0].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p1)
 p1['blend']=0.
@@ -468,27 +477,61 @@ del p1['mass']
 del p1['x']
 del p1['vt']
 # del p1['is_valid']
-t = np.linspace(tmin, tmax, 1000)
+t = np.linspace(tmin, tmax, 10000)
 cnopa = microlens_simple(t, **p1)
 cpara = microlens_parallax(t, **p1)
 
-# def fitter_func(u0, t0, tE):
-# 	return np.sum(np.abs((cpara - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
-# m = Minuit(fitter_func,
-# 		   u0=p1['u0'],
-# 		   t0=p1['t0'],
-# 		   tE=p1['tE'],
-# 		   error_u0=0.1,
-# 		   error_t0=100,
-# 		   error_tE=100,
-# 		   limit_u0=(0, 2),
-# 		   limit_tE=(None, None),
-# 		   errordef=1,
-# 		   print_level=1
-# 		   )
-# m.migrad()
-# print(m.values)
-# cnopa = microlens_simple(t, 19., 0., m.values['u0'], m.values['t0'], m.values['tE'], 0., 0.)
+fig, axs = plt.subplots(ncols=1, nrows=2, sharex='col')
+pdif1, = axs[1].plot(t, np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'],p1['theta']) - microlens_simple(t, 19., 0., p1['u0'], p1['t0'], p1['tE'], 0., 0.))))
+ppar1, = axs[0].plot(t, -(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
+pnop1, = axs[0].plot(t, -(microlens_simple(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
+hl = axs[1].axhline(0, color='black', linewidth=0.5)
+# plt.xlim(51200, 51600)
+curr_max=-np.inf
+
+
+def update_plot(u0, t0, tE, r):
+	global curr_max
+	pdif1.set_ydata(np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'],p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
+	ppar1.set_ydata(-(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
+	pnop1.set_ydata(-(microlens_simple(t, 19, 0, u0, t0, tE, p1['delta_u'], p1['theta'])))
+	plt.pause(0.000001)
+	if r>curr_max:
+		curr_max = r
+		hl.set_ydata(-r)
+	fig.canvas.draw()
+	print(u0, t0, tE)
+
+
+def max_fitter(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	return -np.abs((microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)))
+
+def fitter_minmax(u0, t0, tE):
+	res = scipy.optimize.differential_evolution(max_fitter, bounds=[(tmin, tmax)], args=(u0, t0, tE, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']), disp=False, popsize=20, mutation=(0.5, 1.0))
+	# tm = Minuit(max_fitter, t=t0, error_t=100, limit_t=(tmin, tmax) ,errordef=1, print_level=0)
+	# tm.migrad()
+	update_plot(u0, t0, tE, res.fun)
+	return - res.fun
+
+m = Minuit(fitter_minmax,
+		   u0=p1['u0'],
+		   t0=p1['t0'],
+		   tE=p1['tE'],
+		   error_u0=0.1,
+		   error_t0=100,
+		   error_tE=100,
+		   limit_u0=(0, 2),
+		   limit_tE=(None, None),
+		   errordef=1,
+		   print_level=1
+		   )
+
+def onclick(event):
+	m.migrad()
+cid = fig.canvas.mpl_connect('button_press_event', onclick)
+plt.show()
+print(m.values)
+cnopa = microlens_simple(t, 19., 0., m.values['u0'], m.values['t0'], m.values['tE'], 0., 0.)
 # print(np.max(np.abs(cpara-cnopa)))
 # m.draw_profile('tE')
 # plt.show()
@@ -498,13 +541,22 @@ cpara = microlens_parallax(t, **p1)
 # plt.contour(values, extent=[xbins[0], xbins[-1], ybins[0], ybins[-1]])
 # plt.show()
 
-from scipy.optimize import minimize
-def fitter_func(params):
-	u0, t0, tE = params
-	return np.sum(np.abs((cpara - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
-res = minimize(fitter_func, x0=[p1['u0'], p1['t0'], p1['tE']], method='Nelder-Mead')
-print(res)
-cnopa = microlens_simple(t, 19., 0., res.x[0], res.x[1], res.x[2], 0., 0.)
+# def fitter_func(params):
+# 	u0, t0, tE = params
+# 	res = scipy.optimize.differential_evolution(
+# 		lambda t: -np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))),
+# 		bounds=[(tmin, tmax)], disp=False)
+# 	plt.plot(t, -np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
+# 	plt.plot(t, -(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
+# 	plt.plot(t, -(microlens_simple(t, 19, 0, u0, t0, tE, p1['delta_u'], p1['theta'])))
+# 	plt.axvline(res.x)
+# 	plt.xlim(51200, 51600)
+# 	plt.show()
+# 	return - res.fun
+#
+# res = scipy.optimize.minimize(fitter_func, x0=[p1['u0'], p1['t0'], p1['tE']], method='Nelder-Mead')
+# print(res)
+# cnopa = microlens_simple(t, 19., 0., res.x[0], res.x[1], res.x[2], 0., 0.)
 
 
 # nopa_center = numba_weighted_mean(t, 19 - cnopa)
@@ -517,6 +569,12 @@ fig, axs = plt.subplots(nrows=2, ncols=1, sharex='col')
 axs[0].plot(t, cnopa)
 axs[0].plot(t, cpara)
 axs[0].invert_yaxis()
-axs[1].plot(t, cnopa-cpara)
+axs[1].plot(t, np.abs(cnopa-cpara))
 axs[1].invert_yaxis()
+plt.figure()
+nb_bins=100
+range_tE = (-10000, 10000)
+range_delta_u = (0, 0.3)
+plt.hist2d(df['tE'], df['delta_u'], bins=nb_bins, range=(range_tE, range_delta_u))
+plt.scatter(p1['tE'], p1['delta_u'], marker='x', s=100, color='black')
 plt.show()
