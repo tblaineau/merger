@@ -4,6 +4,7 @@
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/old/parameter_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/parameter_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/test/test_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/test/test_generator.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,8 +42,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="266" column="28" selection-start-line="266" selection-start-column="28" selection-end-line="266" selection-end-column="28" />
+            <state relative-caret-position="638">
+              <caret line="435" column="27" selection-start-line="411" selection-start-column="1" selection-end-line="435" selection-end-column="27" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -51,27 +52,9 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/_minimize.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9408">
-              <caret line="588" selection-start-line="588" selection-end-line="588" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/optimize.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4784">
-              <caret line="299" selection-start-line="299" selection-end-line="299" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1856">
+            <state relative-caret-position="16">
               <caret line="121" column="22" selection-start-line="121" selection-start-column="22" selection-end-line="121" selection-end-column="22" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
@@ -83,7 +66,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4528">
+            <state relative-caret-position="636">
               <caret line="292" column="25" selection-start-line="292" selection-start-column="16" selection-end-line="292" selection-end-column="25" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -104,8 +87,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
+            <state relative-caret-position="356">
+              <caret line="24" column="17" selection-start-line="24" selection-start-column="17" selection-end-line="24" selection-end-column="17" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -145,9 +128,11 @@
       <find>MASS</find>
       <find>params_set</find>
       <find>p_tEdu</find>
-      <find>pdf_xvt</find>
       <find>corr</find>
       <find>is_va</find>
+      <find>pdf</find>
+      <find>temp_fitte</find>
+      <find>pdf_xvt</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
@@ -178,9 +163,9 @@
         <option value="$PROJECT_DIR$/test/test_generator.py" />
         <option value="$PROJECT_DIR$/../lib_perso.py" />
         <option value="$PROJECT_DIR$/merger/python_associator/new_nnd.py" />
-        <option value="$PROJECT_DIR$/merger/test/test_generator.py" />
         <option value="$PROJECT_DIR$/merger/utils/toy_simulator.py" />
         <option value="$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py" />
+        <option value="$PROJECT_DIR$/merger/test/test_generator.py" />
         <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
       </list>
     </option>
@@ -257,7 +242,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="TODO_SCOPE" value="All Places" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Python" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -395,9 +380,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.parameter_generator (2)" />
+        <item itemvalue="Python.test_generator (1)" />
         <item itemvalue="Python.visualize_parallax_significance" />
         <item itemvalue="Python.toy_simulator" />
-        <item itemvalue="Python.test_generator (1)" />
         <item itemvalue="Python.test_generator" />
       </list>
     </recent_temporary>
@@ -603,7 +588,14 @@
       <option name="project" value="LOCAL" />
       <updated>1556888436778</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="fitter minmax">
+      <created>1557131196445</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1557131196445</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TodoView">
@@ -640,7 +632,6 @@
     </layout>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added distance5 (number of peaks)" />
     <MESSAGE value="added some generator methods (not func.)" />
     <MESSAGE value="mixed search, 50 test quads" />
     <MESSAGE value="delete useless files" />
@@ -665,7 +656,8 @@
     <MESSAGE value="added near galactic center coordinates (comments)" />
     <MESSAGE value="corrected pdf_dutE, new fitter distance" />
     <MESSAGE value="added scipy minimize distance" />
-    <option name="LAST_COMMIT_MESSAGE" value="added scipy minimize distance" />
+    <MESSAGE value="fitter minmax" />
+    <option name="LAST_COMMIT_MESSAGE" value="fitter minmax" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/stats/_distn_infrastructure.py">
@@ -870,13 +862,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/_minimize.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9408">
-          <caret line="588" selection-start-line="588" selection-end-line="588" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/optimize.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4784">
@@ -884,9 +869,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/_minimize.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="588" selection-start-line="588" selection-end-line="588" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1856">
+        <state relative-caret-position="16">
           <caret line="121" column="22" selection-start-line="121" selection-start-column="22" selection-end-line="121" selection-end-column="22" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
@@ -896,7 +888,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4528">
+        <state relative-caret-position="636">
           <caret line="292" column="25" selection-start-line="292" selection-start-column="16" selection-end-line="292" selection-end-column="25" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
@@ -913,18 +905,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
+        <state relative-caret-position="356">
+          <caret line="24" column="17" selection-start-line="24" selection-start-column="17" selection-end-line="24" selection-end-column="17" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/merger/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="266" column="28" selection-start-line="266" selection-start-column="28" selection-end-line="266" selection-end-column="28" />
+        <state relative-caret-position="638">
+          <caret line="435" column="27" selection-start-line="411" selection-start-column="1" selection-end-line="435" selection-end-column="27" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

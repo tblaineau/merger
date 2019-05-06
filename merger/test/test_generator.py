@@ -19,18 +19,21 @@ def test_generator(mass, nb_samples=100000, save=False, load=False):
 			np.save('xvt_samples.npy', s)
 	if save or load:
 		s = np.load('xvt_samples.npy')
-	xrdm = s[:,0]
-	vtrdm = s[:,1]
+	xrdm = s[:,0][s[:,0]>0.05]
+	vtrdm = s[:,1][s[:,0]>0.05]
+
+	print(x[x<0])
 
 	def p_x(x, mass):
-		return p_xvt(x, 110, mass) * rho_halo(x) / mass * x * x
+		return quad(lambda vt, x, mass: p_xvt(x, vt, mass) , a=0, b=1, args=(x, mass))[0]
 
 	RANGE = ((0,1), (-1000,1000))
 	fig, axs = plt.subplots(2,2, sharex='col', sharey='row')
 	axs[0,0].hist(xrdm, bins=nb_bins, histtype='step', color='red', range=RANGE[0])
 	tmpa = axs[0,0].twinx()
 
-	tmpa.plot(xrdm, p_x(xrdm, mass=mass))
+	tempx = [quad(lambda vt, x, mass: p_xvt(x, vt, mass) , a=0, b=1, args=(xi, mass))[0] for xi in x]
+	tmpa.plot(x, tempx)
 	tmpa.set_ylim(0)
 	axs[1,0].hist2d(xrdm, vtrdm, bins=100, range=RANGE)
 	#plt.contour(x, vT, pdf_xvt(x[None, :], vT[:, None], mass))
@@ -47,10 +50,10 @@ def test_generator(mass, nb_samples=100000, save=False, load=False):
 	durdm = delta_u_from_x(xrdm, mass=mass)
 	terdm = tE_from_xvt(xrdm, vtrdm, mass=mass)
 
-	#plt.hist2d(durdm, terdm, bins=100, range=((0, 0.02), (0, 3000)))
-	delta_u = np.linspace(0, 0.02, 100)
-	tE = np.linspace(0, 3000, 100)
-	ptEdu = pdf_tEdu(tE[:,None], delta_u[None,:], mass=mass)
+	plt.hist2d(durdm, terdm, bins=100, range=((0, 0.02), (0, 3000)))
+	delta_u = np.linspace(0.00001, 0.02, 100)
+	tE = np.linspace(0.001, 3000., 100)
+	ptEdu = pdf_tEdu(tE[:,None], delta_u[None,:], mass)
 	plt.contour(delta_u, tE, ptEdu)
 	plt.show()
 
@@ -144,4 +147,4 @@ def parallax_cut(mass):
 	plt.plot(t, np.abs(cpara-cnopa)/(cpara))
 	plt.show()
 
-test_generator(100, 1000000, load=True)
+test_generator(160., 1000000, save=False, load=False)
