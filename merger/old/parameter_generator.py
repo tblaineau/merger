@@ -271,7 +271,7 @@ def fit_minmax_distance(cnopa, cpara, time_range, init_params):
 			   error_u0=0.5,
 			   error_t0=100,
 			   error_tE=100,
-			   limit_u0=(0, 2),
+			   limit_u0=(0, 1),
 			   limit_tE=(init_params['tE'] * (1 - np.sign(init_params['tE']) * 0.5), init_params['tE'] * (1 + np.sign(init_params['tE']) * 0.5)),
 			   limit_t0=(init_params['t0'] - abs(init_params['tE']), init_params['t0'] + abs(init_params['tE'])),
 			   errordef=1,
@@ -363,7 +363,7 @@ def fraction(dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, co
 		print(len(df),len(df) / len(dfi))
 		df.loc[:, curr_muparameter + '_bins'], rbins = pd.cut(df[curr_muparameter], bins=binfunc(bins), retbins=True)
 		ratios = df[curr_muparameter + '_bins'].value_counts(sort=False) / pd.cut(dfi[curr_muparameter], bins=rbins).value_counts(sort=False)
-		color_val = (pd.cut(dfi[curr_muparameter], bins=rbins).value_counts(sort=False) / len(dfi)).to_numpy()
+		color_val = (pd.cut(dfi[curr_muparameter], bins=rbins).value_counts(sort=False) ).to_numpy()
 		ax.set_title(curr_muparameter)
 		cmp1 = plt.cm.Blues
 		norm = Normalize(0,1)
@@ -441,7 +441,9 @@ def parameter_space(dfi, params_pt=None):
 # df = pd.read_pickle('temp_meanpeaksprom.pkl')
 # df = pd.read_pickle('temp_peaksprom.pkl')
 # df = pd.read_pickle('temp_fitter.pkl')
-df = pd.read_pickle('temp_fittermax.pkl')
+
+df = pd.read_pickle('temp_fittermax1000.pkl')
+print(df.iloc[0].distance)
 df = df.join(pd.DataFrame(df.pop('distance').to_list())[['fval', 'is_valid']])
 df.rename(columns={'fval':'distance'}, inplace=True)
 #df = df[df.is_valid]
@@ -454,7 +456,8 @@ df.rename(columns={'fval':'distance'}, inplace=True)
 # 	print("------------")
 # print(len(df))
 # cutoff_list = [1, 2]
-cutoff_list = [1, 10, 100]
+cutoff_list = [0.01, 0.1, 1]
+df = df[df.mass == 0.1]
 
 # parameter_space(df[df['mass']==10.])
 # parameter_space(df[df['mass']==100.])
@@ -475,7 +478,7 @@ cutoff_list = [1, 10, 100]
 
 tmin = 48928
 tmax = 52697
-p1 = df.sort_values(by='distance', ascending=False).iloc[0].to_dict()
+p1 = df.sort_values(by='distance', ascending=False).iloc[2].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p1)
 p1['blend']=0.
@@ -513,20 +516,20 @@ def update_plot(u0, t0, tE, r):
 	axs[1].relim()
 	axs[1].autoscale_view()
 	fig.canvas.draw()
-	explored_parameters.append([u0, t0, tE, r])
 
 
 def max_fitter(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
 	return -np.abs((microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)))
 
 def fitter_minmax(u0, t0, tE):
-	res = scipy.optimize.differential_evolution(max_fitter, bounds=[(p1['t0']-400, p1['t0']+400)], args=(u0, t0, tE, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']), disp=False, popsize=40, mutation=(0.5, 1.0), strategy='randtobest1bin')
+	res = scipy.optimize.differential_evolution(max_fitter, bounds=[(p1['t0']-400, p1['t0']+400)], args=(u0, t0, tE, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']), disp=False, popsize=40, mutation=(0.5, 1.0), strategy='best1bin')
 	# tm = Minuit(max_fitter, t=t0, error_t=100, limit_t=(tmin, tmax) ,errordef=1, print_level=0)
 	# tm.migrad()
 	if isinstance(res.fun, np.ndarray):
 		r = res.fun[0]
 	else:
 		r = res.fun
+	explored_parameters.append([u0, t0, tE, r])
 	update_plot(u0, t0, tE, r)
 	return -r
 
@@ -537,53 +540,38 @@ m = Minuit(fitter_minmax,
 		   error_u0=0.1,
 		   error_t0=100,
 		   error_tE=100,
-		   limit_u0=(0, 2),
+		   limit_u0=(0, 1),
 		   limit_tE=(p1['tE']*(1-np.sign(p1['tE'])*0.5), p1['tE']*(1+np.sign(p1['tE'])*0.5)),
 		   limit_t0=(p1['t0']-abs(p1['tE']), p1['t0']+abs(p1['tE'])),
 		   errordef=1,
 		   print_level=1
 		   )
 
+
 def onclick(event):
 	m.migrad()
+	# res.append(scipy.optimize.dual_annealing(fitter_minmax,
+	# 		bounds=[(0, 1), (p1['t0'] - abs(p1['tE']), p1['t0'] + abs(p1['tE'])), (p1['tE'] * (1 - np.sign(p1['tE']) * 0.5), p1['tE'] * (1 + np.sign(p1['tE']) * 0.5))]))
+
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
 plt.show()
-print(m.values)
+# print(m.values)
 cnopa = microlens_simple(t, 19., 0., m.values['u0'], m.values['t0'], m.values['tE'], 0., 0.)
 
-# explored_parameters = np.array(explored_parameters)
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
-# print(explored_parameters.shape)
-# ax.scatter(explored_parameters[:,0], explored_parameters[:,1], explored_parameters[:,3])
-# plt.show()
+from mpl_toolkits.mplot3d import Axes3D
 
-# print(np.max(np.abs(cpara-cnopa)))
-# m.draw_profile('tE')
+explored_parameters = np.array(explored_parameters)
+print(explored_parameters.shape)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(explored_parameters[:,0], explored_parameters[:,1], explored_parameters[:,3])
+plt.show()
+# nrom1 = LogNorm(vmin=abs(explored_parameters[:,3].max()), vmax=0.1)
+# fig, axs= plt.subplots(2, 2, sharex='col', sharey='row')
+# axs[1, 0].scatter(explored_parameters[:,0], explored_parameters[:,1], c=np.abs(explored_parameters[:,3]), norm=nrom1)
+# axs[0, 0].scatter(explored_parameters[:,0], explored_parameters[:,2], c=np.abs(explored_parameters[:,3]), norm=nrom1)
+# axs[1, 1].scatter(explored_parameters[:,2], explored_parameters[:,1], c=np.abs(explored_parameters[:,3]), norm=nrom1)
 # plt.show()
-# m.draw_profile('u0')
-# plt.show()
-# xbins, ybins, values = m.contour('tE', 'u0', bound=[[-5, 100], [0, 1]])
-# plt.contour(values, extent=[xbins[0], xbins[-1], ybins[0], ybins[-1]])
-# plt.show()
-
-# def fitter_func(params):
-# 	u0, t0, tE = params
-# 	res = scipy.optimize.differential_evolution(
-# 		lambda t: -np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))),
-# 		bounds=[(tmin, tmax)], disp=False)
-# 	plt.plot(t, -np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
-# 	plt.plot(t, -(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
-# 	plt.plot(t, -(microlens_simple(t, 19, 0, u0, t0, tE, p1['delta_u'], p1['theta'])))
-# 	plt.axvline(res.x)
-# 	plt.xlim(51200, 51600)
-# 	plt.show()
-# 	return - res.fun
-#
-# res = scipy.optimize.minimize(fitter_func, x0=[p1['u0'], p1['t0'], p1['tE']], method='Nelder-Mead')
-# print(res)
-# cnopa = microlens_simple(t, 19., 0., res.x[0], res.x[1], res.x[2], 0., 0.)
-
 
 # nopa_center = numba_weighted_mean(t, 19 - cnopa)
 # para_center = numba_weighted_mean(t, 19 - cpara)
@@ -599,8 +587,8 @@ axs[1].plot(t, np.abs(cnopa-cpara))
 axs[1].invert_yaxis()
 plt.figure()
 nb_bins=100
-range_tE = (0, 1000)
-range_delta_u = (0, 0.05)
-plt.hist2d(df['tE'], df['delta_u'], bins=nb_bins, range=(range_tE, range_delta_u))
-plt.scatter(p1['tE'], p1['delta_u'], marker='x', s=100, color='black')
+range_tE = (0, 2000)
+range_delta_u = (0, 0.1)
+plt.hist2d(np.abs(df['tE']), df['delta_u'], bins=nb_bins, range=(range_tE, range_delta_u))
+plt.scatter(np.abs(p1['tE']), p1['delta_u'], marker='x', s=100, color='black')
 plt.show()
