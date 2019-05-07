@@ -1,10 +1,11 @@
 import numpy as np
+import pandas as pd
 import scipy.optimize
 from iminuit import Minuit
 import numba as nb
 import time
 
-from merger.old.parameter_generator import microlens_parallax, microlens_simple
+from merger.old.parameter_generator import microlens_parallax, microlens_simple, generate_parameters
 from scipy.signal import find_peaks
 
 def distance1(cnopa, cpara):
@@ -122,6 +123,25 @@ def compute_distance(params_set, distance, time_sampling=1000):
 		print(time.time()-st1)
 	return ds
 
+
+def compute_distances(output_name, distance, mass, nb_samples, seed=1234567890):
+	all_params=[]
+	np.random.seed(seed)
+	all_xvts = np.load('../test/xvt_samples.npy')
+	idx = np.arange(0, len(all_xvts)-1)
+	np.random.shuffle(idx)
+	all_xvts = all_xvts[idx][:nb_samples]
+	for g in all_xvts:
+		all_params.append(generate_parameters(mass=mass, x=g[0], vt=g[1]))
+	df = pd.DataFrame.from_records(all_params)
+
+
+	st1 = time.time()
+	ds = compute_distance(all_params, distance=distance, time_sampling=1000)
+	print(time.time()-st1)
+
+	df = df.assign(distance=ds)
+	df.to_pickle(output_name)
 
 # all_params=[]
 # np.random.seed(1234567890)
