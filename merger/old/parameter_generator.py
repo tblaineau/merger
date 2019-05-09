@@ -2,12 +2,7 @@ import numpy as np
 import astropy.units as units
 import astropy.constants as constants
 
-#fastdtw
-import fastdtw
-from scipy.spatial.distance import euclidean
-from scipy.signal import find_peaks
 
-import time
 import numba as nb
 
 COLOR_FILTERS = {
