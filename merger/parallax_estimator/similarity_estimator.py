@@ -152,8 +152,13 @@ def compute_distances(output_name, distance, mass, nb_samples=None, start=None, 
 		all_xvts = all_xvts[idx][start:end]
 	else:
 		all_xvts = all_xvts[idx][:nb_samples]
-	for g in all_xvts:
-		all_params.append(generate_parameters(mass=mass, x=g[0], vt=g[1]))
+	if not isinstance(mass, (list, np.array)):
+		for g in all_xvts:
+			all_params.append(generate_parameters(mass=mass, x=g[0], vt=g[1]))
+	else:
+		for cmass in mass:
+			for g in all_xvts:
+				all_params.append(generate_parameters(mass=cmass, x=g[0], vt=g[1]))
 	df = pd.DataFrame.from_records(all_params)
 
 	st1 = time.time()

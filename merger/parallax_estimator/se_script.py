@@ -23,5 +23,5 @@ if __name__ == '__main__':
 
 	if mass is None:
 		mass = [0.1, 1, 10, 30, 100]
-		for cmass in mass:
-			compute_distances(output_name, distance=minmax_distance_scipy, mass=mass, start=start, end=end)
+
+	compute_distances(output_name, distance=minmax_distance_scipy, mass=mass, start=start, end=end)
