@@ -13,8 +13,7 @@ if __name__ == '__main__':
 
 	output_name = args.name
 	mass = args.mass
-	if mass is None:
-		mass = [0.1, 1, 10, 30, 100]
+
 
 	nb_samples_job = args.nb_samples_job
 	current_job = args.current_job
@@ -22,4 +21,7 @@ if __name__ == '__main__':
 	start = (current_job-1) * nb_samples_job
 	end = current_job * nb_samples_job
 
-	compute_distances(output_name, distance=minmax_distance_scipy, mass=mass, start=start, end=end)
+	if mass is None:
+		mass = [0.1, 1, 10, 30, 100]
+		for cmass in mass:
+			compute_distances(output_name, distance=minmax_distance_scipy, mass=mass, start=start, end=end)
