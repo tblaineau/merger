@@ -19,11 +19,12 @@ def simplemax_distance(t, params):
 	t = np.linspace(params['t0'] - 200, params['t0'] + 200, len(t))
 	return np.max(np.abs(np.max(np.abs(microlens_simple(t, **params)-microlens_parallax(t, **params)))))
 
-def max_fitter(t, params):
-	return -np.abs((microlens_parallax(t, 19, 0, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta']) - microlens_simple(t, 19., 0., params['u0'], params['t0'], params['tE'], 0., 0.)))
-
 def fit_simplemax_distance(t, params):
-	res = scipy.optimize.differential_evolution(max_fitter, bounds=[(params['t0'] - 400, params['t0'] + 400)], disp=False, popsize=40, mutation=(0.5, 1.0),
+	def max_fitter_dict(t):
+		return -np.abs((microlens_parallax(t, 19, 0, params['u0'], params['t0'], params['tE'], params['delta_u'],
+										   params['theta']) - microlens_simple(t, 19., 0., params['u0'], params['t0'],
+																			   params['tE'], 0., 0.)))
+	res = scipy.optimize.differential_evolution(max_fitter_dict, bounds=[(params['t0'] - 400, params['t0'] + 400)], disp=False, popsize=40, mutation=(0.5, 1.0),
 	strategy='best1bin')
 	return res.fun
 
@@ -142,53 +143,42 @@ def compute_distance(params_set, distance, time_sampling=1000):
 	return ds
 
 
-def compute_distances(output_name, distance, mass, nb_samples=None, start=None, end=None, seed=1234567890):
+def compute_distances(output_name, distance, parameter_list, nb_samples=None, start=None, end=None):
 	all_params=[]
-	np.random.seed(seed)
-	all_xvts = np.load('../test/xvt_samples.npy')
-	idx = np.arange(0, len(all_xvts)-1)
-	np.random.shuffle(idx)
 	if nb_samples is None:
-		all_xvts = all_xvts[idx][start:end]
+		parameter_list = parameter_list[start:end]
 	else:
-		all_xvts = all_xvts[idx][:nb_samples]
-	if not isinstance(mass, (list, np.array)):
-		for g in all_xvts:
-			all_params.append(generate_parameters(mass=mass, x=g[0], vt=g[1]))
-	else:
-		for cmass in mass:
-			for g in all_xvts:
-				all_params.append(generate_parameters(mass=cmass, x=g[0], vt=g[1]))
-	df = pd.DataFrame.from_records(all_params)
+		parameter_list = parameter_list[:nb_samples]
+	df = pd.DataFrame.from_records(parameter_list)
 
 	st1 = time.time()
-	ds = compute_distance(all_params, distance=distance, time_sampling=1000)
+	ds = compute_distance(parameter_list, distance=distance, time_sampling=1000)
 	print(time.time()-st1)
 
 	df = df.assign(distance=ds)
 	df.to_pickle(output_name)
 
-# all_params=[]
-# np.random.seed(1234567890)
-# all_xvts = np.load('../test/xvt_samples.npy')
-# idx = np.arange(0, len(all_xvts)-1)
-# np.random.shuffle(idx)
-# print(all_xvts[idx[0]])
-# all_xvts = all_xvts[idx]
-# plt.hist2d(delta_u_from_x(all_xvts[:,0], mass=60.), tE_from_xvt(all_xvts[:,0], all_xvts[:,1], mass=60.), bins=300, range=((0, 0.05), (0, 1000)))
-# plt.show()
-# all_xvts = all_xvts[:1]
-# plt.hist2d(delta_u_from_x(all_xvts[:,0], mass=60.), tE_from_xvt(all_xvts[:,0], all_xvts[:,1], mass=60.), bins=300, range=((0, 0.05), (0, 1000)))
-# plt.show()
-# for mass in np.geomspace(0.1, 1000, 5):
-# 	for g in all_xvts:
-# 		all_params.append(generate_parameters(mass=mass, x=g[0], vt=g[1]))
-# df = pd.DataFrame.from_records(all_params)
-#
-#
-# st1 = time.time()
-# ds = compute_distance(all_params, distance=minmax_distance_scipy, time_sampling=1000)
-# print(time.time()-st1)
-#
-# df = df.assign(distance=ds)
-# df.to_pickle('temp_fittest.pkl')
+all_params=[]
+np.random.seed(1234567890)
+all_xvts = np.load('../test/xvt_samples.npy')
+idx = np.arange(0, len(all_xvts)-1)
+np.random.shuffle(idx)
+print(all_xvts[idx[0]])
+all_xvts = all_xvts[idx]
+plt.hist2d(delta_u_from_x(all_xvts[:,0], mass=60.), tE_from_xvt(all_xvts[:,0], all_xvts[:,1], mass=60.), bins=300, range=((0, 0.05), (0, 1000)))
+plt.show()
+all_xvts = all_xvts[:100000]
+plt.hist2d(delta_u_from_x(all_xvts[:,0], mass=60.), tE_from_xvt(all_xvts[:,0], all_xvts[:,1], mass=60.), bins=300, range=((0, 0.05), (0, 1000)))
+plt.show()
+for mass in [0.1, 1, 10, 30, 100]:
+	for g in all_xvts:
+		all_params.append(generate_parameters(mass=mass, x=g[0], vt=g[1]))
+df = pd.DataFrame.from_records(all_params)
+
+
+st1 = time.time()
+ds = compute_distance(all_params, distance=simplemax_distance, time_sampling=1000)
+print(time.time()-st1)
+
+df = df.assign(distance=ds)
+df.to_pickle('temp_maxdiff.pkl')
