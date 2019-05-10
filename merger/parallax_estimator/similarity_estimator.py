@@ -106,6 +106,7 @@ def minmax_distance_minuit(t, init_params):
 	return m.get_fmin()
 
 def minmax_distance_scipy(t, params):
+	"""Compute distance by minimizing the maximum difference between parallax curve and no-parallax curve by changing u0, t0 and tE values."""
 	def fitter_minmax(g):
 		u0, t0, tE = g
 		return - scipy.optimize.differential_evolution(max_fitter, bounds=[(params['t0']-400, params['t0']+400)], args=(u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta']),
@@ -126,6 +127,23 @@ def numba_weighted_mean(a, w):
 
 #@nb.njit
 def compute_distance(params_set, distance, time_sampling=1000):
+	"""
+	Compute distance between parallax and no-parallax curves corresponding to **param_set** using the *distance* function.
+
+	Parameters
+	----------
+
+	params_set : list
+		List of dictionaries containing lens event parameters
+	distance : function
+		Function to compute distance between para and nopa. Take a time_vector and params_set as parameters.
+	time_sampling : int
+		Time sampling of the time vector between 48928 and 52697
+
+	Returns
+	-------
+	list : List of the distances corresponding to the parameters
+	"""
 	tmin = 48928
 	tmax = 52697
 	t = np.linspace(tmin, tmax, time_sampling)
@@ -144,6 +162,25 @@ def compute_distance(params_set, distance, time_sampling=1000):
 
 
 def compute_distances(output_name, distance, parameter_list, nb_samples=None, start=None, end=None):
+	"""
+	Compute distance between parallax and no-parallax curves using the *distance* function.
+
+	Parameters
+	----------
+
+	output_name : str
+		Name of the pandas pickle file where is stocked a Dataframe containing the parameters with the associated distance
+	distance : function
+		Function used to compute the distance between parallax curve and no-parallax curve, with same parameters
+	parameter_list : list
+		List of lens event parameters
+	nb_samples : int
+	 	Compute the distance for the **nb_samples** first parameters sets. If nb_samples, start and end are None, compute distance for all parameters.
+	start : int
+	 	If nb_samples is None, the index of parameter_list from which to computing distance
+	end : int
+		If nb_samples is None, the index of parameter_list where to stop computing distance
+	"""
 	if nb_samples is None:
 		parameter_list = parameter_list[start:end]
 	else:
