@@ -1,27 +1,30 @@
 
 import argparse
+import os
+import numpy as np
 from merger.parallax_estimator.similarity_estimator import compute_distances, minmax_distance_scipy
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--name', '-n', type=str, required=True)
-	parser.add_argument('--mass', '-m', type=float, required=False)
+	parser.add_argument('--parameter_file', '-pf', type=str, required=True)
 	parser.add_argument('--nb_samples_job', '-nsj', type=int, required=True)
 	parser.add_argument('--current_job', '-cj', type=int, required=True)
 
 	args = parser.parse_args()
 
 	output_name = args.name
-	mass = args.mass
+	parameter_file = args.parameter_file
 
+	assert os.path.isfile(parameter_file), 'Parameter file does not exist.'
 
 	nb_samples_job = args.nb_samples_job
 	current_job = args.current_job
 
+	assert nb_samples_job>0, 'Invalid number of samples per job.'
+	assert current_job>0, 'Invalid current job number.'
+
 	start = (current_job-1) * nb_samples_job
 	end = current_job * nb_samples_job
 
-	if mass is None:
-		mass = [0.1, 1, 10, 30, 100]
-
-	compute_distances(output_name, distance=minmax_distance_scipy, mass=mass, start=start, end=end)
+	compute_distances(output_name, distance=minmax_distance_scipy, parameter_list=np.load(parameter_file), start=start, end=end)
