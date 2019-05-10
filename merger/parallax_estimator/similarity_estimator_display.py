@@ -125,7 +125,6 @@ df[df.distance>0.01].mass.value_counts(sort=False).sort_index().plot.bar(color=c
 df[df.distance>0.1].mass.value_counts(sort=False).sort_index().plot.bar(color=cmap1(norm(0.75)), edgecolor='white', width=1)
 plt.show()
 
-# df = pd.read_pickle('temp_fittermax1000.pkl')
 
 # df2 = df.join(pd.DataFrame(df.pop('distance').to_list())[['fval', 'is_valid']])
 # df2.rename(columns={'fval':'distance'}, inplace=True)

@@ -19,7 +19,7 @@ def simplemax_distance(t, params):
 	t = np.linspace(params['t0'] - 200, params['t0'] + 200, len(t))
 	return np.max(np.abs(np.max(np.abs(microlens_simple(t, **params)-microlens_parallax(t, **params)))))
 
-def fit_simplemax_distance(t, params):
+def fit_simplemax_distance(t1, params):
 	def max_fitter_dict(t):
 		return -np.abs((microlens_parallax(t, 19, 0, params['u0'], params['t0'], params['tE'], params['delta_u'],
 										   params['theta']) - microlens_simple(t, 19., 0., params['u0'], params['t0'],
