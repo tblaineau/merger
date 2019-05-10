@@ -152,9 +152,7 @@ def compute_distance(params_set, distance, time_sampling=1000):
 	for params in params_set:
 		c+=1
 		print(c)
-		del params['mass']
-		del params['x']
-		del params['vt']
+		params = {key: params[key] for key in ['u0', 't0', 'tE','delta_u', 'theta']}
 		params['mag']=19.
 		params['blend']=0.
 		ds.append(distance(t, params))
