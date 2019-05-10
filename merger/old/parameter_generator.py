@@ -199,7 +199,12 @@ def microlens_simple(t, mag, blend, u0, t0, tE, delta_u, theta):
 
 def generate_parameter_file(output_name, all_xvts, mass_array):
 	all_parameters = []
+	idx=0
 	for cmass in mass_array:
+		print(cmass)
 		for g in all_xvts:
 			all_parameters.append(generate_parameters(cmass, x=g[0], vt=g[1]))
+			all_parameters[-1]['idx'] = idx
+			idx+=1
+	np.random.shuffle(all_parameters)
 	np.save(output_name, all_parameters)
