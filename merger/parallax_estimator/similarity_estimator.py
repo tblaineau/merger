@@ -144,7 +144,6 @@ def compute_distance(params_set, distance, time_sampling=1000):
 
 
 def compute_distances(output_name, distance, parameter_list, nb_samples=None, start=None, end=None):
-	all_params=[]
 	if nb_samples is None:
 		parameter_list = parameter_list[start:end]
 	else:
