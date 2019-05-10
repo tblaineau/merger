@@ -196,3 +196,10 @@ def microlens_simple(t, mag, blend, u0, t0, tE, delta_u, theta):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
 	amp = (u**2+2)/(u*np.sqrt(u**2+4))
 	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * amp)
+
+def generate_parameter_file(output_name, all_xvts, mass_array):
+	all_parameters = []
+	for cmass in mass_array:
+		for g in all_xvts:
+			all_parameters.append(generate_parameters(cmass, x=g[0], vt=g[1]))
+	np.save(output_name, all_parameters)
