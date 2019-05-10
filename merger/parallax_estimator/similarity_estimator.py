@@ -6,7 +6,7 @@ import numba as nb
 import time
 
 import matplotlib.pyplot as plt
-from merger.old.parameter_generator import microlens_parallax, microlens_simple, generate_parameters, delta_u_from_x, tE_from_xvt
+from merger.old.parameter_generator import microlens_parallax, microlens_simple, generate_parameter_file
 from scipy.signal import find_peaks
 
 def distance1(t, params):
@@ -180,7 +180,11 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 		If nb_samples is None, the index of parameter_list where to stop computing distance
 	"""
 	if nb_samples is None:
-		parameter_list = parameter_list[start:end]
+		if start is not None and end is not None:
+			parameter_list = parameter_list[start:end]
+		elif (start is not None and end is None) or (start is None and end is not None):
+			print('Start and end should both be initialized if nb_samples is None.')
+			return None
 	else:
 		parameter_list = parameter_list[:nb_samples]
 	df = pd.DataFrame.from_records(parameter_list)
@@ -192,27 +196,9 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 	df = df.assign(distance=ds)
 	df.to_pickle(output_name)
 
-all_params=[]
-np.random.seed(1234567890)
-all_xvts = np.load('../test/xvt_samples.npy')
-idx = np.arange(0, len(all_xvts)-1)
-np.random.shuffle(idx)
-print(all_xvts[idx[0]])
-all_xvts = all_xvts[idx]
-plt.hist2d(delta_u_from_x(all_xvts[:,0], mass=60.), tE_from_xvt(all_xvts[:,0], all_xvts[:,1], mass=60.), bins=300, range=((0, 0.05), (0, 1000)))
-plt.show()
-all_xvts = all_xvts[:100000]
-plt.hist2d(delta_u_from_x(all_xvts[:,0], mass=60.), tE_from_xvt(all_xvts[:,0], all_xvts[:,1], mass=60.), bins=300, range=((0, 0.05), (0, 1000)))
-plt.show()
-for mass in [0.1, 1, 10, 30, 100]:
-	for g in all_xvts:
-		all_params.append(generate_parameters(mass=mass, x=g[0], vt=g[1]))
-df = pd.DataFrame.from_records(all_params)
+# all_xvts = np.load('../test/xvt_samples.npy')
+# np.random.shuffle(all_xvts)
+# generate_parameter_file('parameters1M.npy', all_xvts, [0.1, 1, 10, 30, 100, 300])
 
-
-st1 = time.time()
-ds = compute_distance(all_params, distance=simplemax_distance, time_sampling=1000)
-print(time.time()-st1)
-
-df = df.assign(distance=ds)
-df.to_pickle('temp_maxdiff.pkl')
+pms = np.load('parameters1M.npy')
+compute_distances('simple_max.pkl', simplemax_distance, pms, nb_samples=100000)
