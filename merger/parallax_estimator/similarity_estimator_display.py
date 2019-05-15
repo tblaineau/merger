@@ -41,12 +41,11 @@ def cuttoffs_scatter_plots(df, cutoffs=[0.01, 0.05, 0.1]):
 		# plt.plot([[0,0], [1,1]], ls="--", c=".3")
 		plt.show()
 
-def fraction(dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, condition=True, binfunc=lambda x:x):
+def fraction(ax, dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, condition=True, binfunc=lambda x:x):
 	if isinstance(cutoff, list):
 		cutoff = np.array(cutoff)
 	elif not isinstance(cutoff, np.ndarray):
 		cutoff = np.array([cutoff])
-	ax = plt.gca()
 	lctf = len(cutoff)
 	for idx, ct in enumerate(cutoff):
 		df = dfi[(dfi['distance']>=ct) & condition].copy()
@@ -65,10 +64,8 @@ def fraction(dfi, cutoff=0., curr_muparameter='mass', bins=20, show_tot=True, co
 		for label in ax.get_xticklabels():
 			label.set_ha("right")
 			label.set_rotation(45)
-		ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: "{:.3f}".format(binfunc(value))))
-	plt.legend()
+		ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: "{:0.0f}".format(binfunc(value))))
 	ax.legend()
-	plt.show()
 
 def parameter_space(dfi, params_pt=None):
 	dfdist = dfi[dfi.distance>1]
@@ -99,52 +96,111 @@ def parameter_space(dfi, params_pt=None):
 		axs[2, 1].scatter(params_pt['tE'], params_pt['delta_u'], marker='x', s=100, color='black')
 	plt.show()
 
-def compare_distances_df(one, two):
-	one.sort_values(by='x', inplace=True)
-	two.sort_values(by='x', inplace=True)
-	print(one.iloc[0])
-	print(two.iloc[0])
-	print(len(one))
-	print(len(two))
-	joined = one.join(two, on='x', lsuffix='_one', rsuffix='_two')
-	joined.dropna(axis=0, how='any', subset=['x_two', 'vt_two', 'x_one', 'vt_one'], inplace=True)
-	print(len(joined))
+def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=False, **base_cut_args):
+	if range is not None:
+		df = df[(df[values]>range[0]) & (df[values]<range[1])]
+	out1, bins = base_cut_func(df[values].abs(), retbins=True, **base_cut_args)
+	out1 = out1.value_counts().reindex(out1.cat.categories)
+	cmap = plt.cm.Blues
+	norm1 = Normalize(-1, len(cuttoff_list)+1)
+	out_patches = []
+	for idx, cutoff in enumerate(cuttoff_list):
+		out2, _ = pd.cut(df[df.distance > cutoff][values].abs(), bins=bins, retbins=True)
+		out2 = out2.value_counts().reindex(out2.cat.categories)
+		b1 = ax.bar(x=(bins[1:] + bins[:-1]) / 2., height=out2.to_numpy() / out1.to_numpy(),
+						width=1. * (bins[:-1] - bins[1:]), edgecolor='none', facecolor=cmap(norm1(idx)))
+		out_patches.append(b1[0])
+	if log:
+		bins = np.geomspace(df[values].abs().min(), df[values].abs().max(), 30)
+	else:
+		bins=30
+	_, _, h1 = ax.twinx().hist(df[values].abs(), bins=bins, color='black', histtype='step')
+	if log:
+		ax.set_xscale('log')
+	return out_patches
 
-# df = pd.read_pickle('fittermax/scipyminmax1000.pkl')
+df = pd.read_pickle('scipyminmax.pkl')
+df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+print(len(df))
+df = df[df.tE.abs()>15]
+
+# df = pd.read_pickle('simplemax.pkl')
+# df = df[(df.mass==30.) & (df.tE.abs()>15)]
+# df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
+
+# df = pd.read_pickle('fast_simplemax.pkl')
 # df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
-# df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x)
-# print(df.distance)
+# df.distance = df.distance.abs()
 
-df = pd.read_pickle('temp_max.pkl')
+# df = pd.read_pickle('nbpeaks.pkl')
+
+cutoff_list = [0.01, 0.1,  1.]
 
 cmap1 = plt.cm.Blues
-norm = Normalize(vmin=0, vmax=1)
+norm = Normalize(vmin=-1, vmax=len(cutoff_list)+1)
 df.sort_values(by='mass', inplace=True)
-df.mass.value_counts(sort=False).sort_index().plot.bar(color='none', edgecolor='black', width=1)
-df[df.distance>0.01].mass.value_counts(sort=False).sort_index().plot.bar(color=cmap1(norm(0.25)), edgecolor='white', width=1)
-df[df.distance>0.1].mass.value_counts(sort=False).sort_index().plot.bar(color=cmap1(norm(0.75)), edgecolor='white', width=1)
+df.mass.value_counts(sort=False).sort_index().plot.bar(color='none', edgecolor='black', width=1, label='All')
+for idx, cutoff in enumerate(cutoff_list):
+	df[df.distance>cutoff].mass.value_counts(sort=False).sort_index().plot.bar(color=cmap1(norm(idx)), edgecolor='white', width=1, label=f'{cutoff} mag')
+plt.legend()
+plt.xlabel(r'Lens mass $[M_\odot]$')
+plt.ylabel(r'Number of events.')
+plt.xticks(rotation='horizontal')
+plt.title('Minimized distance')
+plt.savefig('euclidean.png', transparent=True, frameon=True)
 plt.show()
 
+fig, axs = plt.subplots(nrows=2, ncols=3, sharex='all', sharey='all')
+axs = axs.flatten()
+print(df.mass.unique())
+for idx, cmass in enumerate(df.mass.unique()):
+	fraction(axs[idx], df[df['mass'] == cmass], curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+plt.show()
 
-# df2 = df.join(pd.DataFrame(df.pop('distance').to_list())[['fval', 'is_valid']])
-# df2.rename(columns={'fval':'distance'}, inplace=True)
-#df = df[df.is_valid]
+print(len(df[(df.distance>0.05) & (df.tE>0)])/len(df[(df.distance>0.05) & (df.tE<0)]))
 
-cutoff_list = [0.001, 0.01, 0.1]
+fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
+axs = axs.flatten()
+print(df.mass.unique())
+for idx, cmass in enumerate(df.mass.unique()):
+	ps = display_ratios(axs[idx], df[df.mass==cmass], 'tE', cutoff_list, pd.qcut, q=30, log=True)
+	axs[idx].set_title(f'{cmass} $M_\odot$')
+	axs[idx].axvline(4000, color='red', lw=0.5)
+axs[3].set_xlabel(r'$t_E$ $[d]$')
+axs[4].set_xlabel(r'$t_E$ $[d]$')
+axs[5].set_xlabel(r'$t_E$ $[d]$')
+axs[0].set_ylabel(r"Fraction d'événements")
+axs[3].set_ylabel(r"Fraction d'événements")
+lbls = ['Durée de LSST']
+for ct in cutoff_list:
+	lbls.append(f'{ct} mag')
+import matplotlib.patches as mpatches
+ps.append(mpatches.Rectangle((0,0), 1, 0.5))
+print(ps)
+fig.legend(ps, labels=lbls, loc="center right")
+plt.subplots_adjust(right=0.8)
+plt.show()
 
+# BINS = 100
+# h2, xedges, yedges, _ = plt.hist2d(df[df.distance>0.01].tE, df[df.distance>0.01].delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
+# h3, xedges, yedges, _ = plt.hist2d(df[df.distance>0.05].tE, df[df.distance>0.05].delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
+# h1, xedges, yedges, _ = plt.hist2d(df.tE, df.delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
+# plt.show()
+# plt.imshow((h3/h1).T, origin='lower', extent=(xedges[0], xedges[-1], yedges[0], yedges[-1]), aspect='auto')
+# sns.kdeplot(df.tE, df.delta_u, clip=((-1000,1000), (0, 0.05)))
+# plt.colorbar()
+# plt.show()
+# fig = plt.figure()
+# plt.scatter(df.tE, df.delta_u, s=(72./fig.dpi)**2, color='red', marker='o')
+# plt.scatter(df[df.distance>0.05].tE, df[df.distance>0.05].delta_u, s=(72./fig.dpi)**2, color='yellow', marker='o')
+# plt.xlim(-1000, 1000)
+# plt.ylim(0, 0.05)
+# plt.show()
 
-# parameter_space(df[df['mass']==10.])
-# parameter_space(df[df['mass']==100.])
-# sns.pairplot(df[df.mass==10.], hue='distance', vars=['u0', 'tE', 'delta_u'])
+print(len(df[(df.distance>0.1) & (df.tE<0)]))
+print(len(df[(df.distance>0.1) & (df.tE>0)]))
 
 fraction(df, cutoff=cutoff_list, bins=np.linspace(0.9, 3.1, 10), binfunc=lambda x: np.power(10, x), show_tot=True)
 fraction(df, curr_muparameter='u0', cutoff=cutoff_list, bins=np.linspace(0, 1, 20), show_tot=False)
 fraction(df, curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
 fraction(df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0, 0.2, 20), show_tot=True)
-cuttoffs_scatter_plots(df, cutoffs=[0, 0.01, 0.1])
-# c1 = df['mass']>0
-# plt.hist2d(df[c1]['x'], df[c1]['tE'], bins=300, range=((0, 1), (0, 5000)))
-# plt.xlabel(r'$x$')
-# plt.ylabel(r'$t_E$')
-# plt.show()
-# display(df, cutoff=0.)
