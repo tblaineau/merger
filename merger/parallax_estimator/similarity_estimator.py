@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import scipy.optimize
+import scipy.integrate
 from iminuit import Minuit
 import numba as nb
 import time
@@ -39,6 +40,10 @@ def absdiff2(t, u0, t0, tE, delta_u, theta):
 	t = np.array([t])
 	return -np.abs((microlens_parallax(t, 19, 0, u0, t0, tE, delta_u, theta) - microlens_simple(t, 19., 0., u0, t0,
 																									tE, 0., 0.)))
+
+def absdiff3(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	t = np.array([t])
+	return (drydiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta))**2
 
 
 def fit_simplemax_distance(params):
@@ -93,6 +98,31 @@ def curvefit(params, time_interval=3):
 			   )
 	m.migrad()
 	return [m.get_fmin().fval, dict(m.values), len(t)]
+
+def integral_curvefit(params, a=None, b=None):
+	if a is None or b is None:
+		a = params['t0']-3*abs(params['tE'])
+		b = params['t0']+3*abs(params['tE'])
+
+	def minuit_wrap(u0, t0, tE):
+		quadargs = (u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
+		return scipy.integrate.quad(absdiff3, a, b, args=quadargs, epsrel=0.0001)[0]
+
+	m = Minuit(minuit_wrap,
+			   u0 = params['u0'],
+			   t0 = params['t0'],
+			   tE = params['tE'],
+			   error_u0 = 0.1,
+			   error_t0 = 10,
+			   error_tE = 10,
+			   limit_u0 = (0, 2),
+			   limit_t0 = (params['t0']-400, params['t0']+400),
+			   errordef=1,
+			   print_level=0
+			   )
+	m.migrad()
+	return [m.get_fmin().fval, dict(m.values)]
+
 
 # @nb.jit(nopython=True)
 # def dtw_distance(cnopa, cpara):
@@ -186,6 +216,7 @@ def minmax_distance_minuit(init_params):
 	m.migrad()
 	return m.get_fmin()
 
+
 def minmax_distance_scipy(params):
 	"""Compute distance by minimizing the maximum difference between parallax curve and no-parallax curve by changing u0, t0 and tE values."""
 	def fitter_minmax(g):
@@ -197,6 +228,7 @@ def minmax_distance_scipy(params):
 				disp=False, popsize=10, mutation=(0.5, 1.0), strategy='currenttobest1bin', atol=0.0001, recombination=0.9)
 	return [res.fun, res.x]
 
+
 @nb.njit
 def numba_weighted_mean(a, w):
 	s = 0
@@ -206,6 +238,7 @@ def numba_weighted_mean(a, w):
 		n+=w[i
 		]
 	return s/n
+
 
 def compute_distances(output_name, distance, parameter_list, nb_samples=None, start=None, end=None, **distance_args):
 	"""
@@ -255,13 +288,14 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 	df = df.assign(distance=ds)
 	df.to_pickle(output_name)
 
+
 logging.basicConfig(level=logging.DEBUG)
 
 st = time.time()
 pms = np.load('parameters_light.npy', allow_pickle=True)
 end = time.time()
 logging.info(f'{len(pms)} parameters loaded in {end-st:.2f} seconds.')
-compute_distances('trash.pkl', KS_test, pms, nb_samples=1,)
+compute_distances('trash.pkl', integral_curvefit, pms, nb_samples=1000,)
 
 # all_xvts = np.load('../test/xvt_samples.npy')
 # np.random.shuffle(all_xvts)
