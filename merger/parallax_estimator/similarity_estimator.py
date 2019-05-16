@@ -20,30 +20,37 @@ def simplemax_distance(params, dt=1):
 	return np.max(np.abs(np.max(np.abs(microlens_simple(t, **params)-microlens_parallax(t, **params)))))
 
 @nb.njit
-def max_fitter_dict(t, params):
+def absdiff_dict(t, params):
 		return -np.abs((microlens_parallax(t, 19, 0, params['u0'], params['t0'], params['tE'], params['delta_u'],
 										   params['theta']) - microlens_simple(t, 19., 0., params['u0'], params['t0'],
 																			   params['tE'], 0., 0.)))
 
 @nb.njit
-def max_fitter(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+def absdiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
 	return -np.abs((microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)))
 
 @nb.njit
-def max_fitter2(t, u0, t0, tE, delta_u, theta):
+def drydiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	return microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)
+
+
+@nb.njit
+def absdiff2(t, u0, t0, tE, delta_u, theta):
 	t = np.array([t])
 	return -np.abs((microlens_parallax(t, 19, 0, u0, t0, tE, delta_u, theta) - microlens_simple(t, 19., 0., u0, t0,
 																									tE, 0., 0.)))
 
+
 def fit_simplemax_distance(params):
-	res = scipy.optimize.differential_evolution(max_fitter_dict, bounds=[(params['t0'] - 400, params['t0'] + 400)], disp=False, popsize=40, mutation=(0.5, 1.0),
+	res = scipy.optimize.differential_evolution(absdiff_dict, bounds=[(params['t0'] - 400, params['t0'] + 400)], disp=False, popsize=40, mutation=(0.5, 1.0),
 	strategy='best1bin', args=params)
 	return res.fun
+
 
 def fastfit_simplemax_distance(params, init_dt=0.5):
 	t = np.arange(params['t0'] - 200, params['t0'] + 200, init_dt)
 	init_t = t[(-np.abs(microlens_parallax(t, **params)-microlens_simple(t, **params))).argmin()]
-	m = Minuit(max_fitter2,
+	m = Minuit(absdiff2,
 			   t = init_t,
 			   t0 = params['t0'],
 			   u0 = params['u0'],
@@ -63,6 +70,29 @@ def fastfit_simplemax_distance(params, init_dt=0.5):
 	return [m.get_fmin().fval, dict(m.values)]
 
 
+def curvefit(params, time_interval=3):
+	if not 3*abs(params['tE'])<400:
+		t = np.arange(params['t0']-3*abs(params['tE']), params['t0']+3*abs(params['tE']), time_interval)
+	else:
+		t = np.arange(params['t0']-400, params['t0']+400, time_interval)
+
+	def minuit_wrap(u0, t0, tE):
+		return (drydiff(t, u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])**2).sum()
+
+	m = Minuit(minuit_wrap,
+			   u0 = params['u0'],
+			   t0 = params['t0'],
+			   tE = params['tE'],
+			   error_u0 = 0.1,
+			   error_t0 = 10,
+			   error_tE = 10,
+			   limit_u0 = (0, 2),
+			   limit_t0 = (params['t0']-400, params['t0']+400),
+			   errordef=1,
+			   print_level=0
+			   )
+	m.migrad()
+	return [m.get_fmin().fval, dict(m.values), len(t)]
 
 # @nb.jit(nopython=True)
 # def dtw_distance(cnopa, cpara):
@@ -127,6 +157,7 @@ def count_peaks(params, min_prominence=0., base_mag=19.):
 	else :
 		return 0
 
+
 def scipy_simple_fit_distance(init_params):
 	def fitter_func(params):
 		u0, t0, tE = params
@@ -135,9 +166,10 @@ def scipy_simple_fit_distance(init_params):
 	res = scipy.optimize.minimize(fitter_func, x0=[init_params['u0'], init_params['t0'], init_params['tE']], method='Nelder-Mead')
 	return res.fun
 
+
 def minmax_distance_minuit(init_params):
 	def fitter_minmax(u0, t0, tE):
-		return - scipy.optimize.differential_evolution(max_fitter, bounds=[(init_params['t0']-400, init_params['t0']+400)], args=(u0, t0, tE, init_params['u0'], init_params['t0'], init_params['tE'], init_params['delta_u'], init_params['theta']), disp=False, popsize=40, mutation=(0.5, 1.0)).fun
+		return - scipy.optimize.differential_evolution(absdiff, bounds=[(init_params['t0']-400, init_params['t0']+400)], args=(u0, t0, tE, init_params['u0'], init_params['t0'], init_params['tE'], init_params['delta_u'], init_params['theta']), disp=False, popsize=40, mutation=(0.5, 1.0)).fun
 	m = Minuit(fitter_minmax,
 			   u0=init_params['u0'],
 			   t0=init_params['t0'],
@@ -158,7 +190,7 @@ def minmax_distance_scipy(params):
 	"""Compute distance by minimizing the maximum difference between parallax curve and no-parallax curve by changing u0, t0 and tE values."""
 	def fitter_minmax(g):
 		u0, t0, tE = g
-		return - scipy.optimize.differential_evolution(max_fitter, bounds=[(params['t0']-400, params['t0']+400)], args=(u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta']),
+		return - scipy.optimize.differential_evolution(absdiff, bounds=[(params['t0']-400, params['t0']+400)], args=(u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta']),
 					disp=False, popsize=40, mutation=(0.5, 1.0)).fun
 	res = scipy.optimize.differential_evolution(fitter_minmax, bounds=[(0, 1),
 				(params['t0'] - abs(params['tE']), params['t0'] + abs(params['tE'])), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))],
@@ -214,20 +246,22 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 		params = {key: params[key] for key in ['u0', 't0', 'tE', 'delta_u', 'theta']}
 		params['mag'] = 19.
 		params['blend'] = 0.
+		st2 = time.time()
 		ds.append(distance(params, **distance_args))
+		logging.debug(f'{time.time()-st2} s')
 
 	logging.info(f'{len(parameter_list)} distances computed in {time.time()-st1:.2f} seconds.')
 
 	df = df.assign(distance=ds)
 	df.to_pickle(output_name)
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 st = time.time()
-pms = np.load('parameters_light.npy')
+pms = np.load('parameters_light.npy', allow_pickle=True)
 end = time.time()
 logging.info(f'{len(pms)} parameters loaded in {end-st:.2f} seconds.')
-compute_distances('fast_simplemax.pkl', fastfit_simplemax_distance, pms, nb_samples=100000)
+compute_distances('trash.pkl', KS_test, pms, nb_samples=1,)
 
 # all_xvts = np.load('../test/xvt_samples.npy')
 # np.random.shuffle(all_xvts)
