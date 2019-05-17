@@ -97,7 +97,11 @@ def curvefit(params, time_interval=3):
 			   print_level=0
 			   )
 	m.migrad()
-	return [m.get_fmin().fval, dict(m.values), len(t)]
+	init_dt=0.5
+	t = np.arange(m.values['t0'] - 200, m.values['t0'] + 200, init_dt)
+	init_t = (np.abs(microlens_parallax(t, **params)
+						- microlens_simple(t, params['mag'], params['blend'], m.values['u0'], m.values['t0'], m.values['tE'], params['delta_u'], params['theta']))).max()
+	return [m.get_fmin().fval, dict(m.values), len(t), init_t]
 
 def integral_curvefit(params, a=None, b=None):
 	if a is None or b is None:
@@ -275,13 +279,17 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 	st1 = time.time()
 
 	ds = []
+	i=0
 	for params in parameter_list:
+		i+=1
 		params = {key: params[key] for key in ['u0', 't0', 'tE', 'delta_u', 'theta']}
 		params['mag'] = 19.
 		params['blend'] = 0.
 		st2 = time.time()
 		ds.append(distance(params, **distance_args))
-		logging.debug(f'{time.time()-st2} s')
+		# logging.debug(f'{time.time()-st2} s')
+		if i%100 == 0:
+			logging.debug(i)
 
 	logging.info(f'{len(parameter_list)} distances computed in {time.time()-st1:.2f} seconds.')
 
@@ -292,10 +300,21 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 logging.basicConfig(level=logging.DEBUG)
 
 st = time.time()
-pms = np.load('parameters_light.npy', allow_pickle=True)
+pms = np.load('parameters1M.npy', allow_pickle=True)
 end = time.time()
 logging.info(f'{len(pms)} parameters loaded in {end-st:.2f} seconds.')
-compute_distances('trash.pkl', integral_curvefit, pms, nb_samples=1000,)
+
+df = pd.DataFrame.from_records(pms)
+
+df2 = pd.read_pickle('scipyminmax.pkl')['idx']
+
+df = df.merge(df2, on='idx', suffixes=('',''))
+print(len(df))
+
+print(df.idx.sort_values())
+pms = df.to_records()
+
+compute_distances('chi2.pkl', curvefit, pms, time_interval=0.5)
 
 # all_xvts = np.load('../test/xvt_samples.npy')
 # np.random.shuffle(all_xvts)
