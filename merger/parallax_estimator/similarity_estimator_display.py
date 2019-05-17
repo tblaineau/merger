@@ -105,11 +105,12 @@ def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=
 	norm1 = Normalize(-1, len(cuttoff_list)+1)
 	out_patches = []
 	for idx, cutoff in enumerate(cuttoff_list):
-		out2, _ = pd.cut(df[df.distance > cutoff][values].abs(), bins=bins, retbins=True)
-		out2 = out2.value_counts().reindex(out2.cat.categories)
-		b1 = ax.bar(x=(bins[1:] + bins[:-1]) / 2., height=out2.to_numpy() / out1.to_numpy(),
-						width=1. * (bins[:-1] - bins[1:]), edgecolor='none', facecolor=cmap(norm1(idx)))
+		df.loc[:,'cut_'+values] = pd.cut(df[df.distance > cutoff][values].abs(), bins=bins)
+		out2 = df['cut_'+values].value_counts().reindex(df['cut_'+values].cat.categories)
+		b1 = ax.errorbar((bins[1:] + bins[:-1]) / 2., out2.to_numpy() / out1.to_numpy(), xerr=np.abs(bins[:-1] - bins[1:])/2, ls='', marker='+')
+						#width=1. * (bins[:-1] - bins[1:]), edgecolor='none', facecolor=cmap(norm1(idx)))
 		out_patches.append(b1[0])
+	ax.set_ylim(0)
 	if log:
 		bins = np.geomspace(df[values].abs().min(), df[values].abs().max(), 30)
 	else:
@@ -119,10 +120,17 @@ def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=
 		ax.set_xscale('log')
 	return out_patches
 
-df = pd.read_pickle('scipyminmax.pkl')
+# df = pd.read_pickle('scipyminmax.pkl')
+# df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+# print(len(df))
+# df = df[df.tE.abs()>15]
+
+# df = pd.read_pickle('chi2.pkl')
+# df[['distance', 'fitted_params', 'ndof']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+
+df = pd.read_pickle('trash.pkl')
 df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
-print(len(df))
-df = df[df.tE.abs()>15]
+print(df.distance.max())
 
 # df = pd.read_pickle('simplemax.pkl')
 # df = df[(df.mass==30.) & (df.tE.abs()>15)]
@@ -135,35 +143,55 @@ df = df[df.tE.abs()>15]
 # df = pd.read_pickle('nbpeaks.pkl')
 
 cutoff_list = [0.01, 0.1,  1.]
+#
+# cmap1 = plt.cm.Blues
+# norm = Normalize(vmin=-1, vmax=len(cutoff_list)+1)
+# df.sort_values(by='mass', inplace=True)
+# df.mass.value_counts(sort=False).sort_index().plot.bar(color='none', edgecolor='black', width=1, label='All')
+# for idx, cutoff in enumerate(cutoff_list):
+# 	df[df.distance>cutoff].mass.value_counts(sort=False).sort_index().plot.bar(color=cmap1(norm(idx)), edgecolor='white', width=1, label=f'{cutoff} mag')
+# plt.legend()
+# plt.xlabel(r'Lens mass $[M_\odot]$')
+# plt.ylabel(r'Number of events.')
+# plt.xticks(rotation='horizontal')
+# plt.title('Minimized distance')
+# plt.savefig('euclidean.png', transparent=True, frameon=True)
+# plt.show()
+#
+# fig, axs = plt.subplots(nrows=2, ncols=3, sharex='all', sharey='all')
+# axs = axs.flatten()
+# print(df.mass.unique())
+# for idx, cmass in enumerate(df.mass.unique()):
+# 	fraction(axs[idx], df[df['mass'] == cmass], curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+# plt.show()
+#
+# print(len(df[(df.distance>0.05) & (df.tE>0)])/len(df[(df.distance>0.05) & (df.tE<0)]))
 
-cmap1 = plt.cm.Blues
-norm = Normalize(vmin=-1, vmax=len(cutoff_list)+1)
-df.sort_values(by='mass', inplace=True)
-df.mass.value_counts(sort=False).sort_index().plot.bar(color='none', edgecolor='black', width=1, label='All')
-for idx, cutoff in enumerate(cutoff_list):
-	df[df.distance>cutoff].mass.value_counts(sort=False).sort_index().plot.bar(color=cmap1(norm(idx)), edgecolor='white', width=1, label=f'{cutoff} mag')
-plt.legend()
-plt.xlabel(r'Lens mass $[M_\odot]$')
-plt.ylabel(r'Number of events.')
-plt.xticks(rotation='horizontal')
-plt.title('Minimized distance')
-plt.savefig('euclidean.png', transparent=True, frameon=True)
+plt.hist(np.log10(df[df.mass==10.].distance.replace([np.inf, -np.inf, 0], np.nan).dropna()), bins=20, histtype='step')
+plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: f"{pow(10,value)}"))
 plt.show()
 
-fig, axs = plt.subplots(nrows=2, ncols=3, sharex='all', sharey='all')
+fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
 axs = axs.flatten()
-print(df.mass.unique())
-for idx, cmass in enumerate(df.mass.unique()):
-	fraction(axs[idx], df[df['mass'] == cmass], curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+for idx, cmass in enumerate(np.sort(df.mass.unique())):
+	df['cut_tE'] = pd.qcut(df['tE'].abs(), q=20)
+	ax = sns.boxplot(x='cut_tE', y='distance', data=df[df.mass==cmass], ax = axs[idx], color='red')
+	ax.set_yscale('log')
 plt.show()
 
-print(len(df[(df.distance>0.05) & (df.tE>0)])/len(df[(df.distance>0.05) & (df.tE<0)]))
+fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
+axs = axs.flatten()
+for idx, cmass in enumerate(np.sort(df.mass.unique())):
+	dfi = df[df.mass==cmass]
+	axs[idx].scatter(dfi.tE.abs(), dfi.distance, marker='o', s=(2*72./fig.dpi)**2, lw=0, color='black')
+	axs[idx].set_yscale('log')
+plt.show()
 
 fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
 axs = axs.flatten()
 print(df.mass.unique())
-for idx, cmass in enumerate(df.mass.unique()):
-	ps = display_ratios(axs[idx], df[df.mass==cmass], 'tE', cutoff_list, pd.qcut, q=30, log=True)
+for idx, cmass in enumerate(np.sort(df.mass.unique())):
+	ps = display_ratios(axs[idx], df[df.mass==cmass], 'tE', cutoff_list, pd.qcut, q=10, log=True)
 	axs[idx].set_title(f'{cmass} $M_\odot$')
 	axs[idx].axvline(4000, color='red', lw=0.5)
 axs[3].set_xlabel(r'$t_E$ $[d]$')
@@ -200,7 +228,10 @@ plt.show()
 print(len(df[(df.distance>0.1) & (df.tE<0)]))
 print(len(df[(df.distance>0.1) & (df.tE>0)]))
 
-fraction(df, cutoff=cutoff_list, bins=np.linspace(0.9, 3.1, 10), binfunc=lambda x: np.power(10, x), show_tot=True)
-fraction(df, curr_muparameter='u0', cutoff=cutoff_list, bins=np.linspace(0, 1, 20), show_tot=False)
-fraction(df, curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
-fraction(df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0, 0.2, 20), show_tot=True)
+fig = plt.figure()
+ax = plt.gca()
+fraction(ax, df, cutoff=cutoff_list, bins=np.linspace(0.9, 3.1, 10), binfunc=lambda x: np.power(10, x), show_tot=True)
+fraction(ax, df, curr_muparameter='u0', cutoff=cutoff_list, bins=np.linspace(0, 1, 20), show_tot=False)
+fraction(ax, df, curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+fraction(ax, df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0, 0.2, 20), show_tot=True)
+plt.show()
