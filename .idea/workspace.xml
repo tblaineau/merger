@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
+    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="added cji">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py" afterDir="false" />
@@ -22,7 +22,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
+            <state relative-caret-position="5184">
               <caret line="332" column="50" selection-start-line="332" selection-start-column="50" selection-end-line="332" selection-end-column="50" />
               <folding>
                 <element signature="e#0#46#0" expanded="true" />
@@ -34,8 +34,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="706">
-              <caret line="198" selection-start-line="198" selection-end-line="198" />
+            <state relative-caret-position="371">
+              <caret line="193" column="7" selection-start-line="193" selection-start-column="7" selection-end-line="193" selection-end-column="7" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -46,8 +46,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="134" selection-start-line="134" selection-end-line="137" />
+            <state relative-caret-position="828">
+              <caret line="163" column="48" selection-start-line="163" selection-start-column="48" selection-end-line="163" selection-end-column="48" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -56,10 +56,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="184">
+              <caret line="262" column="19" selection-start-line="262" selection-start-column="19" selection-end-line="262" selection-end-column="19" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="125">
-              <caret line="35" column="19" selection-start-line="35" selection-start-column="19" selection-end-line="35" selection-end-column="19" />
+            <state relative-caret-position="236">
+              <caret line="33" column="99" selection-start-line="33" selection-start-column="99" selection-end-line="33" selection-end-column="99" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -67,13 +79,30 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="94">
-              <caret line="143" column="14" selection-start-line="143" selection-start-column="14" selection-end-line="143" selection-end-column="14" />
+            <state relative-caret-position="1647">
+              <caret line="284" column="83" selection-start-line="284" selection-start-column="83" selection-end-line="284" selection-end-column="83" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#304#388#0" />
+                <element signature="e#420#470#0" />
+                <element signature="e#511#670#0" />
+                <element signature="e#1670#2231#0" />
+                <element signature="e#3386#3944#0" />
+                <element signature="e#2858#2882#0" />
+                <element signature="e#3853#4517#0" />
+                <element signature="e#3853#4230#1" />
+                <element signature="e#4564#4848#0" />
+                <element signature="e#4591#4703#0" />
+                <element signature="e#4892#5723#0" />
+                <element signature="e#4925#5208#0" />
+                <element signature="e#5761#6584#0" />
+                <element signature="e#5925#6195#0" />
+                <element signature="e#6263#6447#0" />
+                <element signature="e#6627#6704#0" />
+                <element signature="e#6667#6692#0" />
               </folding>
             </state>
           </provider>
@@ -82,7 +111,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/se_script.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
+            <state relative-caret-position="96">
               <caret line="9" column="30" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
               <folding>
                 <element signature="e#1#16#0" expanded="true" />
@@ -135,12 +164,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>pro</find>
-      <find>mask2</find>
-      <find>subdf</find>
-      <find>subdf.loc[:,&quot;t_dm&quot;]</find>
-      <find>interac</find>
-      <find>params_se</find>
       <find>numba</find>
       <find>d_lmc</find>
       <find>abs</find>
@@ -164,6 +187,13 @@
       <find>3d</find>
       <find>print</find>
       <find>t,</find>
+      <find>tmin</find>
+      <find>xticks</find>
+      <find>bar</find>
+      <find>max_fitter</find>
+      <find>load</find>
+      <find>72</find>
+      <find>binfunc</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
@@ -175,6 +205,7 @@
       <replace>microlens_parallax(</replace>
       <replace>**params_set</replace>
       <replace>pdf_tEdu</replace>
+      <replace>absdiff</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -201,17 +232,17 @@
         <option value="$PROJECT_DIR$/merger/test/__init__.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/fittermax/fuse_outputs.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/se_script.py" />
-        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py" />
-        <option value="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py" />
+        <option value="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1312" />
-    <option name="y" value="-664" />
+    <option name="x" value="1280" />
+    <option name="y" value="-705" />
     <option name="width" value="1920" />
     <option name="height" value="1200" />
   </component>
@@ -262,7 +293,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="TODO_SCOPE" value="All Places" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -285,7 +316,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.similarity_estimator">
+  <component name="RunManager" selected="Python.fitter_check">
     <configuration name="fitter_check" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -400,8 +431,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.similarity_estimator" />
         <item itemvalue="Python.fitter_check" />
+        <item itemvalue="Python.similarity_estimator" />
         <item itemvalue="Python.similarity_estimator_display" />
         <item itemvalue="Python.toy_simulator" />
         <item itemvalue="Python.se_script" />
@@ -419,41 +450,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00004" summary="mixed search, 50 test quads">
-      <created>1555418810510</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1555418810510</updated>
-    </task>
-    <task id="LOCAL-00005" summary="mixed search, 50 test quads">
-      <created>1555418816335</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1555418816335</updated>
-    </task>
-    <task id="LOCAL-00006" summary="delete useless files">
-      <created>1555418827694</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1555418827694</updated>
-    </task>
-    <task id="LOCAL-00007" summary="corrected pxvt method">
-      <created>1555419910496</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1555419910496</updated>
-    </task>
-    <task id="LOCAL-00008" summary="corrected functions, update interactive">
-      <created>1555421550792</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1555421550792</updated>
     </task>
     <task id="LOCAL-00009" summary="no class, corrected functions">
       <created>1555421593424</created>
@@ -763,7 +759,42 @@
       <option name="project" value="LOCAL" />
       <updated>1557496134301</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="sphinx">
+      <created>1557749139850</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1557749139851</updated>
+    </task>
+    <task id="LOCAL-00054" summary="sphinx">
+      <created>1557749159060</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1557749159060</updated>
+    </task>
+    <task id="LOCAL-00055" summary="presentation_state">
+      <created>1557924017184</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1557924017184</updated>
+    </task>
+    <task id="LOCAL-00056" summary="chi2 distance">
+      <created>1558001304214</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1558001304214</updated>
+    </task>
+    <task id="LOCAL-00057" summary="integral cruve_fit ()">
+      <created>1558020833884</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1558020833884</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="TodoView">
@@ -776,15 +807,36 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="-706" width="1920" height="1200" extended-state="6" />
+    <frame x="1280" y="-705" width="1920" height="1200" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49729243" visible="true" weight="0.13954712" />
-      <window_info id="Structure" order="1" sideWeight="0.5027076" side_tool="true" visible="true" weight="0.13954712" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49318802" visible="true" weight="0.14110756" />
+      <window_info id="Structure" order="1" sideWeight="0.506812" side_tool="true" visible="true" weight="0.14110756" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.29151624" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.33754513" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3998195" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49921012" weight="0.23555957" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32942238" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5007899" side_tool="true" weight="0.23555957" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
+      <window_info anchor="bottom" id="Messages" order="11" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" x="0" y="0" width="430" height="1000" id="Documentation" order="3" side_tool="true" weight="0.32960597" />
+    </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4955414" visible="true" weight="0.13954712" />
+      <window_info id="Structure" order="1" sideWeight="0.5044586" side_tool="true" visible="true" weight="0.13954712" />
+      <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.29151624" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3998195" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -794,11 +846,11 @@
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5007899" side_tool="true" weight="0.23555957" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.21028881" />
       <window_info anchor="bottom" id="Messages" order="11" />
-      <window_info anchor="right" x="0" y="0" width="430" height="1000" id="Documentation" side_tool="true" weight="0.32960597" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-    </layout>
+      <window_info anchor="right" x="0" y="0" width="430" height="1000" id="Documentation" order="3" side_tool="true" weight="0.32960597" />
+    </layout-to-restore>
   </component>
   <component name="Vcs.Log.History.Properties">
     <option name="COLUMN_ORDER">
@@ -810,11 +862,47 @@
       </list>
     </option>
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fitter minmax" />
-    <MESSAGE value="corrected p_xvt and generation of vt sign. tuned distance estimator minimizer." />
-    <MESSAGE value="slighty modified minmax distance" />
-    <MESSAGE value="directory reorganisation" />
     <MESSAGE value="similarity_estimator script for cc" />
     <MESSAGE value="removed unused pacakges" />
     <MESSAGE value="modified simple maxdiff computation and added full differential evolution minmax function" />
@@ -836,7 +924,11 @@
     <MESSAGE value="minor modifications" />
     <MESSAGE value="internal schuffle and index columns" />
     <MESSAGE value="project update" />
-    <option name="LAST_COMMIT_MESSAGE" value="project update" />
+    <MESSAGE value="sphinx" />
+    <MESSAGE value="presentation_state" />
+    <MESSAGE value="chi2 distance" />
+    <MESSAGE value="integral cruve_fit ()" />
+    <option name="LAST_COMMIT_MESSAGE" value="integral cruve_fit ()" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/lib/python3.7/site-packages/matplotlib/pyplot.py">
@@ -1126,6 +1218,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="1430" column="8" selection-start-line="1430" selection-start-column="8" selection-end-line="1430" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/matplotlib/axes/_axes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4099">
+          <caret line="1467" column="21" selection-start-line="1467" selection-start-column="21" selection-end-line="1467" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5184">
+          <caret line="332" column="50" selection-start-line="332" selection-start-column="50" selection-end-line="332" selection-end-column="50" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/se_script.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="96">
+          <caret line="9" column="30" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
+          <folding>
+            <element signature="e#1#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/merger.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="688">
@@ -1153,86 +1279,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/se_script.py">
+    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="9" column="30" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
+        <state relative-caret-position="828">
+          <caret line="163" column="48" selection-start-line="163" selection-start-column="48" selection-end-line="163" selection-end-column="48" />
           <folding>
-            <element signature="e#1#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="332" column="50" selection-start-line="332" selection-start-column="50" selection-end-line="332" selection-end-column="50" />
-          <folding>
-            <element signature="e#0#46#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="488">
-          <caret line="281" lean-forward="true" selection-start-line="281" selection-end-line="281" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="706">
-          <caret line="198" selection-start-line="198" selection-end-line="198" />
+        <state relative-caret-position="371">
+          <caret line="193" column="7" selection-start-line="193" selection-start-column="7" selection-end-line="193" selection-end-column="7" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.7/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="1430" column="8" selection-start-line="1430" selection-start-column="8" selection-end-line="1430" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="35" column="19" selection-start-line="35" selection-start-column="19" selection-end-line="35" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.7/site-packages/matplotlib/axes/_axes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4099">
-          <caret line="1467" column="21" selection-start-line="1467" selection-start-column="21" selection-end-line="1467" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="134" selection-start-line="134" selection-end-line="137" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="94">
-          <caret line="143" column="14" selection-start-line="143" selection-start-column="14" selection-end-line="143" selection-end-column="14" />
+        <state relative-caret-position="1647">
+          <caret line="284" column="83" selection-start-line="284" selection-start-column="83" selection-end-line="284" selection-end-column="83" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#304#388#0" />
+            <element signature="e#420#470#0" />
+            <element signature="e#511#670#0" />
+            <element signature="e#1670#2231#0" />
+            <element signature="e#3386#3944#0" />
+            <element signature="e#2858#2882#0" />
+            <element signature="e#3853#4517#0" />
+            <element signature="e#3853#4230#1" />
+            <element signature="e#4564#4848#0" />
+            <element signature="e#4591#4703#0" />
+            <element signature="e#4892#5723#0" />
+            <element signature="e#4925#5208#0" />
+            <element signature="e#5761#6584#0" />
+            <element signature="e#5925#6195#0" />
+            <element signature="e#6263#6447#0" />
+            <element signature="e#6627#6704#0" />
+            <element signature="e#6667#6692#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/toy_simulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="262" column="19" selection-start-line="262" selection-start-column="19" selection-end-line="262" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="236">
+          <caret line="33" column="99" selection-start-line="33" selection-start-column="99" selection-end-line="33" selection-end-column="99" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
