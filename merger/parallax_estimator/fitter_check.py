@@ -13,16 +13,34 @@ from merger.old.parameter_generator import microlens_parallax, microlens_simple
 # df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 # df.distance = df.distance.abs()
 
-df = pd.read_pickle('scipyminmax.pkl')
-df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
-df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x)
+df = pd.read_pickle('chi2.pkl')
+df[['distance', 'fitted_params', 'ndof', 'maxdiff']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+
+df2 = pd.read_pickle('scipyminmax.pkl')
+df2[['distance', 'fitted_params']] = pd.DataFrame(df2.distance.values.tolist(), index=df2.index)
+df2.loc[:,'distance'] = df2.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x)
+
+print(len(df2))
+df.sort_values('idx', inplace=True)
+df2.sort_values('idx', inplace=True)
+df.set_index('idx', inplace=True)
+df2.set_index('idx', inplace=True)
+df = df.join(df2, rsuffix='', lsuffix='_chi2').dropna()
+print(len(df))
+
+print(df.iloc[0])
+
+fig = plt.figure()
+df.plot.scatter('distance', 'maxdiff', s=10*(72./fig.dpi)**2, c='tE', cmap='PiYG', edgecolor='black', vmin=-2000, vmax=2000)
+plt.plot(df['distance'], df['distance'], lw=0.5, c='black')
+plt.show()
 
 print(df.mass.unique())
 
 tmin = 48928
 tmax = 52697
 df = df[(df.tE.abs()>15)]
-p2 = df.sort_values(by='distance', ascending=False).iloc[100].to_dict()
+p2 = df.sort_values(by='maxdiff', ascending=False).iloc[0].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p2)
 p2['blend']=0.
@@ -41,7 +59,10 @@ pnop1, = axs[0].plot(t, -(microlens_simple(t, 19, 0, p1['u0'], p1['t0'], p1['tE'
 axs[0].plot(t, -(microlens_simple(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])), ls='--')
 hl = axs[1].axhline(0, color='black', linewidth=0.5)
 hl2 = axs[1].axhline(0, color='red', linewidth=0.5)
-plt.xlim(51500, 52500)
+l1 = axs[0].axvline(tmin, color='red', linewidth=0.5)
+l2 = axs[0].axvline(tmax, color='red', linewidth=0.5)
+pts, = axs[1].plot([], [], ls='', marker='+')
+# plt.xlim(51500, 52500)
 curr_max=-np.inf
 i=0
 explored_parameters=[]
@@ -68,6 +89,9 @@ def update_plot(u0, t0, tE, r):
 def max_fitter(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
 	return -np.abs((microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)))
 
+def curvefit_func(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	return (microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))**2
+
 def fitter_minmax(u0, t0, tE):
 	# u0, t0, tE = params
 	res = scipy.optimize.differential_evolution(max_fitter, bounds=[(p1['t0']-400, p1['t0']+400)], args=(u0, t0, tE, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']), disp=False, popsize=40, mutation=(0.5, 1.0), strategy='best1bin')
@@ -90,6 +114,69 @@ def fitter_minmax_minuit(u0, t0, tE):
 	# update_plot(u0, t0, tE, tm.fval)
 	return tm.fval
 
+def curvefit_minuit(params, time_interval=3):
+	l1.set_xdata(params['t0']-3*abs(params['tE']))
+	l2.set_xdata(params['t0']+3*abs(params['tE']))
+	t = np.arange(params['t0']-3*abs(params['tE']), params['t0']+3*abs(params['tE']), time_interval)
+	def minuit_wrap(u0, t0, tE):
+		r = curvefit_func(t, u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
+		update_plot(u0, t0, tE, r.max())
+		pts.set_xdata(t)
+		pts.set_ydata(r)
+		return r.sum()*time_interval
+
+	m = Minuit(minuit_wrap,
+			   u0 = params['u0'],
+			   t0 = params['t0'],
+			   tE = params['tE'],
+			   error_u0 = 0.1,
+			   error_t0 = 10,
+			   error_tE = 10,
+			   limit_u0 = (0, 2),
+			   limit_t0 = (params['t0']-400, params['t0']+400),
+			   errordef=1,
+			   print_level=1
+			   )
+	m.migrad()
+	return m.get_fmin().fval/(len(t)-3)
+
+
+import numba as nb
+
+@nb.njit
+def drydiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	return microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)
+
+
+def absdiff3(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	if not isinstance(t, np.ndarray):
+		t = np.array([t])
+	return (drydiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta))**2
+
+
+import scipy.integrate
+
+def integral_curvefit(params, a=-1000000, b=1000000):
+	def minuit_wrap(u0, t0, tE):
+		quadargs = (u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
+		update_plot(u0, t0, tE, 0)
+		return scipy.integrate.quad(absdiff3, a=params['t0']-3*abs(params['tE']), b=params['t0']+3*abs(params['tE']), args=quadargs)[0]
+
+	m = Minuit(minuit_wrap,
+			   u0 = params['u0'],
+			   t0 = params['t0'],
+			   tE = params['tE'],
+			   error_u0 = 0.1,
+			   error_t0 = 10,
+			   error_tE = 10,
+			   limit_u0 = (0, 2),
+			   limit_t0 = (params['t0']-400, params['t0']+400),
+			   errordef=1,
+			   print_level=0
+			   )
+	m.migrad()
+	print(m.get_fmin().fval)
+	return [m.get_fmin().fval, dict(m.values)]
 
 def microlens_parallax_inv(t, u0, t0, tE, delta_u, theta): return -microlens_parallax(np.array([t]), 19., 0.,  u0, t0, tE, delta_u, theta)
 mmin = Minuit(microlens_parallax_inv,
@@ -110,70 +197,20 @@ mmin = Minuit(microlens_parallax_inv,
 			  print_level=1
 			  )
 
-m = Minuit(fitter_minmax,
-		   u0=p1['u0']+0.1,
-		   t0=p1['t0'],
-		   tE=p1['tE'],
-		   error_u0=0.2,
-		   error_t0=50,
-		   error_tE=10,
-		   limit_u0=(0, 2),
-		   limit_tE=(p1['tE']*(1-np.sign(p1['tE'])*0.5), p1['tE']*(1+np.sign(p1['tE'])*0.5)),
-		   limit_t0=(p1['t0']-180, p1['t0']+180),
-		   errordef=1,
-		   print_level=1
-		   )
 
-from scipy.optimize._differentialevolution import DifferentialEvolutionSolver
-
-class CustomDES(DifferentialEvolutionSolver):
-	def __init__(self, func, bounds, args=(),
-                 strategy='best1bin', maxiter=None, popsize=15,
-                 tol=0.01, mutation=(0.5, 1), recombination=0.7, seed=None,
-                 maxfun=None, callback=None, disp=False, polish=True,
-				init='latinhypercube'):
-		DifferentialEvolutionSolver.__init__(self, func, bounds, args=(),
-                 strategy='best1bin', maxiter=None, popsize=15,
-                 tol=0.01, mutation=(0.5, 1), recombination=0.7, seed=None,
-                 maxfun=None, callback=None, disp=False, polish=True,
-				init='latinhypercube')
-
-	def init_population_lhs(self):
-		"""
-		Initializes the population with Latin Hypercube Sampling.
-		Latin Hypercube Sampling ensures that each parameter is uniformly
-		sampled over its range.
-		"""
-		rng = self.random_number_generator
-
-		# Each parameter range needs to be sampled uniformly. The scaled
-		# parameter range ([0, 1)) needs to be split into
-		# `self.num_population_members` segments, each of which has the following
-		# size:
-		segsize = 1.0 / self.num_population_members
-
-		# Within each segment we sample from a uniform random distribution.
-		# We need to do this sampling for each parameter.
-		samples = (segsize * rng.random_sample(self.population_shape)
-
-				   # Offset each segment to cover the entire parameter range [0, 1)
-				   + np.linspace(0., 1., self.num_population_members,
-								 endpoint=False)[:, np.newaxis])
-
-		# Create an array for population of candidate solutions.
-		self.population = np.zeros_like(samples)
-
-		# Initialize population of candidate solutions by permutation of the
-		# random samples.
-		for j in range(self.parameter_count):
-			order = rng.permutation(range(self.num_population_members))
-			self.population[:, j] = samples[order, j]
-
-		self.population[0] = (p1['u0'] - self.__scale_arg1[0]) / self.__scale_arg2[0]
-
-# solv1 = CustomDES(fitter_minmax,
-# 			bounds=[(0, 2), (p1['t0'] - 360., p1['t0'] + 360), (np.abs(p1['tE'])*-2, np.abs(p1['tE'])*2)],
-# 			   disp=False, popsize=40, mutation=(0.5, 1.0), strategy='currenttobest1bin', recombination=0.9, maxiter=100)
+# m = Minuit(fitter_minmax,
+# 		   u0=p1['u0']+0.1,
+# 		   t0=p1['t0'],
+# 		   tE=p1['tE'],
+# 		   error_u0=0.2,
+# 		   error_t0=50,
+# 		   error_tE=10,
+# 		   limit_u0=(0, 2),
+# 		   limit_tE=(p1['tE']*(1-np.sign(p1['tE'])*0.5), p1['tE']*(1+np.sign(p1['tE'])*0.5)),
+# 		   limit_t0=(p1['t0']-180, p1['t0']+180),
+# 		   errordef=1,
+# 		   print_level=1
+# 		   )
 
 # res=[]
 # st1 = time.time()
@@ -184,14 +221,23 @@ class CustomDES(DifferentialEvolutionSolver):
 # print(time.time()-st1)
 # print(res.fun)
 
-def onclick(event):
-	m.migrad()
+res=[]
 
-cid = fig.canvas.mpl_connect('button_press_event', onclick)
+def onclick(event):
+	global res
+	res = integral_curvefit(p1)
+	# m.migrad()
+
+cid = fig.canvas.mpl_connect('key_press_event', onclick)
 plt.show()
 
+for sigma in [0.01, 0.05, 0.1]:
+	print(res/sigma**2)
+
 # cnopa2 = microlens_simple(t, 19., 0., res.x[0], res.x[1], res.x[2], 0., 0.)
-cnopa2 = microlens_simple(t, 19., 0., m.values['u0'], m.values['t0'], m.values['tE'], 0., 0.)
+# cnopa2 = microlens_simple(t, 19., 0., m.values['u0'], m.values['t0'], m.values['tE'], 0., 0.)
+# cnopa2 = microlens_simple(t, 19., 0., res[0], res[1], res[2], 0., 0.)
+cnopa2 = microlens_simple(t, 19., 0., res['u0'], res['t0'], res['tE'], 0., 0.)
 
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -211,11 +257,11 @@ from mpl_toolkits.mplot3d import Axes3D
 
 fig, axs = plt.subplots(nrows=2, ncols=1, sharex='col')
 axs[0].plot(t, cpara, label='earth')
-# axs[0].plot(t, cnopa2, label='corrected sun')
-axs[0].plot(t, cnopa, ls='--', label='sun')
+axs[0].plot(t, cnopa2, label='corrected sun')
+axs[0].plot(t, cnopa, ls=':', label='sun')
 # axs[0].axvline(p2['fitted_params']['t'])
 # axs[1].axvline(p2['fitted_params']['t'])
-axs[0].plot(t, microlens_simple(t, p2['mag'], p2['blend'], p2['fitted_params'][0], p2['fitted_params'][1], p2['fitted_params'][2], 0, 0), label='minimized', color='orange')
+axs[0].plot(t, microlens_simple(t, p2['mag'], p2['blend'], p2['fitted_params'][0], p2['fitted_params'][1], p2['fitted_params'][2], 0, 0), label='DE minimized', color='red', ls='--')
 axs[0].legend()
 axs[0].invert_yaxis()
 axs[1].plot(t, np.abs(cnopa2-cpara), label='minimized', color='orange')
