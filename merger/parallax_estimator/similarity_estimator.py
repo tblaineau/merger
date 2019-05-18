@@ -97,11 +97,14 @@ def curvefit(params, time_interval=3):
 			   print_level=0
 			   )
 	m.migrad()
-	init_dt=0.5
-	t = np.arange(m.values['t0'] - 200, m.values['t0'] + 200, init_dt)
-	init_t = (np.abs(microlens_parallax(t, **params)
-						- microlens_simple(t, params['mag'], params['blend'], m.values['u0'], m.values['t0'], m.values['tE'], params['delta_u'], params['theta']))).max()
-	return [m.get_fmin().fval, dict(m.values), len(t), init_t]
+	res = scipy.optimize.differential_evolution(absdiff_dict, bounds=[(params['t0'] - 400, params['t0'] + 400)],
+												disp=False, popsize=40, mutation=(0.5, 1.0),
+												strategy='best1bin', args=params)
+	# init_dt=0.5
+	# t = np.arange(m.values['t0'] - 200, m.values['t0'] + 200, init_dt)
+	# init_t = (np.abs(microlens_parallax(t, **params)
+	# 					- microlens_simple(t, params['mag'], params['blend'], m.values['u0'], m.values['t0'], m.values['tE'], params['delta_u'], params['theta']))).max()
+	# return [m.get_fmin().fval, dict(m.values), len(t), init_t]
 
 def integral_curvefit(params, a=None, b=None):
 	if a is None or b is None:
@@ -227,11 +230,31 @@ def minmax_distance_scipy(params):
 		u0, t0, tE = g
 		return - scipy.optimize.differential_evolution(absdiff, bounds=[(params['t0']-400, params['t0']+400)], args=(u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta']),
 					disp=False, popsize=40, mutation=(0.5, 1.0)).fun
+
 	res = scipy.optimize.differential_evolution(fitter_minmax, bounds=[(0, 1),
-				(params['t0'] - abs(params['tE']), params['t0'] + abs(params['tE'])), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))],
-				disp=False, popsize=10, mutation=(0.5, 1.0), strategy='currenttobest1bin', atol=0.0001, recombination=0.9)
+				(params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))],
+				disp=False, popsize=40, mutation=(0.5, 1.0), strategy='currenttobest1bin', recombination=0.9)
 	return [res.fun, res.x]
 
+def minmax_distance_scipy2(params, time_sampling=0.5, pop_size=40):
+	t = np.arange(params['t0'] - 400, params['t0'] + 400, time_sampling)
+
+	def fitter_minmax(g):
+		u0, t0, tE = g
+		return (drydiff(t, u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])**2).max()
+
+	bounds = [(0, 1), (params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))]
+	init_pop = np.array([np.random.uniform(bounds[0][0], bounds[0][1], pop_size),
+				np.random.uniform(bounds[1][0], bounds[1][1], pop_size),
+				np.random.uniform(bounds[2][0], bounds[2][1], pop_size),
+				]).T
+
+	init_pop[0] = [params['u0'], params['t0'], params['tE']]
+
+	res = scipy.optimize.differential_evolution(fitter_minmax, bounds=bounds, disp=False,
+												mutation=(0.5, 1.0), strategy='currenttobest1bin', recombination=0.9,
+												init=init_pop)
+	return [np.sqrt(res.fun), res.x]
 
 @nb.njit
 def numba_weighted_mean(a, w):
@@ -314,7 +337,8 @@ print(len(df))
 print(df.idx.sort_values())
 pms = df.to_records()
 
-compute_distances('chi2.pkl', curvefit, pms, time_interval=0.5)
+
+compute_distances('fastscipyminmax.pkl', minmax_distance_scipy2, pms, time_sampling=0.5)
 
 # all_xvts = np.load('../test/xvt_samples.npy')
 # np.random.shuffle(all_xvts)

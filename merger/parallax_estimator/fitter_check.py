@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 from iminuit import Minuit
 import scipy.optimize
-
+import numba as nb
 from merger.old.parameter_generator import microlens_parallax, microlens_simple
 
 # df = pd.read_pickle('nbpeaks.pkl')
@@ -35,12 +35,15 @@ df.plot.scatter('distance', 'maxdiff', s=10*(72./fig.dpi)**2, c='tE', cmap='PiYG
 plt.plot(df['distance'], df['distance'], lw=0.5, c='black')
 plt.show()
 
+# df = pd.read_pickle('trash.pkl')
+# df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+
 print(df.mass.unique())
 
 tmin = 48928
 tmax = 52697
 df = df[(df.tE.abs()>15)]
-p2 = df.sort_values(by='maxdiff', ascending=False).iloc[0].to_dict()
+p2 = df.sort_values(by='distance', ascending=False).iloc[100].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p2)
 p2['blend']=0.
@@ -48,7 +51,7 @@ p2['mag']=19.
 
 p1 = {key: p2[key] for key in ['mag', 'blend', 'u0', 'tE', 't0', 'theta', 'delta_u']}
 
-t = np.linspace(tmin, tmax, 10000)
+t = np.arange(tmin, tmax, 0.5)
 cnopa = microlens_simple(t, **p1)
 cpara = microlens_parallax(t, **p1)
 
@@ -68,7 +71,9 @@ i=0
 explored_parameters=[]
 
 
-def update_plot(u0, t0, tE, r):
+def update_plot(xk, convergence):
+	convergence=0
+	u0, t0, tE = xk
 	global curr_max
 	global i
 	i+=1
@@ -77,10 +82,10 @@ def update_plot(u0, t0, tE, r):
 	ppar1.set_ydata(-(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
 	pnop1.set_ydata(-(microlens_simple(t, 19, 0, u0, t0, tE, p1['delta_u'], p1['theta'])))
 	plt.pause(0.000001)
-	hl2.set_ydata(-r)
-	if r>curr_max:
-		curr_max = r
-		hl.set_ydata(-r)
+	hl2.set_ydata(-convergence)
+	if convergence>curr_max:
+		curr_max = convergence
+		hl.set_ydata(-convergence)
 	axs[1].relim()
 	axs[1].autoscale_view()
 	fig.canvas.draw()
@@ -92,18 +97,31 @@ def max_fitter(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
 def curvefit_func(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
 	return (microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))**2
 
-def fitter_minmax(u0, t0, tE):
-	# u0, t0, tE = params
-	res = scipy.optimize.differential_evolution(max_fitter, bounds=[(p1['t0']-400, p1['t0']+400)], args=(u0, t0, tE, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta']), disp=False, popsize=40, mutation=(0.5, 1.0), strategy='best1bin')
-	# tm = Minuit(max_fitter, t=t0, error_t=100, limit_t=(tmin, tmax) ,errordef=1, print_level=0)
-	# tm.migrad()
-	if isinstance(res.fun, np.ndarray):
-		r = res.fun[0]
-	else:
-		r = res.fun
-	explored_parameters.append([u0, t0, tE, r])
-	update_plot(u0, t0, tE, r)
-	return -r
+@nb.njit
+def drydiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	return microlens_parallax(t, 19, 0, pu0, pt0, ptE, pdu, ptheta) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.)
+
+
+def minmax_distance_scipy(params):
+	"""Compute distance by minimizing the maximum difference between parallax curve and no-parallax curve by changing u0, t0 and tE values."""
+	t = np.arange(params['t0'] - 400, params['t0'] + 400, 1 / 24.)
+	def fitter_minmax(g):
+		u0, t0, tE = g
+		return (drydiff(t, u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])**2).max()
+
+	pop_size=40
+	bounds = [(0, 1), (params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))]
+	init_pop = np.array([np.random.uniform(bounds[0][0], bounds[0][1], pop_size),
+				np.random.uniform(bounds[1][0], bounds[1][1], pop_size),
+				np.random.uniform(bounds[2][0], bounds[2][1], pop_size),
+				]).T
+
+	init_pop[0] = [p1['u0'], p1['t0'], p1['tE']]
+
+	res = scipy.optimize.differential_evolution(fitter_minmax, bounds=bounds, disp=False,
+												mutation=(0.5, 1.0), strategy='currenttobest1bin', recombination=0.9,
+												callback=update_plot, init=init_pop)
+	return [res.fun, res.x]
 
 def fitter_minmax_minuit(u0, t0, tE):
 	def max_fitter(t):
@@ -221,23 +239,22 @@ mmin = Minuit(microlens_parallax_inv,
 # print(time.time()-st1)
 # print(res.fun)
 
-res=[]
+res = []
 
 def onclick(event):
 	global res
-	res = integral_curvefit(p1)
+	# res = integral_curvefit(p1)
+	val, res = minmax_distance_scipy(p1)
 	# m.migrad()
 
 cid = fig.canvas.mpl_connect('key_press_event', onclick)
 plt.show()
 
-for sigma in [0.01, 0.05, 0.1]:
-	print(res/sigma**2)
 
 # cnopa2 = microlens_simple(t, 19., 0., res.x[0], res.x[1], res.x[2], 0., 0.)
 # cnopa2 = microlens_simple(t, 19., 0., m.values['u0'], m.values['t0'], m.values['tE'], 0., 0.)
-# cnopa2 = microlens_simple(t, 19., 0., res[0], res[1], res[2], 0., 0.)
-cnopa2 = microlens_simple(t, 19., 0., res['u0'], res['t0'], res['tE'], 0., 0.)
+cnopa2 = microlens_simple(t, 19., 0., res[0], res[1], res[2], 0., 0.)
+# cnopa2 = microlens_simple(t, 19., 0., res['u0'], res['t0'], res['tE'], 0., 0.)
 
 from mpl_toolkits.mplot3d import Axes3D
 

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="added cji">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/merger/parallax_estimator/differential_evolution.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/parallax_estimator/differential_evolution.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,18 +18,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/python_associator/new_nnd.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5184">
-              <caret line="332" column="50" selection-start-line="332" selection-start-column="50" selection-end-line="332" selection-end-column="50" />
-              <folding>
-                <element signature="e#0#46#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -70,10 +57,23 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="33" column="99" selection-start-line="33" selection-start-column="99" selection-end-line="33" selection-end-column="99" />
+            <state relative-caret-position="270">
+              <caret line="54" column="29" lean-forward="true" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="29" />
               <folding>
-                <element signature="e#0#19#0" expanded="true" />
+                <element signature="e#2669#2794#0" />
+                <element signature="e#2859#2978#0" />
+                <element signature="e#3582#3936#0" />
+                <element signature="e#3603#3778#0" />
+                <element signature="e#4498#5263#0" />
+                <element signature="e#4700#4914#0" />
+                <element signature="e#5322#5436#0" />
+                <element signature="e#5518#5636#0" />
+                <element signature="e#5311#6025#0" />
+                <element signature="e#5748#6074#0" />
+                <element signature="e#5497#5576#0" />
+                <element signature="e#5945#5972#0" />
+                <element signature="e#7214#7267#0" />
+                <element signature="e#8159#8201#0" />
               </folding>
             </state>
           </provider>
@@ -82,14 +82,15 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1647">
-              <caret line="284" column="83" selection-start-line="284" selection-start-column="83" selection-end-line="284" selection-end-column="83" />
+            <state relative-caret-position="376">
+              <caret line="257" lean-forward="true" selection-start-line="257" selection-end-line="257" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
                 <element signature="e#304#388#0" />
                 <element signature="e#420#470#0" />
                 <element signature="e#511#670#0" />
                 <element signature="e#1670#2231#0" />
+                <element signature="e#2623#3308#0" />
                 <element signature="e#3386#3944#0" />
                 <element signature="e#2858#2882#0" />
                 <element signature="e#3853#4517#0" />
@@ -98,11 +99,20 @@
                 <element signature="e#4591#4703#0" />
                 <element signature="e#4892#5723#0" />
                 <element signature="e#4925#5208#0" />
-                <element signature="e#5761#6584#0" />
-                <element signature="e#5925#6195#0" />
-                <element signature="e#6263#6447#0" />
                 <element signature="e#6627#6704#0" />
                 <element signature="e#6667#6692#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/differential_evolution.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -235,16 +245,15 @@
         <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py" />
+        <option value="$PROJECT_DIR$/merger/parallax_estimator/differential_evolution.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1280" />
-    <option name="y" value="-705" />
-    <option name="width" value="1920" />
-    <option name="height" value="1200" />
+  <component name="ProjectFrameBounds">
+    <option name="width" value="1280" />
+    <option name="height" value="800" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -439,6 +448,9 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="StructureViewFactory">
+    <option name="ACTIVE_ACTIONS" value=",ALPHA_COMPARATOR" />
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -450,34 +462,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00009" summary="no class, corrected functions">
-      <created>1555421593424</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1555421593424</updated>
-    </task>
-    <task id="LOCAL-00010" summary="test integral distancemin vs integral">
-      <created>1555502134296</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1555502134296</updated>
-    </task>
-    <task id="LOCAL-00011" summary="reorganization, speed improvements">
-      <created>1555507959168</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1555507959168</updated>
-    </task>
-    <task id="LOCAL-00012" summary="clean metropolis hastings algorithm">
-      <created>1555662672696</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1555662672696</updated>
     </task>
     <task id="LOCAL-00013" summary="better randomizer(tested) and real parameter generator(not tested)">
       <created>1555666143233</created>
@@ -794,7 +778,35 @@
       <option name="project" value="LOCAL" />
       <updated>1558020833884</updated>
     </task>
-    <option name="localTasksCounter" value="58" />
+    <task id="LOCAL-00058" summary="added maxdiff to curvefit output">
+      <created>1558086013612</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1558086013612</updated>
+    </task>
+    <task id="LOCAL-00059" summary="various changes">
+      <created>1558086021274</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1558086021274</updated>
+    </task>
+    <task id="LOCAL-00060" summary="various changes">
+      <created>1558086029702</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1558086029702</updated>
+    </task>
+    <task id="LOCAL-00061" summary="added differential_evolution for custom DE">
+      <created>1558086044800</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1558086044800</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TodoView">
@@ -807,20 +819,19 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="-705" width="1920" height="1200" extended-state="6" />
-    <editor active="true" />
+    <frame x="0" y="0" width="1280" height="800" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49318802" visible="true" weight="0.14110756" />
-      <window_info id="Structure" order="1" sideWeight="0.506812" side_tool="true" visible="true" weight="0.14110756" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49293786" visible="true" weight="0.21405493" />
+      <window_info id="Structure" order="1" sideWeight="0.50706214" side_tool="true" visible="true" weight="0.21405493" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.33754513" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.33050847" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3998195" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49921012" weight="0.23555957" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49921012" weight="0.23446327" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32942238" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5007899" side_tool="true" weight="0.23555957" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
@@ -903,9 +914,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="similarity_estimator script for cc" />
-    <MESSAGE value="removed unused pacakges" />
-    <MESSAGE value="modified simple maxdiff computation and added full differential evolution minmax function" />
     <MESSAGE value="work" />
     <MESSAGE value="update" />
     <MESSAGE value="scipt friendly" />
@@ -928,16 +936,12 @@
     <MESSAGE value="presentation_state" />
     <MESSAGE value="chi2 distance" />
     <MESSAGE value="integral cruve_fit ()" />
-    <option name="LAST_COMMIT_MESSAGE" value="integral cruve_fit ()" />
+    <MESSAGE value="added maxdiff to curvefit output" />
+    <MESSAGE value="various changes" />
+    <MESSAGE value="added differential_evolution for custom DE" />
+    <option name="LAST_COMMIT_MESSAGE" value="added differential_evolution for custom DE" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/local/lib/python3.7/site-packages/matplotlib/pyplot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="2689" column="4" selection-start-line="2689" selection-start-column="4" selection-end-line="2689" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.7/site-packages/astropy/units/core.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="239">
@@ -1299,29 +1303,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py">
+    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/differential_evolution.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1647">
-          <caret line="284" column="83" selection-start-line="284" selection-start-column="83" selection-end-line="284" selection-end-column="83" />
+        <state relative-caret-position="144">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#304#388#0" />
-            <element signature="e#420#470#0" />
-            <element signature="e#511#670#0" />
-            <element signature="e#1670#2231#0" />
-            <element signature="e#3386#3944#0" />
-            <element signature="e#2858#2882#0" />
-            <element signature="e#3853#4517#0" />
-            <element signature="e#3853#4230#1" />
-            <element signature="e#4564#4848#0" />
-            <element signature="e#4591#4703#0" />
-            <element signature="e#4892#5723#0" />
-            <element signature="e#4925#5208#0" />
-            <element signature="e#5761#6584#0" />
-            <element signature="e#5925#6195#0" />
-            <element signature="e#6263#6447#0" />
-            <element signature="e#6627#6704#0" />
-            <element signature="e#6667#6692#0" />
           </folding>
         </state>
       </provider>
@@ -1336,12 +1323,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="376">
+          <caret line="257" lean-forward="true" selection-start-line="257" selection-end-line="257" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#304#388#0" />
+            <element signature="e#420#470#0" />
+            <element signature="e#511#670#0" />
+            <element signature="e#1670#2231#0" />
+            <element signature="e#2623#3308#0" />
+            <element signature="e#3386#3944#0" />
+            <element signature="e#2858#2882#0" />
+            <element signature="e#3853#4517#0" />
+            <element signature="e#3853#4230#1" />
+            <element signature="e#4564#4848#0" />
+            <element signature="e#4591#4703#0" />
+            <element signature="e#4892#5723#0" />
+            <element signature="e#4925#5208#0" />
+            <element signature="e#6627#6704#0" />
+            <element signature="e#6667#6692#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="33" column="99" selection-start-line="33" selection-start-column="99" selection-end-line="33" selection-end-column="99" />
+        <state relative-caret-position="270">
+          <caret line="54" column="29" lean-forward="true" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="29" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#2669#2794#0" />
+            <element signature="e#2859#2978#0" />
+            <element signature="e#3582#3936#0" />
+            <element signature="e#3603#3778#0" />
+            <element signature="e#4498#5263#0" />
+            <element signature="e#4700#4914#0" />
+            <element signature="e#5322#5436#0" />
+            <element signature="e#5518#5636#0" />
+            <element signature="e#5311#6025#0" />
+            <element signature="e#5748#6074#0" />
+            <element signature="e#5497#5576#0" />
+            <element signature="e#5945#5972#0" />
+            <element signature="e#7214#7267#0" />
+            <element signature="e#8159#8201#0" />
           </folding>
         </state>
       </provider>
