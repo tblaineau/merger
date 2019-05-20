@@ -320,23 +320,23 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 	df.to_pickle(output_name)
 
 
-logging.basicConfig(level=logging.DEBUG)
-
-st = time.time()
-pms = np.load('params1M_0.npy', allow_pickle=True)
-print(len(pms))
-end = time.time()
-logging.info(f'{len(pms)} parameters loaded in {end-st:.2f} seconds.')
-
-df = pd.DataFrame.from_records(pms)
-
-df2 = pd.read_pickle('scipyminmax.pkl')['idx']
-
-df = df.merge(df2, on='idx', suffixes=('',''))
-print(len(df))
-
-print(df.idx.sort_values())
-pms = df.to_records()
+# logging.basicConfig(level=logging.DEBUG)
+#
+# st = time.time()
+# pms = np.load('params1M_0.npy', allow_pickle=True)
+# print(len(pms))
+# end = time.time()
+# logging.info(f'{len(pms)} parameters loaded in {end-st:.2f} seconds.')
+#
+# df = pd.DataFrame.from_records(pms)
+#
+# df2 = pd.read_pickle('scipyminmax.pkl')['idx']
+#
+# df = df.merge(df2, on='idx', suffixes=('',''))
+# print(len(df))
+#
+# print(df.idx.sort_values())
+# pms = df.to_records()
 
 
 # compute_distances('trash.pkl', minmax_distance_scipy2, pms, nb_samples=1000, time_sampling=0.5)

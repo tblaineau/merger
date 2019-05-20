@@ -13,12 +13,9 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	output_name = args.name
-	parameter_file = args.parameter_file
 	nb_samples_job = args.nb_samples_job
 	current_job = args.current_job
 
-	assert os.path.isfile(parameter_file), 'Parameter file does not exist.'
 	assert nb_samples_job>0, 'Invalid number of samples per job.'
 	assert current_job>0, 'Invalid current job number.'
 
@@ -28,4 +25,9 @@ if __name__ == '__main__':
 	start = (params_line_idx-1) * nb_samples_job
 	end = params_line_idx * nb_samples_job - 1
 
-	compute_distances(output_name, distance=minmax_distance_scipy2, parameter_list=np.load(parameter_file+'_'+str(params_file_idx)+'.npy', allow_pickle=True), start=start, end=end)
+	output_name = args.name
+	parameter_file = args.parameter_file+'_'+str(params_file_idx)+'.npy'
+
+	assert os.path.isfile(parameter_file), 'Parameter file does not exist : '+parameter_file
+
+	compute_distances(output_name, distance=minmax_distance_scipy2, parameter_list=np.load(parameter_file, allow_pickle=True), start=start, end=end)
