@@ -13,8 +13,12 @@ from merger.old.parameter_generator import microlens_parallax, microlens_simple
 # df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 # df.distance = df.distance.abs()
 
-df = pd.read_pickle('chi2.pkl')
-df[['distance', 'fitted_params', 'ndof', 'maxdiff']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+# df = pd.read_pickle('chi2.pkl')
+# df[['distance', 'fitted_params', 'ndof', 'maxdiff']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+
+df = pd.read_pickle('fastscipyminmax60k.pkl')
+df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+df.distance = df.distance.astype('float')
 
 df2 = pd.read_pickle('scipyminmax.pkl')
 df2[['distance', 'fitted_params']] = pd.DataFrame(df2.distance.values.tolist(), index=df2.index)
@@ -25,13 +29,13 @@ df.sort_values('idx', inplace=True)
 df2.sort_values('idx', inplace=True)
 df.set_index('idx', inplace=True)
 df2.set_index('idx', inplace=True)
-df = df.join(df2, rsuffix='', lsuffix='_chi2').dropna()
+df = df.join(df2, rsuffix='', lsuffix='_fast').dropna()
 print(len(df))
 
 print(df.iloc[0])
 
 fig = plt.figure()
-df.plot.scatter('distance', 'maxdiff', s=10*(72./fig.dpi)**2, c='tE', cmap='PiYG', edgecolor='black', vmin=-2000, vmax=2000)
+df.plot.scatter('distance', 'distance_fast', s=10*(72./fig.dpi)**2, c='tE', cmap='PiYG', edgecolor='black', vmin=-2000, vmax=2000)
 plt.plot(df['distance'], df['distance'], lw=0.5, c='black')
 plt.show()
 
@@ -42,8 +46,8 @@ print(df.mass.unique())
 
 tmin = 48928
 tmax = 52697
-df = df[(df.tE.abs()>15)]
-p2 = df.sort_values(by='distance', ascending=False).iloc[100].to_dict()
+df = df[df.mass == 0.1]
+p2 = df.sort_values(by='distance_fast', ascending=False).iloc[2].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p2)
 p2['blend']=0.

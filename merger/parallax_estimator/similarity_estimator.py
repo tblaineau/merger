@@ -323,7 +323,8 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 logging.basicConfig(level=logging.DEBUG)
 
 st = time.time()
-pms = np.load('parameters1M.npy', allow_pickle=True)
+pms = np.load('params1M_0.npy', allow_pickle=True)
+print(len(pms))
 end = time.time()
 logging.info(f'{len(pms)} parameters loaded in {end-st:.2f} seconds.')
 
@@ -338,12 +339,17 @@ print(df.idx.sort_values())
 pms = df.to_records()
 
 
-compute_distances('fastscipyminmax.pkl', minmax_distance_scipy2, pms, time_sampling=0.5)
+# compute_distances('trash.pkl', minmax_distance_scipy2, pms, nb_samples=1000, time_sampling=0.5)
 
-# all_xvts = np.load('../test/xvt_samples.npy')
+# logging.debug('Loading xvt_samples')
+# all_xvts = np.load('../test/xvt_samples.npy')[:1000]
+# logging.debug('Done')
+# logging.debug('Shuffling')
 # np.random.shuffle(all_xvts)
-# generate_parameter_file('parameters1M.npy', all_xvts, [0.1, 1, 10, 30, 100, 300])
+# logging.debug('Done')
+# logging.debug('Generating parameters sets')
+# generate_parameter_file('parameters1Mf.npy', all_xvts, [0.1, 1, 10, 30, 100, 300])
+#
 
-# pms = np.load('parameters1M.npy')
-# compute_distances('minuit_minmax.pkl', minmax_distance_minuit, pms, nb_samples=100)
-
+# for idx, a in enumerate(np.split(pms, 10)):
+# 	np.save('params1M_'+str(idx), a, allow_pickle=True )

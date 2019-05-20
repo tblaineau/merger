@@ -128,9 +128,11 @@ def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=
 # df = pd.read_pickle('chi2.pkl')
 # df[['distance', 'fitted_params', 'ndof']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 
-df = pd.read_pickle('trash.pkl')
+df = pd.read_pickle('fastscipyminmax60k.pkl')
 df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
 print(df.distance.max())
+print(df.info())
 
 # df = pd.read_pickle('simplemax.pkl')
 # df = df[(df.mass==30.) & (df.tE.abs()>15)]
@@ -142,8 +144,8 @@ print(df.distance.max())
 
 # df = pd.read_pickle('nbpeaks.pkl')
 
-cutoff_list = [0.01, 0.1,  1.]
-#
+cutoff_list = [0.001, 0.01, 0.1]
+
 # cmap1 = plt.cm.Blues
 # norm = Normalize(vmin=-1, vmax=len(cutoff_list)+1)
 # df.sort_values(by='mass', inplace=True)
@@ -167,7 +169,9 @@ cutoff_list = [0.01, 0.1,  1.]
 #
 # print(len(df[(df.distance>0.05) & (df.tE>0)])/len(df[(df.distance>0.05) & (df.tE<0)]))
 
-plt.hist(np.log10(df[df.mass==10.].distance.replace([np.inf, -np.inf, 0], np.nan).dropna()), bins=20, histtype='step')
+print(len(df[(df.mass==30.) & (df.distance>0.1)])/len(df[df.mass==30.]))
+
+plt.hist(np.log10(df[df.mass==30.].distance.replace([np.inf, -np.inf, 0], np.nan).dropna()), bins=20, histtype='step')
 plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: f"{pow(10,value)}"))
 plt.show()
 
@@ -176,7 +180,7 @@ axs = axs.flatten()
 for idx, cmass in enumerate(np.sort(df.mass.unique())):
 	df['cut_tE'] = pd.qcut(df['tE'].abs(), q=20)
 	ax = sns.boxplot(x='cut_tE', y='distance', data=df[df.mass==cmass], ax = axs[idx], color='red')
-	ax.set_yscale('log')
+	# ax.set_yscale('log')
 plt.show()
 
 fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
