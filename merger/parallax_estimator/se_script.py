@@ -22,7 +22,10 @@ if __name__ == '__main__':
 	assert nb_samples_job>0, 'Invalid number of samples per job.'
 	assert current_job>0, 'Invalid current job number.'
 
-	start = (current_job-1) * nb_samples_job
-	end = current_job * nb_samples_job
+	params_file_idx = (current_job-1)//10
+	params_line_idx = (current_job-1)%10
 
-	compute_distances(output_name, distance=minmax_distance_scipy2, parameter_list=np.load(parameter_file, allow_pickle=True), start=start, end=end)
+	start = (params_line_idx-1) * nb_samples_job
+	end = params_line_idx * nb_samples_job - 1
+
+	compute_distances(output_name, distance=minmax_distance_scipy2, parameter_list=np.load(parameter_file+'_'+str(params_file_idx)+'.npy', allow_pickle=True), start=start, end=end)
