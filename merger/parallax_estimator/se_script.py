@@ -2,7 +2,7 @@
 import argparse
 import os
 import numpy as np
-from merger.parallax_estimator.similarity_estimator import compute_distances, minmax_distance_scipy
+from merger.parallax_estimator.similarity_estimator import compute_distances, minmax_distance_scipy2
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -25,4 +25,4 @@ if __name__ == '__main__':
 	start = (current_job-1) * nb_samples_job
 	end = current_job * nb_samples_job
 
-	compute_distances(output_name, distance=minmax_distance_scipy, parameter_list=np.load(parameter_file), start=start, end=end)
+	compute_distances(output_name, distance=minmax_distance_scipy2, parameter_list=np.load(parameter_file, allow_pickle=True), start=start, end=end)
