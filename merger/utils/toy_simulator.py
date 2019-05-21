@@ -139,7 +139,9 @@ vec_defle, = ax1.plot(*deflector_position, marker='o', linestyle='')
 
 
 a = microlens(time, params.values())
+b = microlens(time, [params['mag'], params['blend'], params['u0'], params['t0'], params['tE'], 0, 0, 0])
 line, = ax0.plot(time,  a, color='black', linewidth=0.5)
+simple, = ax0.plot(time, b, color='black', linewidth=0.5, linestyle='--')
 xD, yD, xpE, ypE = projected_plan(time, params.values())
 defl_line = ax1.scatter(xD, yD, c=a, s=10)
 earth_projected_orbit = ax1.scatter(xpE, ypE, c=a, s=1)
@@ -264,6 +266,7 @@ def update_graph():
 
 	ydata = microlens(time, params.values())
 	line.set_ydata(ydata)
+	simple.set_ydata(microlens(time, [params['mag'], params['blend'], params['u0'], params['t0'], params['tE'], 0, 0, 0]))
 	#ax0.set_ylim(ydata.max()+1, ydata.min()-1)
 	
 	colnorm = Normalize(vmin=16, vmax=19)

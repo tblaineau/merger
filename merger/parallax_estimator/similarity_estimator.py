@@ -214,7 +214,7 @@ def minmax_distance_minuit(init_params):
 			   error_u0=0.5,
 			   error_t0=100,
 			   error_tE=100,
-			   limit_u0=(0, 1),
+			   limit_u0=(0, 2),
 			   limit_tE=(init_params['tE'] * (1 - np.sign(init_params['tE']) * 0.5), init_params['tE'] * (1 + np.sign(init_params['tE']) * 0.5)),
 			   limit_t0=(init_params['t0'] - abs(init_params['tE']), init_params['t0'] + abs(init_params['tE'])),
 			   errordef=1,
@@ -231,7 +231,7 @@ def minmax_distance_scipy(params):
 		return - scipy.optimize.differential_evolution(absdiff, bounds=[(params['t0']-400, params['t0']+400)], args=(u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta']),
 					disp=False, popsize=40, mutation=(0.5, 1.0)).fun
 
-	res = scipy.optimize.differential_evolution(fitter_minmax, bounds=[(0, 1),
+	res = scipy.optimize.differential_evolution(fitter_minmax, bounds=[(0, 2),
 				(params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))],
 				disp=False, popsize=40, mutation=(0.5, 1.0), strategy='currenttobest1bin', recombination=0.9)
 	return [res.fun, res.x]
@@ -243,7 +243,7 @@ def minmax_distance_scipy2(params, time_sampling=0.5, pop_size=40):
 		u0, t0, tE = g
 		return (drydiff(t, u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])**2).max()
 
-	bounds = [(0, 1), (params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))]
+	bounds = [(0, 2), (params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))]
 	init_pop = np.array([np.random.uniform(bounds[0][0], bounds[0][1], pop_size),
 				np.random.uniform(bounds[1][0], bounds[1][1], pop_size),
 				np.random.uniform(bounds[2][0], bounds[2][1], pop_size),
