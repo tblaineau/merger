@@ -221,4 +221,4 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 
 	# save merged dataframe
 	logging.info("Saving")
-	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+".pkl"))
+	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"))
