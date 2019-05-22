@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import time
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -128,11 +128,15 @@ def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=
 # df = pd.read_pickle('chi2.pkl')
 # df[['distance', 'fitted_params', 'ndof']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 
-df = pd.read_pickle('fastscipyminmax60k.pkl')
+st1 = time.time()
+df = pd.read_pickle('fastscipyminmax6M.pkl')
+print(time.time()-st1)
 df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
+df.reset_index(inplace=True)
 print(df.distance.max())
 print(df.info())
+
 
 # df = pd.read_pickle('simplemax.pkl')
 # df = df[(df.mass==30.) & (df.tE.abs()>15)]
@@ -183,21 +187,23 @@ for idx, cmass in enumerate(np.sort(df.mass.unique())):
 	# ax.set_yscale('log')
 plt.show()
 
-fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
+fig, axs = plt.subplots(nrows=2, ncols=3, sharex='all', sharey='all')
 axs = axs.flatten()
 for idx, cmass in enumerate(np.sort(df.mass.unique())):
 	dfi = df[df.mass==cmass]
-	axs[idx].scatter(dfi.tE.abs(), dfi.distance, marker='o', s=(2*72./fig.dpi)**2, lw=0, color='black')
-	axs[idx].set_yscale('log')
+	# axs[idx].scatter(dfi.tE.abs(), dfi.distance, marker='o', s=(2*72./fig.dpi)**2, lw=0, color='black')
+	axs[idx].hist2d(np.log10(dfi.tE.abs()), np.log10(dfi.distance), bins=100)
+	# axs[idx].set_yscale('log')
+	# axs[idx].set_xscale('log')
 plt.show()
 
 fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
 axs = axs.flatten()
 print(df.mass.unique())
 for idx, cmass in enumerate(np.sort(df.mass.unique())):
-	ps = display_ratios(axs[idx], df[df.mass==cmass], 'tE', cutoff_list, pd.qcut, q=10, log=True)
+	ps = display_ratios(axs[idx], df[df.mass==cmass], 'tE', cutoff_list, pd.qcut, q=100, log=True)
 	axs[idx].set_title(f'{cmass} $M_\odot$')
-	axs[idx].axvline(4000, color='red', lw=0.5)
+	axs[idx].axvline(3650, color='red', lw=0.5)
 axs[3].set_xlabel(r'$t_E$ $[d]$')
 axs[4].set_xlabel(r'$t_E$ $[d]$')
 axs[5].set_xlabel(r'$t_E$ $[d]$')
@@ -213,21 +219,23 @@ fig.legend(ps, labels=lbls, loc="center right")
 plt.subplots_adjust(right=0.8)
 plt.show()
 
-# BINS = 100
-# h2, xedges, yedges, _ = plt.hist2d(df[df.distance>0.01].tE, df[df.distance>0.01].delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
-# h3, xedges, yedges, _ = plt.hist2d(df[df.distance>0.05].tE, df[df.distance>0.05].delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
-# h1, xedges, yedges, _ = plt.hist2d(df.tE, df.delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
-# plt.show()
-# plt.imshow((h3/h1).T, origin='lower', extent=(xedges[0], xedges[-1], yedges[0], yedges[-1]), aspect='auto')
-# sns.kdeplot(df.tE, df.delta_u, clip=((-1000,1000), (0, 0.05)))
-# plt.colorbar()
-# plt.show()
-# fig = plt.figure()
-# plt.scatter(df.tE, df.delta_u, s=(72./fig.dpi)**2, color='red', marker='o')
-# plt.scatter(df[df.distance>0.05].tE, df[df.distance>0.05].delta_u, s=(72./fig.dpi)**2, color='yellow', marker='o')
-# plt.xlim(-1000, 1000)
-# plt.ylim(0, 0.05)
-# plt.show()
+df = df[df.mass==30.]
+
+BINS = 100
+h2, xedges, yedges, _ = plt.hist2d(df[df.distance>0.01].tE, df[df.distance>0.01].delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
+h3, xedges, yedges, _ = plt.hist2d(df[df.distance>0.05].tE, df[df.distance>0.05].delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
+h1, xedges, yedges, _ = plt.hist2d(df.tE, df.delta_u, bins=(BINS, BINS), range=((-1000,1000), (0, 0.05)))
+plt.show()
+plt.imshow((h3/h1).T, origin='lower', extent=(xedges[0], xedges[-1], yedges[0], yedges[-1]), aspect='auto')
+sns.kdeplot(df.tE, df.delta_u, clip=((-1000,1000), (0, 0.05)))
+plt.colorbar()
+plt.show()
+fig = plt.figure()
+plt.scatter(df.tE, df.delta_u, s=(72./fig.dpi)**2, color='red', marker='o')
+plt.scatter(df[df.distance>0.05].tE, df[df.distance>0.05].delta_u, s=(72./fig.dpi)**2, color='yellow', marker='o')
+plt.xlim(-1000, 1000)
+plt.ylim(0, 0.05)
+plt.show()
 
 print(len(df[(df.distance>0.1) & (df.tE<0)]))
 print(len(df[(df.distance>0.1) & (df.tE>0)]))
@@ -235,7 +243,10 @@ print(len(df[(df.distance>0.1) & (df.tE>0)]))
 fig = plt.figure()
 ax = plt.gca()
 fraction(ax, df, cutoff=cutoff_list, bins=np.linspace(0.9, 3.1, 10), binfunc=lambda x: np.power(10, x), show_tot=True)
+plt.show()
 fraction(ax, df, curr_muparameter='u0', cutoff=cutoff_list, bins=np.linspace(0, 1, 20), show_tot=False)
+plt.show()
 fraction(ax, df, curr_muparameter='tE', cutoff=cutoff_list, bins=np.linspace(1, 5, 20), binfunc=lambda x: np.power(10, x), show_tot=True)
+plt.show()
 fraction(ax, df, curr_muparameter='delta_u', cutoff=cutoff_list, bins=np.linspace(0, 0.2, 20), show_tot=True)
 plt.show()
