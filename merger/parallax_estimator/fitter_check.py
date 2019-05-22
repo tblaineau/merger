@@ -25,14 +25,10 @@ df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarra
 
 print(df.mass.unique())
 
-df[['fitted_u0'], ['fitted_t0'], ['fitted_tE']] = pd.DataFrame(df.fitted_params.tolist(), index=df.index)
-print(df[df.fitted_u0==1.0])
-
 tmin = 48928
 tmax = 52697
-df = df[(df.mass == 30) & (df.u0>0.8)]
+df = df[(df.mass == 30) & (df.tE>1000)]
 p2 = df.sort_values(by='distance', ascending=False).iloc[1].to_dict()
-# p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p2)
 p2['blend']=0.
 p2['mag']=19.
