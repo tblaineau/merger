@@ -9,4 +9,5 @@ for (_, _, filenames) in os.walk("."):
 			fs.append(pd.read_pickle(file))
 
 all = pd.concat(fs)
+all.reset_index(inplace=True)
 pd.to_pickle(all, 'fastscipyminmax6M.pkl')
