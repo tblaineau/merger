@@ -160,7 +160,7 @@ def load_macho_field(MACHO_files_path, field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
-def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path):
+def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=""):
 	"""Merge EROS and MACHO lightcurves
 	
 	[description]
@@ -182,7 +182,10 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 
 	# eros_lcs = pd.concat([pd.read_pickle(output_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
 	# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
-	eros_lcs = pd.concat([load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz")) for quart in "klmn"])
+	if quart not in "klmn":
+		eros_lcs = pd.concat([load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz")) for quart in "klmn"])
+	else:
+		eros_lcs = load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz"))
 	end_load_eros = time.time()
 	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 
