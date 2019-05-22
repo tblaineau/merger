@@ -16,38 +16,22 @@ from merger.old.parameter_generator import microlens_parallax, microlens_simple
 # df = pd.read_pickle('chi2.pkl')
 # df[['distance', 'fitted_params', 'ndof', 'maxdiff']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 
-df = pd.read_pickle('fastscipyminmax60k.pkl')
+df = pd.read_pickle('fastscipyminmax6M.pkl')
 df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
-df.distance = df.distance.astype('float')
-
-df2 = pd.read_pickle('scipyminmax.pkl')
-df2[['distance', 'fitted_params']] = pd.DataFrame(df2.distance.values.tolist(), index=df2.index)
-df2.loc[:,'distance'] = df2.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x)
-
-print(len(df2))
-df.sort_values('idx', inplace=True)
-df2.sort_values('idx', inplace=True)
-df.set_index('idx', inplace=True)
-df2.set_index('idx', inplace=True)
-df = df.join(df2, rsuffix='', lsuffix='_fast').dropna()
-print(len(df))
-
-print(df.iloc[0])
-
-fig = plt.figure()
-df.plot.scatter('distance', 'distance_fast', s=10*(72./fig.dpi)**2, c='tE', cmap='PiYG', edgecolor='black', vmin=-2000, vmax=2000)
-plt.plot(df['distance'], df['distance'], lw=0.5, c='black')
-plt.show()
+df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
 
 # df = pd.read_pickle('trash.pkl')
 # df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 
 print(df.mass.unique())
 
+df[['fitted_u0'], ['fitted_t0'], ['fitted_tE']] = pd.DataFrame(df.fitted_params.tolist(), index=df.index)
+print(df[df.fitted_u0==1.0])
+
 tmin = 48928
 tmax = 52697
-df = df[df.mass == 0.1]
-p2 = df.sort_values(by='distance_fast', ascending=False).iloc[2].to_dict()
+df = df[(df.mass == 30) & (df.u0>0.8)]
+p2 = df.sort_values(by='distance', ascending=False).iloc[1].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p2)
 p2['blend']=0.
@@ -85,6 +69,8 @@ def update_plot(xk, convergence):
 	pdif1.set_ydata(np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'],p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
 	ppar1.set_ydata(-(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
 	pnop1.set_ydata(-(microlens_simple(t, 19, 0, u0, t0, tE, p1['delta_u'], p1['theta'])))
+	l1.set_xdata(t0-tE)
+	l2.set_xdata(t0+tE)
 	plt.pause(0.000001)
 	hl2.set_ydata(-convergence)
 	if convergence>curr_max:
@@ -114,7 +100,7 @@ def minmax_distance_scipy(params):
 		return (drydiff(t, u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])**2).max()
 
 	pop_size=40
-	bounds = [(0, 1), (params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))]
+	bounds = [(0, 2), (params['t0'] - 400, params['t0'] + 400), (params['tE'] * (1 - np.sign(params['tE']) * 0.5), params['tE'] * (1 + np.sign(params['tE']) * 0.5))]
 	init_pop = np.array([np.random.uniform(bounds[0][0], bounds[0][1], pop_size),
 				np.random.uniform(bounds[1][0], bounds[1][1], pop_size),
 				np.random.uniform(bounds[2][0], bounds[2][1], pop_size),
