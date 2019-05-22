@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/clean/merger.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/merger.py" afterDir="false" />
     </list>
     <list id="c1c68da1-7d4f-46c9-a922-29e5d7cff93d" name="Revert &quot;added eros ccd quart support&quot;" comment="Revert &quot;added eros ccd quart support&quot;&#10;&#10;This reverts commit 566c8c36">
       <change beforePath="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" afterDir="false" />
@@ -113,11 +113,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/merger.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="25" column="45" selection-start-line="25" selection-start-column="45" selection-end-line="25" selection-end-column="45" />
+            <state relative-caret-position="412">
+              <caret line="61" column="76" selection-start-line="61" selection-start-column="76" selection-end-line="61" selection-end-column="76" />
               <folding>
                 <element signature="e#301#316#0" expanded="true" />
               </folding>
@@ -125,7 +125,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="539">
@@ -223,8 +223,8 @@
         <option value="$PROJECT_DIR$/merger/utils/toy_simulator.py" />
         <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" />
-        <option value="$PROJECT_DIR$/merger/clean/merger.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
+        <option value="$PROJECT_DIR$/merger/clean/merger.py" />
       </list>
     </option>
   </component>
@@ -460,13 +460,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00028" summary="fitter minmax">
-      <created>1557131196445</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1557131196445</updated>
     </task>
     <task id="LOCAL-00029" summary="corrected p_xvt and generation of vt sign. tuned distance estimator minimizer.">
       <created>1557155278656</created>
@@ -804,7 +797,14 @@
       <option name="project" value="LOCAL" />
       <updated>1558527511438</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="change pickle file name to take quart into account">
+      <created>1558528986265</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1558528986274</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="TodoView">
@@ -821,7 +821,7 @@
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4891775" visible="true" weight="0.14165351" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.51082253" side_tool="true" visible="true" weight="0.14165351" />
+      <window_info id="Structure" order="1" sideWeight="0.51082253" side_tool="true" visible="true" weight="0.14165351" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
@@ -830,7 +830,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.4986835" visible="true" weight="0.37454873" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.4986835" visible="true" weight="0.37454873" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32942238" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5013165" side_tool="true" weight="0.37454873" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
@@ -913,7 +913,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added docstrings" />
     <MESSAGE value="generalized parameters set format" />
     <MESSAGE value="minor modifications" />
     <MESSAGE value="internal schuffle and index columns" />
@@ -938,7 +937,8 @@
     <MESSAGE value="added display option" />
     <MESSAGE value="workspace" />
     <MESSAGE value="work..." />
-    <option name="LAST_COMMIT_MESSAGE" value="work..." />
+    <MESSAGE value="change pickle file name to take quart into account" />
+    <option name="LAST_COMMIT_MESSAGE" value="change pickle file name to take quart into account" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/lib/python3.7/site-packages/astropy/units/core.py">
@@ -1322,22 +1322,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/merger.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="25" column="45" selection-start-line="25" selection-start-column="45" selection-end-line="25" selection-end-column="45" />
-          <folding>
-            <element signature="e#301#316#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="539">
           <caret line="223" column="92" selection-start-line="223" selection-start-column="92" selection-end-line="223" selection-end-column="92" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/merger.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="412">
+          <caret line="61" column="76" selection-start-line="61" selection-start-column="76" selection-end-line="61" selection-end-column="76" />
+          <folding>
+            <element signature="e#301#316#0" expanded="true" />
           </folding>
         </state>
       </provider>
