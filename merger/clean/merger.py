@@ -28,6 +28,7 @@ if __name__ == '__main__':
 	parser.add_argument('--EROS-path', '-pE', type=str, default="/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/")
 	parser.add_argument('--MACHO-path', '-pM', type=str, default="/Volumes/DisqueSauvegarde/MACHO/lightcurves/")
 	parser.add_argument('--correspondance-path', '-pC', type=str, default="/Users/tristanblaineau/")
+	parser.add_argument('--quart', type=str, default="", choices=["k", "l", "m", "n"])
 
 	#Retrieve arguments
 	args = parser.parse_args()
@@ -40,6 +41,10 @@ if __name__ == '__main__':
 	MACHO_files_path = args.MACHO_path
 	correspondance_files_path = args.correspondance_path
 	output_directory = args.output_directory
+	quart = args.quart
+
+	if (quart != "") and EROS_CCD is None:
+		print("Quart value will not be taken into account as the whole field will be scanned.")
 
 	#Check if input paths exist
 	dir_path_check(output_directory)
@@ -52,7 +57,7 @@ if __name__ == '__main__':
 	#Main
 	if not EROS_CCD is None:
 		eros_ccd = "lm"+EROS_field+str(EROS_CCD)
-		merger_library.merger(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
+		merger_library.merger(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=quart)
 		if fit:
 			iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
 	else:
