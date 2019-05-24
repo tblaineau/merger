@@ -164,7 +164,7 @@ t0slider_ax = fig2.add_axes([0.25, 0.05, 0.65, 0.03])
 t0slider = Slider(t0slider_ax, 't0', 48000, 53000, valinit=t0)
 
 tEslider_ax = fig2.add_axes([0.25, 0.15, 0.65, 0.03])
-tEslider = Slider(tEslider_ax, 'tE', -10000, 10000, valinit=tE)
+tEslider = Slider(tEslider_ax, 'tE', -1000, 1000, valinit=tE)
 
 magslider_ax = fig2.add_axes([0.25, 0.2, 0.65, 0.03])
 magslider = Slider(magslider_ax, 'mag', 10, 23, valinit=mag)
