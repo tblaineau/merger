@@ -99,13 +99,13 @@ def parameter_space(dfi, params_pt=None):
 def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=False, **base_cut_args):
 	if range is not None:
 		df = df[(df[values]>range[0]) & (df[values]<range[1])]
-	out1, bins = base_cut_func(df[values].abs(), retbins=True, **base_cut_args)
+	out1, bins = base_cut_func(df[values], retbins=True, **base_cut_args)
 	out1 = out1.value_counts().reindex(out1.cat.categories)
 	cmap = plt.cm.Blues
 	norm1 = Normalize(-1, len(cuttoff_list)+1)
 	out_patches = []
 	for idx, cutoff in enumerate(cuttoff_list):
-		df.loc[:,'cut_'+values] = pd.cut(df[df.distance > cutoff][values].abs(), bins=bins)
+		df.loc[:,'cut_'+values] = pd.cut(df[df.distance > cutoff][values], bins=bins)
 		out2 = df['cut_'+values].value_counts().reindex(df['cut_'+values].cat.categories)
 		b1 = ax.errorbar((bins[1:] + bins[:-1]) / 2., out2.to_numpy() / out1.to_numpy(), xerr=np.abs(bins[:-1] - bins[1:])/2, ls='', marker='+')
 						#width=1. * (bins[:-1] - bins[1:]), edgecolor='none', facecolor=cmap(norm1(idx)))
@@ -129,7 +129,7 @@ def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=
 # df[['distance', 'fitted_params', 'ndof']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 
 st1 = time.time()
-df = pd.read_pickle('fastscipyminmax6M.pkl')
+df = pd.read_pickle('fastscipyminmax6M12.pkl')
 print(time.time()-st1)
 df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
@@ -137,6 +137,9 @@ df.reset_index(inplace=True)
 print(df.distance.max())
 print(df.info())
 
+df[['fitted_u0', 'fitted_t0', 'fitted_tE']] = pd.DataFrame(df.fitted_params.values.tolist(), index=df.index)
+
+df = df[df['fitted_u0']<2.]
 
 # df = pd.read_pickle('simplemax.pkl')
 # df = df[(df.mass==30.) & (df.tE.abs()>15)]
@@ -148,7 +151,7 @@ print(df.info())
 
 # df = pd.read_pickle('nbpeaks.pkl')
 
-cutoff_list = [0.001, 0.01, 0.1]
+cutoff_list = [0.005, 0.01, 0.02, 0.05, 0.1]
 
 # cmap1 = plt.cm.Blues
 # norm = Normalize(vmin=-1, vmax=len(cutoff_list)+1)
@@ -172,29 +175,42 @@ cutoff_list = [0.001, 0.01, 0.1]
 # plt.show()
 #
 # print(len(df[(df.distance>0.05) & (df.tE>0)])/len(df[(df.distance>0.05) & (df.tE<0)]))
+#
+# print(len(df[(df.mass==30.) & (df.distance>0.1)])/len(df[df.mass==30.]))
+#
+# plt.hist(np.log10(df[df.mass==30.].distance.replace([np.inf, -np.inf, 0], np.nan).dropna()), bins=20, histtype='step')
+# plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: f"{pow(10,value)}"))
+# plt.show()
+#
+# fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
+# axs = axs.flatten()
+# for idx, cmass in enumerate(np.sort(df.mass.unique())):
+# 	df['cut_tE'] = pd.qcut(df['tE'].abs(), q=20)
+# 	ax = sns.boxplot(x='cut_tE', y='distance', data=df[df.mass==cmass], ax = axs[idx], color='red')
+# 	# ax.set_yscale('log')
+# plt.show()
+#
+# fig, axs = plt.subplots(nrows=2, ncols=3, sharex='all', sharey='all')
+# axs = axs.flatten()
+# for idx, cmass in enumerate(np.sort(df.mass.unique())):
+# 	dfi = df[df.mass==cmass]
+# 	# axs[idx].scatter(dfi.tE.abs(), dfi.distance, marker='o', s=(2*72./fig.dpi)**2, lw=0, color='black')
+# 	axs[idx].hist2d(np.log10(dfi.tE.abs()), np.log10(dfi.distance), bins=100)
+# 	# axs[idx].set_yscale('log')
+# 	# axs[idx].set_xscale('log')
+# plt.show()
 
-print(len(df[(df.mass==30.) & (df.distance>0.1)])/len(df[df.mass==30.]))
-
-plt.hist(np.log10(df[df.mass==30.].distance.replace([np.inf, -np.inf, 0], np.nan).dropna()), bins=20, histtype='step')
-plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda value, ticknb: f"{pow(10,value)}"))
+MASS=30
+fig, axs = plt.subplots(nrows=1, ncols=2, sharey='all')
+display_ratios(axs[0], df[(df.mass==MASS) & (df.tE>0)], 'tE', cutoff_list, pd.qcut, q=100, log=True)
+axs[0].set_title(r'$+$')
+display_ratios(axs[1], df[(df.mass==MASS) & (df.tE<0)][['tE', 'distance']].abs(), 'tE', cutoff_list, pd.qcut, q=100, log=True)
+axs[1].set_title(r'$-$')
+fig.suptitle(f'{MASS} $M_\odot$')
 plt.show()
 
-fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
-axs = axs.flatten()
-for idx, cmass in enumerate(np.sort(df.mass.unique())):
-	df['cut_tE'] = pd.qcut(df['tE'].abs(), q=20)
-	ax = sns.boxplot(x='cut_tE', y='distance', data=df[df.mass==cmass], ax = axs[idx], color='red')
-	# ax.set_yscale('log')
-plt.show()
-
-fig, axs = plt.subplots(nrows=2, ncols=3, sharex='all', sharey='all')
-axs = axs.flatten()
-for idx, cmass in enumerate(np.sort(df.mass.unique())):
-	dfi = df[df.mass==cmass]
-	# axs[idx].scatter(dfi.tE.abs(), dfi.distance, marker='o', s=(2*72./fig.dpi)**2, lw=0, color='black')
-	axs[idx].hist2d(np.log10(dfi.tE.abs()), np.log10(dfi.distance), bins=100)
-	# axs[idx].set_yscale('log')
-	# axs[idx].set_xscale('log')
+MASS=30
+display_ratios(plt.gca(), df[(df.mass==MASS)], 'delta_u', cutoff_list, pd.qcut, q=100, log=True)
 plt.show()
 
 fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False, sharey='all')
