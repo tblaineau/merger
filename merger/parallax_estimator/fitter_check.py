@@ -16,7 +16,7 @@ from merger.old.parameter_generator import microlens_parallax, microlens_simple
 # df = pd.read_pickle('chi2.pkl')
 # df[['distance', 'fitted_params', 'ndof', 'maxdiff']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 
-df = pd.read_pickle('fastscipyminmax6M.pkl')
+df = pd.read_pickle('fastscipyminmax6M12.pkl')
 df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
 
@@ -25,12 +25,12 @@ df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarra
 
 print(df.mass.unique())
 
-df[['fitted_u0'], ['fitted_t0'], ['fitted_tE']] = pd.DataFrame(df.fitted_params.tolist(), index=df.index)
-print(df[df.fitted_u0==1.0])
+df[['fitted_u0', 'fitted_t0', 'fitted_tE']] = pd.DataFrame(df.fitted_params.tolist(), index=df.index)
+print(df[df.fitted_u0<2.0])
 
 tmin = 48928
 tmax = 52697
-df = df[(df.mass == 30) & (df.u0>0.8)]
+df = df[(df.mass == 30) & (df.fitted_u0<2.0)]
 p2 = df.sort_values(by='distance', ascending=False).iloc[1].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p2)
@@ -50,8 +50,8 @@ pnop1, = axs[0].plot(t, -(microlens_simple(t, 19, 0, p1['u0'], p1['t0'], p1['tE'
 axs[0].plot(t, -(microlens_simple(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])), ls='--')
 hl = axs[1].axhline(0, color='black', linewidth=0.5)
 hl2 = axs[1].axhline(0, color='red', linewidth=0.5)
-l1 = axs[0].axvline(tmin, color='red', linewidth=0.5)
-l2 = axs[0].axvline(tmax, color='red', linewidth=0.5)
+l1 = axs[1].axvline(tmin, color='red', linewidth=0.5)
+l2 = axs[1].axvline(tmax, color='red', linewidth=0.5)
 pts, = axs[1].plot([], [], ls='', marker='+')
 # plt.xlim(51500, 52500)
 curr_max=-np.inf
@@ -69,8 +69,8 @@ def update_plot(xk, convergence):
 	pdif1.set_ydata(np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'],p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
 	ppar1.set_ydata(-(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
 	pnop1.set_ydata(-(microlens_simple(t, 19, 0, u0, t0, tE, p1['delta_u'], p1['theta'])))
-	l1.set_xdata(t0-tE)
-	l2.set_xdata(t0+tE)
+	l1.set_xdata(t0-3*tE)
+	l2.set_xdata(t0+3*tE)
 	plt.pause(0.000001)
 	hl2.set_ydata(-convergence)
 	if convergence>curr_max:
