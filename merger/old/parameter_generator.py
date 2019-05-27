@@ -125,7 +125,7 @@ def generate_parameters(mass, seed=None, blending=False, parallax=False, s=None,
 	"""
 	tmin = 48928.
 	tmax = 52697.
-	u_max = 1.
+	u_max = 2.
 	max_blend=0.7
 
 	if seed:
@@ -208,3 +208,4 @@ def generate_parameter_file(output_name, all_xvts, mass_array):
 			idx+=1
 	np.random.shuffle(all_parameters)
 	np.save(output_name, all_parameters)
+	return all_parameters
