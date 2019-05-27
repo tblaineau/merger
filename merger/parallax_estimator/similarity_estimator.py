@@ -108,8 +108,8 @@ def curvefit(params, time_interval=3):
 
 def integral_curvefit(params, a=None, b=None):
 	if a is None or b is None:
-		a = params['t0']-3*abs(params['tE'])
-		b = params['t0']+3*abs(params['tE'])
+		a = params['t0'] - 6 * abs(params['tE'])
+		b = params['t0'] + 6 * abs(params['tE'])
 
 	def minuit_wrap(u0, t0, tE):
 		quadargs = (u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
@@ -320,36 +320,36 @@ def compute_distances(output_name, distance, parameter_list, nb_samples=None, st
 	df.to_pickle(output_name)
 
 
-# logging.basicConfig(level=logging.DEBUG)
-#
+logging.basicConfig(level=logging.DEBUG)
+
 # st = time.time()
-# pms = np.load('params1M_0.npy', allow_pickle=True)
+# pms = np.load('params1M_0.npy', allow_pickle=True)[:1000]
 # print(len(pms))
 # end = time.time()
 # logging.info(f'{len(pms)} parameters loaded in {end-st:.2f} seconds.')
 #
 # df = pd.DataFrame.from_records(pms)
-#
+
 # df2 = pd.read_pickle('scipyminmax.pkl')['idx']
 #
 # df = df.merge(df2, on='idx', suffixes=('',''))
 # print(len(df))
-#
+
 # print(df.idx.sort_values())
 # pms = df.to_records()
-
-
-# compute_distances('trash.pkl', minmax_distance_scipy2, pms, nb_samples=1000, time_sampling=0.5)
+#
+#
+# compute_distances('trash.pkl', integral_curvefit, pms, nb_samples=1000)
 
 # logging.debug('Loading xvt_samples')
-# all_xvts = np.load('../test/xvt_samples.npy')[:1000]
+# all_xvts = np.load('../test/xvt_samples.npy')
 # logging.debug('Done')
 # logging.debug('Shuffling')
 # np.random.shuffle(all_xvts)
 # logging.debug('Done')
 # logging.debug('Generating parameters sets')
-# generate_parameter_file('parameters1Mf.npy', all_xvts, [0.1, 1, 10, 30, 100, 300])
-#
+# pms = generate_parameter_file('parameters1M_u12f.npy', all_xvts, [0.1, 1, 10, 30, 100, 300])
 
-# for idx, a in enumerate(np.split(pms, 10)):
-# 	np.save('params1M_'+str(idx), a, allow_pickle=True )
+# pms = np.load('parameters1M_u12f.npy', allow_pickle=True)
+# for idx, a in enumerate(np.split(np.array(pms), 10)):
+# 	np.save('params1M_u12_'+str(idx), a, allow_pickle=True )
