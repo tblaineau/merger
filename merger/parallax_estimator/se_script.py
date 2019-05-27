@@ -2,7 +2,7 @@
 import argparse
 import os
 import numpy as np
-from merger.parallax_estimator.similarity_estimator import compute_distances, minmax_distance_scipy2
+from merger.parallax_estimator.similarity_estimator import compute_distances, integral_curvefit
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -30,4 +30,4 @@ if __name__ == '__main__':
 
 	assert os.path.isfile(parameter_file), 'Parameter file does not exist : '+parameter_file
 
-	compute_distances(output_name, distance=minmax_distance_scipy2, parameter_list=np.load(parameter_file, allow_pickle=True), start=start, end=end)
+	compute_distances(output_name, distance=integral_curvefit, parameter_list=np.load(parameter_file, allow_pickle=True), start=start, end=end)
