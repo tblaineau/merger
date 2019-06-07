@@ -1,9 +1,10 @@
 import pandas as pd
+import numpy as np
 import os
 import gzip
-import numpy as np
-import astropy.units as units
-import astropy.constants as constants
+import time
+import logging
+import tarfile
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -12,38 +13,77 @@ COLOR_FILTERS = {
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
 
-WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
+OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 def read_eros_lighcurve(filepath):
-	with open(filepath) as f:
-		for _ in range(4): f.readline()
-		lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
-		for line in f.readlines():
-			line = line.split()
-			lc["time"].append(float(line[0])+49999.5)
-			lc["red_E"].append(float(line[1]))
-			lc["rederr_E"].append(float(line[2]))
-			lc["blue_E"].append(float(line[3]))
-			lc["blueerr_E"].append(float(line[4]))
-			lc["id_E"].append(filepath.split('/')[-1][:-5])
-		f.close()
+	"""
+
+	Read one EROS lightcurve file and return it in a dataframe.
+
+	Arguments:
+		filepath {str} -- path to the EROS lightcurve (lm*.time)
+
+	Returns:
+		pandas DataFrame -- dataframe containing the EROS id, time of observation, magnitudes in blue and red and associated errors.
+	"""
+	try:
+		with open(filepath) as f:
+			for _ in range(4): f.readline()
+			lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
+			id_E = filepath.split('/')[-1][:-5]
+			for line in f.readlines():
+				line = line.split()
+				lc["time"].append(float(line[0])+49999.5)
+				lc["red_E"].append(float(line[1]))
+				lc["rederr_E"].append(float(line[2]))
+				lc["blue_E"].append(float(line[3]))
+				lc["blueerr_E"].append(float(line[4]))
+				lc["id_E"].append(id_E)
+			f.close()
+	except FileNotFoundError:
+		print(filepath+" doesn't exist.")
+		return None
 	return pd.DataFrame.from_dict(lc)
 
 def read_macho_lightcurve(filepath):
-	with gzip.open(filepath, 'rt') as f:
-		lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
-		for line in f:
-			line = line.split(';')
-			lc['time'].append(float(line[4]))
-			lc['red_M'].append(float(line[9]))
-			lc['rederr_M'].append(float(line[10]))
-			lc['blue_M'].append(float(line[24]))
-			lc['blueerr_M'].append(float(line[25]))
-			lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
-		f.close()
+	"""
+
+	Extract and read a MACHO archive containing lightcurves and return it in a dataframe.
+
+	Arguments:
+		filepath {str} -- path to MACHO archive
+
+	Returns:
+		pandas DataFrame -- dataframe containing the MACHO id, time of observation, magnitudes in blue and red and associated errors.
+	"""
+	try:
+		with gzip.open(filepath, 'rt') as f:
+			lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
+			for line in f:
+				line = line.split(';')
+				lc['time'].append(float(line[4]))
+				lc['red_M'].append(float(line[9]))
+				lc['rederr_M'].append(float(line[10]))
+				lc['blue_M'].append(float(line[24]))
+				lc['blueerr_M'].append(float(line[25]))
+				lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
+			f.close()
+	except FileNotFoundError:
+		print(filepath+" doesn't exist.")
+		return None
 	return pd.DataFrame.from_dict(lc)
 
 def load_eros_files(eros_path):
+	"""[summary]
+
+	[description]
+
+	Arguments:
+		eros_path {str} -- ideally path to an EROS CCD, but can be just a 1/4 or a whole field (not recommended as it uses a lot of memory).
+
+	Returns:
+		pandas DataFrame -- dataframe containing all the lightcurves in the subdirectories of eros_path
+	"""
 	pds = []
 	for root, subdirs, files in os.walk(eros_path):
 		print(subdirs)
@@ -54,20 +94,63 @@ def load_eros_files(eros_path):
 				c+=1
 				#print(os.path.join(root, filename))
 				pds.append(read_eros_lighcurve(os.path.join(root, filename)))
-	print(c)
+		print(c)
 	return pd.concat(pds)
 
-def load_macho_tiles(field, tile_list):
-	macho_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_"+str(field)+"/"
+def read_compressed_eros_lightcurve(lc, exfile, name):
+	"""Append data from EROS lightcurve to dict
+
+	[description]
+
+	Arguments:
+		lc {dict} -- dictionnary containing the data of the current EROS 1/4 CCD
+		exfile {file} -- lightcurve file
+		name {str} -- lightcurve EROS identifier
+	"""
+	id_E = name.split("/")[-1][:-5]
+	for line in exfile.readlines()[4:]:
+		line = line.split()
+		lc["time"].append(float(line[0])+49999.5)
+		lc["red_E"].append(float(line[1]))
+		lc["rederr_E"].append(float(line[2]))
+		lc["blue_E"].append(float(line[3]))
+		lc["blueerr_E"].append(float(line[4]))
+		lc["id_E"].append(id_E)
+
+def load_eros_compressed_files(filepath):
+	"""Load EROS lightcurves from compressed tar.gz archives
+
+	[description]
+
+	Arguments:
+		filepath {str} -- path to the file to open
+
+	Returns:
+		[DataFrame] -- dataframe containing all the lightcurves of "filepath"
+	"""
+	with tarfile.open(filepath, 'r:gz') as f:
+		lc = {"time":[], "red_E":[], "rederr_E":[], "blue_E":[], "blueerr_E":[], "id_E":[]}
+		c = 0
+		for member in f.getmembers():
+			lcf = f.extractfile(member)
+			if lcf:
+				c+=1
+				print(c, end='\r')
+				read_compressed_eros_lightcurve(lc, lcf, member.name)
+				lcf.close()
+	return pd.DataFrame.from_dict(lc)
+
+def load_macho_tiles(MACHO_files_path, field, tile_list):
+	macho_path = MACHO_files_path+"F_"+str(field)+"/"
 	pds = []
 	for tile in tile_list:
 		print(macho_path+"F_"+str(field)+"."+str(tile)+".gz")
 		# pds.append(pd.read_csv(macho_path+"F_49."+str(tile)+".gz", names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
-		pds.append(read_macho_lightcurve(macho_path+"F_49."+str(tile)+".gz"))
+		pds.append(read_macho_lightcurve(macho_path+"F_"+str(field)+"."+str(tile)+".gz"))
 	return pd.concat(pds)
 
-def load_macho_field(field):
-	macho_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_"+str(field)+"/"
+def load_macho_field(MACHO_files_path, field):
+	macho_path = MACHO_files_path+"F_"+str(field)+"/"
 	pds = []
 	for root, subdirs, files in os.walk(macho_path):
 		for file in files:
@@ -77,116 +160,65 @@ def load_macho_field(field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
-def rejection_sampling(func, range_x, nb=1, max_sampling=100000, pdf_max=None, args=[]):
-	"""generic rejection sampling algorithm
+def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=""):
+	"""Merge EROS and MACHO lightcurves
 	
 	[description]
 	
 	Arguments:
-		func {function} -- probability density function
-		range_x {(float, float)} -- range of x
+		output_dir_path {str} -- Where to put resulting .pkl
+		macho_field {int} -- MACHO field on which merge lcs.
+		eros_ccd {str} -- ccd eros, format : "lm0***"
 	
-	Keyword Arguments:
-		nb {number} -- size of returned sample  (default: {1})
-		max_sampling {number} -- size of sample for estimating the max of the pdf (default: {100000})
-		pdf_max {float} -- use this as pdf maximum, if None, estimate it (default: {None})
-	
-	Returns:
-		list -- sampled from the input pdf
+	Raises:
+		NameError -- No common stars in field
 	"""
-	v=[]
-	min_x, max_x = range_x
-	if not pdf_max:
-		x = np.linspace(min_x, max_x, max_sampling)
-		max_funcx = np.max(func(x, *args))
+	start = time.time()
+
+
+	# l o a d   E R O S
+	logging.info("Loading EROS files")
+
+
+	# eros_lcs = pd.concat([pd.read_pickle(output_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
+	# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
+	if quart not in "klmn" or quart=="":
+		eros_lcs = pd.concat([load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz")) for quart in "klmn"])
 	else:
-		max_funcx = pdf_max
+		eros_lcs = load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz"))
+	end_load_eros = time.time()
+	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 
-	while len(v)<nb:
-		x=np.random.uniform(min_x, max_x);
-		y=np.random.uniform(0, max_funcx);
-		if x!=0 and y<func(x, *args):
-			v.append(x)
-	return v
+	#loading correspondance file and merging with load EROS stars
+	logging.info("Merging")
+	correspondance_path=correspondance_files_path+str(MACHO_field)+".txt"
+	correspondance = pd.read_csv(correspondance_path, names=["id_E", "id_M"], usecols=[0, 3], sep=' ')
+	merged1 = eros_lcs.merge(correspondance, on="id_E", validate="m:1")
+	del eros_lcs
 
-class Microlensing_generator():
-	def __init__(self, mass=100, u_lim=1, v0=220, blending=False, max_blend=0.7):
-		self.mass = mass
-		self.u_lim = u_lim
-		self.blending = blending
+	# determine needed tiles from MACHO
+	tiles = np.unique([x.split(":")[1] for x in merged1.id_M.unique()])
+	if not tiles.size:
+		raise NameError("No common stars in field !!!!")
 
-		self.tmin = 48928
-		self.tmax = 52697
-		self.tobs = self.tmax - self.tmin
-		self.r_lmc = 55000
-		self.a = 5000
-		self.rho_0 = 0.0079
-		self.d_sol = 8500
-		self.cosb_lmc = np.cos(-32.8884/180.*np.pi)
-		self.cosl_lmc = np.cos(280.4652/180.*np.pi)
-		self.A = self.d_sol**2 + self.a**2
-		self.B = self.d_sol * self.cosb_lmc * self.cosl_lmc
-		self.v0 = v0
-		self.max_blend=0.7
-		self.r_earth = (150*1e6 *units.km).to(units.pc).value
+	#l o a d   M A C H O
+	logging.info("Loading MACHO files")
+	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, tiles)
 
-		self.r_0 = np.sqrt(4 * constants.G / (constants.c**2) * self.r_lmc*units.pc).decompose([units.Msun, units.pc]).value
+	logging.info("Merging")
+	merged2 = macho_lcs.merge(correspondance, on='id_M', validate="m:1")
+	del macho_lcs
+	merged = pd.concat((merged1, merged2), copy=False)
 
-		self.kms_to_pcd = (units.km/units.s).to(units.pc/units.d)
+	# replace invalid values in magnitudes with numpy NaN and remove rows with no valid magnitudes
+	merged = merged.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
 
-	def R_E(self, x):
-		return self.r_0 * np.sqrt(self.mass*x*(1-x))
+	# remove lightcurves missing one or more color
+	merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0
+		and x.red_M.count()!=0
+		and x.blue_E.count()!=0
+		and x.blue_M.count()!=0)
 
-	def p_x(self, x, v_T):
-		rho_halo = self.rho_0 * self.A / ((x * self.r_lmc)**2 - 2 * x * self.r_lmc * self.B + self.A)
-
-		R_Ex = self.R_E(x)
-		return rho_halo / self.mass * self.r_lmc * (2 * self.u_lim * R_Ex * self.tobs * v_T)
-
-	def vt_ppf(self, x):
-		return np.sqrt(-np.log(1 - x) * self.v0**2)
-
-
-	def generate_parameters(self, seed=None):
-		if seed:
-			seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
-			np.random.seed(seed)
-
-		u0 = np.random.uniform(0, self.u_lim)
-		v_T = self.vt_ppf(np.random.uniform())
-		x = rejection_sampling(self.p_x, (0,1), nb=1, args=[v_T])[0]
-		R_Ex = self.R_E(x)
-		tE = R_Ex / (v_T * self.kms_to_pcd)
-		t0 = np.random.uniform(self.tmin - tE/2., self.tmax + tE/2.)
-
-		blend_factors = {}
-		for key in COLOR_FILTERS.keys():
-			if self.blending:
-				blend_factors[key]=np.random.uniform(0, self.max_blend)
-			else:
-				blend_factors[key]=0
-
-		theta = np.random.uniform(0, 2*np.pi)
-		delta_u = self.r_earth * (1 - x) / R_Ex
-		return u0, t0, tE, blend_factors, delta_u, theta
-
-def generate_microlensing_parameters(seed, blending=False, parallax=False):
-	tmin = 48928
-	tmax = 52697
-	seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
-	np.random.seed(seed)
-	u0 = np.random.uniform(0,1)
-	tE = np.exp(np.random.uniform(6.21, 9.21))
-	t0 = np.random.uniform(tmin-tE/2., tmax+tE/2.)
-	blend_factors = {}
-	for key in COLOR_FILTERS.keys():
-		if blending:
-			blend_factors[key]=np.random.uniform(0, 0.7)
-		else:
-			blend_factors[key]=0
-	theta = 0
-	delta_u = 0
-	if parallax:
-		theta = np.random.uniform(0, 2*np.pi)
-		delta_u = np.random.uniform(0,1)
-	return u0, t0, tE, blend_factors, delta_u, theta
+	# save merged dataframe
+	logging.info("Saving")
+	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"))
