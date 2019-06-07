@@ -101,6 +101,11 @@ def fit_ml(subdf, cut5=False):
 		magRM = magRM.values
 		magBM = magBM.values
 
+	#maximum rolling mean on 100 days in EROS red
+	magRE_T = subdf[maskRE][cre].red_E
+	maxRE = (magRE_T.reindex(pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both').mean()).idxmin()
+
+
 	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
 		lsq2 = np.sum(((magBE - microlensing_event(timeBE, u0, t0, tE, magStarBE))/ errBE)**2)
@@ -113,7 +118,7 @@ def fit_ml(subdf, cut5=False):
 
 	m_micro = Minuit(least_squares_microlens, 
 		u0=1., 
-		t0=50000, 
+		t0=subdf[maskRE][cre].time.loc[maxRE],
 		tE=500, 
 		magStarRE=magRE.mean(), 
 		magStarBE=magBE.mean(), 
@@ -185,8 +190,9 @@ def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_D
 		merged = merged[merged['time'].isin(time_mask)]
 	print("FILES LOADED")
 	start = time.time()
-	res = merged.groupby("id_E").apply(fit_ml)
+	res = merged.groupby("id_E").apply(fit_ml, cut5=True)
 	end = time.time()
 	res.to_pickle(os.path.join(output_dir_path, 'res_'+filename))
 	print(str(end-start)+" seconds elapsed.")
 	print(str(len(res))+" stars fitted.")
+	print(f'Mean compute time per star : {(end-start)/len(res)}')
