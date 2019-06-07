@@ -122,7 +122,7 @@ def integral_curvefit(params, a=None, b=None):
 			   error_u0 = 0.1,
 			   error_t0 = 10,
 			   error_tE = 10,
-			   limit_u0 = (0, 2),
+			   limit_u0 = (0, 3),
 			   limit_t0 = (params['t0']-400, params['t0']+400),
 			   errordef=1,
 			   print_level=0

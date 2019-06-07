@@ -16,22 +16,33 @@ from merger.old.parameter_generator import microlens_parallax, microlens_simple
 # df = pd.read_pickle('chi2.pkl')
 # df[['distance', 'fitted_params', 'ndof', 'maxdiff']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 
-df = pd.read_pickle('fastscipyminmax6M12.pkl')
-df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
-df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
-
-# df = pd.read_pickle('trash.pkl')
+# df = pd.read_pickle('fastscipyminmax6M01.pkl')
 # df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+# df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
+#
+# df2 = pd.read_pickle('fastscipyminmax6M01new.pkl')
+# df2[['distance', 'fitted_params']] = pd.DataFrame(df2.distance.values.tolist(), index=df2.index)
+# df2.loc[:,'distance'] = df2.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
+#
+# df = df.merge(df2, on='idx', suffixes=('_old',''))
+#
+# print(df[df.distance>df.distance_old+0.1].mass.value_counts())
+# plt.scatter(df.distance_old, df.distance, s=0.1, marker=".", rasterized=True)
+# plt.show()
 
-print(df.mass.unique())
-
+df = pd.read_pickle('fastscipyminmax6Mbig.pkl')
+df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+# df = pd.concat([df.drop('fitted_params', axis=1), pd.DataFrame(df.fitted_params.tolist()).rename(lambda x: 'fitted_'+str(x), axis=1)], axis=1)
+print(df.columns)
 df[['fitted_u0', 'fitted_t0', 'fitted_tE']] = pd.DataFrame(df.fitted_params.tolist(), index=df.index)
-print(df[df.fitted_u0<2.0])
+
+print(len(df))
+print(df.idx.nunique())
 
 tmin = 48928
 tmax = 52697
-df = df[(df.mass == 30) & (df.fitted_u0<2.0)]
-p2 = df.sort_values(by='distance', ascending=False).iloc[1].to_dict()
+# df = df[(df.mass == 30) & (df.fitted_u0<2.0)]
+p2 = df.sort_values(by='distance', ascending=False).iloc[1000].to_dict()
 # p1 = df.iloc[np.random.randint(0, len(df))].to_dict()
 print(p2)
 p2['blend']=0.
@@ -69,8 +80,8 @@ def update_plot(xk, convergence):
 	pdif1.set_ydata(np.abs((microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'],p1['theta']) - microlens_simple(t, 19., 0., u0, t0, tE, 0., 0.))))
 	ppar1.set_ydata(-(microlens_parallax(t, 19, 0, p1['u0'], p1['t0'], p1['tE'], p1['delta_u'], p1['theta'])))
 	pnop1.set_ydata(-(microlens_simple(t, 19, 0, u0, t0, tE, p1['delta_u'], p1['theta'])))
-	l1.set_xdata(t0-3*tE)
-	l2.set_xdata(t0+3*tE)
+	l1.set_xdata(t0 - 6*tE)
+	l2.set_xdata(t0 + 6*tE)
 	plt.pause(0.000001)
 	hl2.set_ydata(-convergence)
 	if convergence>curr_max:
@@ -268,11 +279,11 @@ axs[0].plot(t, cnopa2, label='corrected sun')
 axs[0].plot(t, cnopa, ls=':', label='sun')
 # axs[0].axvline(p2['fitted_params']['t'])
 # axs[1].axvline(p2['fitted_params']['t'])
-axs[0].plot(t, microlens_simple(t, p2['mag'], p2['blend'], p2['fitted_params'][0], p2['fitted_params'][1], p2['fitted_params'][2], 0, 0), label='DE minimized', color='red', ls='--')
+axs[0].plot(t, microlens_simple(t, p2['mag'], p2['blend'], p2['fitted_u0'], p2['fitted_t0'], p2['fitted_tE'], 0, 0), label='DE minimized', color='red', ls='--')
 axs[0].legend()
 axs[0].invert_yaxis()
 axs[1].plot(t, np.abs(cnopa2-cpara), label='minimized', color='orange')
-axs[1].plot(t, np.abs(cpara - microlens_simple(t, p2['mag'], p2['blend'], p2['fitted_params'][0], p2['fitted_params'][1], p2['fitted_params'][2], 0, 0)), ls='--', label='DE minimized', color='red')
+axs[1].plot(t, np.abs(cpara - microlens_simple(t, p2['mag'], p2['blend'], p2['fitted_u0'], p2['fitted_t0'], p2['fitted_tE'], 0, 0)), ls='--', label='DE minimized', color='red')
 axs[1].legend()
 plt.figure()
 nb_bins=100
