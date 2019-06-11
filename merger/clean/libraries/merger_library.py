@@ -51,7 +51,6 @@ def load_irods_eros_lightcurves(irods_filepath):
 			logging.error("iRods path not found : irods_filepath")
 		for lcfile in coll.data_objects:
 			id_E = lcfile.name
-			print(id_E)
 			if id_E[-4:]=='time':
 				with lcfile.open('r') as f:
 					lc = {'time':[], 'red_E':[], 'rederr_E':[], 'blue_E':[], 'blueerr_E':[], 'id_E':[]}
