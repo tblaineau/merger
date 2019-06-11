@@ -26,7 +26,7 @@ if __name__ == '__main__':
 	parser.add_argument('--output-directory', '-odir', type=str, default=merger_library.OUTPUT_DIR_PATH)
 	parser.add_argument('-fit', action='store_true')
 	parser.add_argument('--EROS-path', '-pE', type=str, default="/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/")
-	parser.add_argument('--MACHO-path', '-pM', type=str, default="/Volumes/DisqueSauvegarde/MACHO/lightcurves/")
+	parser.add_argument('--MACHO-path', '-pM', type=str, default="/Volumes/DisqueSauvegarde/MACHO/lightcurves/", help="'url' for loading from NCI")
 	parser.add_argument('--correspondance-path', '-pC', type=str, default="/Users/tristanblaineau/")
 	parser.add_argument('--quart', type=str, default="", choices=["k", "l", "m", "n"])
 
@@ -49,7 +49,8 @@ if __name__ == '__main__':
 	#Check if input paths exist
 	dir_path_check(output_directory)
 	dir_path_check(correspondance_files_path)
-	dir_path_check(MACHO_files_path)
+	if not MACHO_files_path=="url":
+		dir_path_check(MACHO_files_path)
 	dir_path_check(EROS_files_path)
 
 	print(fit)
