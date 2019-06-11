@@ -198,7 +198,7 @@ def load_macho_from_url(filename):
 	pd.DataFrame
 	"""
 	target_url = 'http://macho.nci.org.au/macho_photometry/'+filename[:3]+'/'+filename
-	file = gzip.decompress(get(target_url).content)
+	file = gzip.decompress(get(target_url).content).decode().split('\n')[:-1]
 	lc = {'time': [], 'red_M': [], 'rederr_M': [], 'blue_M': [], 'blueerr_M': [], 'id_M': []}
 	for line in file:
 		line = line.split(';')
@@ -208,7 +208,6 @@ def load_macho_from_url(filename):
 		lc['blue_M'].append(float(line[24]))
 		lc['blueerr_M'].append(float(line[25]))
 		lc['id_M'].append(line[1] + ":" + line[2] + ":" + line[3])
-	file.close()
 	return pd.DataFrame.from_dict(lc)
 
 
