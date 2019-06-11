@@ -1,11 +1,9 @@
 import numpy as np
 import pandas as pd
-import os
-from scipy.optimize import curve_fit
 import scipy.stats as stats
 import time
 
-from merger_library import *
+from merger.clean.libraries.merger_library import *
 
 def microlensing_amplification(t, u0, t0, tE):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
@@ -93,6 +91,8 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, generator, paralla
 		subdf['ampli_'+color_filter['mag']] = phi_th + (subdf[conditions[key]][color_filter['mag']] - means[key]) / norm
 
 	return subdf
+
+WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 # l o a d   s t a r s
 print("Loading stars")
