@@ -46,7 +46,7 @@ if __name__ == '__main__':
 	verbose = args.verbose
 
 	if verbose:
-		logging.basicConfig(level=logging.DEBUG)
+		logging.basicConfig(level=logging.INFO)
 
 	if (quart != "") and EROS_CCD is None:
 		print("Quart value will not be taken into account as the whole field will be scanned.")
