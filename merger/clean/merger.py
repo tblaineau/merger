@@ -11,7 +11,7 @@ import numpy as np
 import logging
 import os
 
-from libraries import merger_library, iminuit_fitter
+from merger.clean.libraries import merger_library, iminuit_fitter
 
 def dir_path_check(dirpath):
 	if not os.path.isdir(dirpath):
