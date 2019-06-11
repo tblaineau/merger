@@ -28,7 +28,7 @@ def load_irods_eros_lightcurves(irods_filepath):
 	Parameters
 	----------
 	irods_filepath : str
-		Path in the iRods tree
+		Path in the iRods directory containing the .time files (lm/lmXXX/lmXXXX/lmXXXXL)
 
 	Returns
 	-------
@@ -252,13 +252,19 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 	# l o a d   E R O S
 	logging.info("Loading EROS files")
 
-
-	# eros_lcs = pd.concat([pd.read_pickle(output_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
-	# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
-	if quart not in "klmn" or quart=="":
-		eros_lcs = pd.concat([load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz")) for quart in "klmn"])
+	if EROS_files_path != 'irods':
+		# eros_lcs = pd.concat([pd.read_pickle(output_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
+		# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
+		if quart not in "klmn" or quart=="":
+			eros_lcs = pd.concat([load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz")) for quart in "klmn"])
+		else:
+			eros_lcs = load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz"))
 	else:
-		eros_lcs = load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz"))
+		IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
+		if quart not in 'klmn' or quart=='':
+			eros_lcs = pd.concat([load_irods_eros_lightcurves(os.path.join(IRODS_ROOT, eros_ccd[:5], eros_ccd, eros_ccd+quart)) for quart in "klmn"])
+		else:
+			eros_lcs = load_irods_eros_lightcurves(os.path.join(IRODS_ROOT, eros_ccd[:5], eros_ccd, eros_ccd+quart))
 	end_load_eros = time.time()
 	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
 
