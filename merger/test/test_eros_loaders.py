@@ -7,7 +7,7 @@ import merger.old.merger_library as mrgl
 #Field lm0103n
 INPUT_PATH = '/Volumes/DisqueSauvegarde/EROS/lightcurves'
 
-def test_loading(irods=False):
+def test_loading_eros(irods=False):
 	st1 = time.time()
 	t1 = mrgl.load_eros_compressed_files(os.path.join(INPUT_PATH, 'lm/lm010/lm0103n-lc.tar.gz'))
 	st2 = time.time()
