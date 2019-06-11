@@ -92,7 +92,7 @@ def read_eros_lighcurve(filepath):
 				lc["id_E"].append(id_E)
 			f.close()
 	except FileNotFoundError:
-		print(filepath+" doesn't exist.")
+		logging.error(f"{filepath} doesn't exist.")
 		return None
 	return pd.DataFrame.from_dict(lc)
 
@@ -198,7 +198,12 @@ def load_macho_from_url(filename):
 	pd.DataFrame
 	"""
 	target_url = 'http://macho.nci.org.au/macho_photometry/'+filename[:3]+'/'+filename
-	file = gzip.decompress(get(target_url).content).decode().split('\n')[:-1]
+	try:
+		file = gzip.decompress(get(target_url).content).decode().split('\n')[:-1]
+	except OSError:
+		logging.error(f"Not a gzipped file : {target_url}")
+		return None
+
 	lc = {'time': [], 'red_M': [], 'rederr_M': [], 'blue_M': [], 'blueerr_M': [], 'id_M': []}
 	for line in file:
 		line = line.split(';')
@@ -215,7 +220,7 @@ def load_macho_tiles(MACHO_files_path, field, tile_list):
 	macho_path = MACHO_files_path+"F_"+str(field)+"/"
 	pds = []
 	for tile in tile_list:
-		print(macho_path+"F_"+str(field)+"."+str(tile)+".gz")
+		logging.debug(macho_path+"F_"+str(field)+"."+str(tile)+".gz")
 		# pds.append(pd.read_csv(macho_path+"F_49."+str(tile)+".gz", names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 		if MACHO_files_path=='url':
 			pds.append(load_macho_from_url("F_"+str(field)+"."+str(tile)+".gz"))
