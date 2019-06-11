@@ -1,4 +1,4 @@
-import merger.clean.merger_library as mrgl
+import merger.clean.libraries.merger_library as mrgl
 import time
 
 def test_loading_macho(url=False):

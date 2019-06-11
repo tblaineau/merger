@@ -1,6 +1,6 @@
 import os, time
 
-import merger.clean.merger_library as mrgl
+import merger.clean.libraries.merger_library as mrgl
 
 #Load test EROS
 
