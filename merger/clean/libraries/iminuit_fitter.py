@@ -104,7 +104,10 @@ def fit_ml(subdf, cut5=False):
 	#maximum rolling mean on 100 days in EROS red
 	magRE_T = subdf[maskRE][cre].red_E
 	maxRE = (magRE_T.reindex(pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both').mean()).idxmin()
-
+	if not np.isnan(maxRE):
+		maxt0 = subdf[maskRE][cre].time.loc[maxRE]
+	else:
+		maxt0 = 50500
 
 	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
@@ -118,7 +121,7 @@ def fit_ml(subdf, cut5=False):
 
 	m_micro = Minuit(least_squares_microlens, 
 		u0=1., 
-		t0=subdf[maskRE][cre].time.loc[maxRE],
+		t0=maxt0,
 		tE=500, 
 		magStarRE=magRE.mean(), 
 		magStarBE=magBE.mean(), 
@@ -154,7 +157,7 @@ def fit_ml(subdf, cut5=False):
 	m_flat.migrad()
 	global GLOBAL_COUNTER
 	GLOBAL_COUNTER+=1
-	#print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
+	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
 	return pd.Series(
 
 		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval]
