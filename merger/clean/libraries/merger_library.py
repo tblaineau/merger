@@ -271,7 +271,7 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 
 	#loading correspondance file and merging with load EROS stars
 	logging.info("Merging")
-	correspondance_path=correspondance_files_path+str(MACHO_field)+".txt"
+	correspondance_path=os.path.join(correspondance_files_path, str(MACHO_field)+".txt")
 	correspondance = pd.read_csv(correspondance_path, names=["id_E", "id_M"], usecols=[0, 3], sep=' ')
 	merged1 = eros_lcs.merge(correspondance, on="id_E", validate="m:1")
 	del eros_lcs
