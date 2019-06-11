@@ -48,7 +48,7 @@ def load_irods_eros_lightcurves(irods_filepath):
 		try:
 			coll = session.collections.get(irods_filepath)
 		except CollectionDoesNotExist:
-			logging.error("iRods path not found : irods_filepath")
+			logging.error(f"iRods path not found : {irods_filepath}")
 		for lcfile in coll.data_objects:
 			id_E = lcfile.name
 			if id_E[-4:]=='time':
