@@ -18,7 +18,21 @@ COLOR_FILTERS = {
 
 OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
-def load_irods_eros_lightcurves(irods_filepath)
+def load_irods_eros_lightcurves(irods_filepath):
+	"""
+	Load EROS lightcurves from iRods storage.
+
+	Load from individual .time files. I didn't check the time taken but I think it can be significantly longer than for other load methods.
+	Parameters
+	----------
+	irods_filepath : str
+		Path in the iRods tree
+
+	Returns
+	-------
+	pd.DataFrame
+		Dataframe of the lightcurves (contains time, magnitudes and errors
+	"""
 	try:
 		env_file = os.environ['IRODS_ENVIRONMENT_FILE']
 	except KeyError:
@@ -80,14 +94,7 @@ def read_eros_lighcurve(filepath):
 
 def read_macho_lightcurve(filepath):
 	"""
-
-	Extract and read a MACHO archive containing lightcurves and return it in a dataframe.
-
-	Arguments:
-		filepath {str} -- path to MACHO archive
-
-	Returns:
-		pandas DataFrame -- dataframe containing the MACHO id, time of observation, magnitudes in blue and red and associated errors.
+	Read MACHO lightcurves from tile archive.
 	"""
 	try:
 		with gzip.open(filepath, 'rt') as f:
