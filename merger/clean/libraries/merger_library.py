@@ -235,17 +235,26 @@ def load_macho_field(MACHO_files_path, field):
 	return pd.concat(pds)
 
 def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=""):
-	"""Merge EROS and MACHO lightcurves
+	"""
+	Merge EROS and MACHO lightcurves
 	
-	[description]
+	Parameters
+	----------
+	output_dir_path : str
+		Where to put resulting .pkl
+	MACHO_field : int
+		MACHO field on which merge lcs.
+	eros_ccd : str
+		ccd eros, format : "lm0***"
 	
-	Arguments:
-		output_dir_path {str} -- Where to put resulting .pkl
-		macho_field {int} -- MACHO field on which merge lcs.
-		eros_ccd {str} -- ccd eros, format : "lm0***"
-	
-	Raises:
-		NameError -- No common stars in field
+	Raises
+	------
+	NameError
+		Did not find common stars in fields
+
+	Returns
+	-------
+	None
 	"""
 	start = time.time()
 
