@@ -17,14 +17,17 @@ OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 def read_eros_lighcurve(filepath):
 	"""
-	
 	Read one EROS lightcurve file and return it in a dataframe.
 	
-	Arguments:
-		filepath {str} -- path to the EROS lightcurve (lm*.time)
+	Parameters
+	----------
+	filepath : str
+		Path to the EROS lightcurve (lm*.time)
 	
-	Returns:
-		pandas DataFrame -- dataframe containing the EROS id, time of observation, magnitudes in blue and red and associated errors.
+	Returns
+	-------
+	pd.DataFrame
+		Dataframe containing the EROS id, time of observation, magnitudes in blue and red and associated errors.
 	"""
 	try:
 		with open(filepath) as f:
@@ -182,7 +185,7 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 
 	# eros_lcs = pd.concat([pd.read_pickle(output_dir_path+"full_"+eros_ccd+quart) for quart in 'klmn'])				# <===== Load from pickle files
 	# eros_lcs = load_eros_files("/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/"+eros_ccd[:5]+"/"+eros_ccd)			# <===== Load from .time files
-	if quart not in "klmn":
+	if quart not in "klmn" or quart=="":
 		eros_lcs = pd.concat([load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz")) for quart in "klmn"])
 	else:
 		eros_lcs = load_eros_compressed_files(os.path.join(EROS_files_path,eros_ccd[:5],eros_ccd+quart+"-lc.tar.gz"))
