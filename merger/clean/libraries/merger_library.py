@@ -61,7 +61,7 @@ def load_irods_eros_lightcurves(irods_filepath):
 						lc["rederr_E"].append(float(line[2]))
 						lc["blue_E"].append(float(line[3]))
 						lc["blueerr_E"].append(float(line[4]))
-						lc["id_E"].append(id_E)
+						lc["id_E"].append(id_E[:-5])
 				pds.append(pd.DataFrame.from_dict(lc))
 	return pd.concat(pds)
 
