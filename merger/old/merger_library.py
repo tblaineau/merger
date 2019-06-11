@@ -8,6 +8,9 @@ import tarfile
 from irods.session import iRODSSession
 import ssl
 
+import urllib.request
+from requests import get
+
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -92,27 +95,6 @@ def read_eros_lighcurve(filepath):
 		return None
 	return pd.DataFrame.from_dict(lc)
 
-def read_macho_lightcurve(filepath):
-	"""
-	Read MACHO lightcurves from tile archive.
-	"""
-	try:
-		with gzip.open(filepath, 'rt') as f:
-			lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
-			for line in f:
-				line = line.split(';')
-				lc['time'].append(float(line[4]))
-				lc['red_M'].append(float(line[9]))
-				lc['rederr_M'].append(float(line[10]))
-				lc['blue_M'].append(float(line[24]))
-				lc['blueerr_M'].append(float(line[25]))
-				lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
-			f.close()
-	except FileNotFoundError:
-		print(filepath+" doesn't exist.")
-		return None
-	return pd.DataFrame.from_dict(lc)
-
 def load_eros_files(eros_path):
 	"""[summary]
 
@@ -179,6 +161,55 @@ def load_eros_compressed_files(filepath):
 				read_compressed_eros_lightcurve(lc, lcf, member.name)
 				lcf.close()
 	return pd.DataFrame.from_dict(lc)
+
+def read_macho_lightcurve(filepath):
+	"""
+	Read MACHO lightcurves from tile archive.
+	"""
+	try:
+		with gzip.open(filepath, 'rt') as f:
+			lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
+			for line in f:
+				line = line.split(';')
+				lc['time'].append(float(line[4]))
+				lc['red_M'].append(float(line[9]))
+				lc['rederr_M'].append(float(line[10]))
+				lc['blue_M'].append(float(line[24]))
+				lc['blueerr_M'].append(float(line[25]))
+				lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
+			f.close()
+	except FileNotFoundError:
+		print(filepath+" doesn't exist.")
+		return None
+	return pd.DataFrame.from_dict(lc)
+
+def load_macho_from_url(filename):
+	"""
+	Load MACHO lightcurves from online database (http://macho.nci.org.au/macho_photometry)
+
+	Parameters
+	----------
+	filename : str
+		Name of file to load (F_ + field + . + tile + .gz). Example F_1.3319.gz
+
+	Returns
+	-------
+	pd.DataFrame
+	"""
+	target_url = 'http://macho.nci.org.au/macho_photometry/'+filename[:3]+'/'+filename
+	with gzip.decompress(get(target_url).content) as file:
+		lc = {'time': [], 'red_M': [], 'rederr_M': [], 'blue_M': [], 'blueerr_M': [], 'id_M': []}
+		for line in file:
+			line = line.split(';')
+			lc['time'].append(float(line[4]))
+			lc['red_M'].append(float(line[9]))
+			lc['rederr_M'].append(float(line[10]))
+			lc['blue_M'].append(float(line[24]))
+			lc['blueerr_M'].append(float(line[25]))
+			lc['id_M'].append(line[1] + ":" + line[2] + ":" + line[3])
+		file.close()
+	return pd.DataFrame.from_dict(lc)
+
 
 def load_macho_tiles(MACHO_files_path, field, tile_list):
 	macho_path = MACHO_files_path+"F_"+str(field)+"/"
