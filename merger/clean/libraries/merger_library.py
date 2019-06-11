@@ -6,6 +6,7 @@ import time
 import logging
 import tarfile
 from irods.session import iRODSSession
+from irods.exception import CollectionDoesNotExist
 import ssl
 
 from requests import get
@@ -44,7 +45,10 @@ def load_irods_eros_lightcurves(irods_filepath):
 	ssl_settings = {'ssl_context': ssl_context}
 	pds = []
 	with iRODSSession(irods_env_file=env_file, **ssl_settings) as session:
-		coll = session.collections.get(irods_filepath)
+		try:
+			coll = session.collections.get(irods_filepath)
+		except CollectionDoesNotExist:
+			print(irods_filepath)
 		for lcfile in coll.data_objects:
 			id_E = lcfile.name
 			print(id_E)
