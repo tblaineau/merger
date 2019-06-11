@@ -8,7 +8,6 @@ import tarfile
 from irods.session import iRODSSession
 import ssl
 
-import urllib.request
 from requests import get
 
 
@@ -162,12 +161,12 @@ def load_eros_compressed_files(filepath):
 				lcf.close()
 	return pd.DataFrame.from_dict(lc)
 
-def read_macho_lightcurve(filepath):
+def read_macho_lightcurve(filepath, filename):
 	"""
 	Read MACHO lightcurves from tile archive.
 	"""
 	try:
-		with gzip.open(filepath, 'rt') as f:
+		with gzip.open(os.path.join(filepath, filename), 'rt') as f:
 			lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
 			for line in f:
 				line = line.split(';')
@@ -179,7 +178,7 @@ def read_macho_lightcurve(filepath):
 				lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
 			f.close()
 	except FileNotFoundError:
-		print(filepath+" doesn't exist.")
+		print(os.path.join(filepath, filename)+" doesn't exist.")
 		return None
 	return pd.DataFrame.from_dict(lc)
 
@@ -197,17 +196,17 @@ def load_macho_from_url(filename):
 	pd.DataFrame
 	"""
 	target_url = 'http://macho.nci.org.au/macho_photometry/'+filename[:3]+'/'+filename
-	with gzip.decompress(get(target_url).content) as file:
-		lc = {'time': [], 'red_M': [], 'rederr_M': [], 'blue_M': [], 'blueerr_M': [], 'id_M': []}
-		for line in file:
-			line = line.split(';')
-			lc['time'].append(float(line[4]))
-			lc['red_M'].append(float(line[9]))
-			lc['rederr_M'].append(float(line[10]))
-			lc['blue_M'].append(float(line[24]))
-			lc['blueerr_M'].append(float(line[25]))
-			lc['id_M'].append(line[1] + ":" + line[2] + ":" + line[3])
-		file.close()
+	file = gzip.decompress(get(target_url).content)
+	lc = {'time': [], 'red_M': [], 'rederr_M': [], 'blue_M': [], 'blueerr_M': [], 'id_M': []}
+	for line in file:
+		line = line.split(';')
+		lc['time'].append(float(line[4]))
+		lc['red_M'].append(float(line[9]))
+		lc['rederr_M'].append(float(line[10]))
+		lc['blue_M'].append(float(line[24]))
+		lc['blueerr_M'].append(float(line[25]))
+		lc['id_M'].append(line[1] + ":" + line[2] + ":" + line[3])
+	file.close()
 	return pd.DataFrame.from_dict(lc)
 
 
@@ -217,7 +216,7 @@ def load_macho_tiles(MACHO_files_path, field, tile_list):
 	for tile in tile_list:
 		print(macho_path+"F_"+str(field)+"."+str(tile)+".gz")
 		# pds.append(pd.read_csv(macho_path+"F_49."+str(tile)+".gz", names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
-		pds.append(read_macho_lightcurve(macho_path+"F_"+str(field)+"."+str(tile)+".gz"))
+		pds.append(read_macho_lightcurve(macho_path, "F_"+str(field)+"."+str(tile)+".gz"))
 	return pd.concat(pds)
 
 def load_macho_field(MACHO_files_path, field):
@@ -227,7 +226,7 @@ def load_macho_field(MACHO_files_path, field):
 		for file in files:
 			if file[-2:]=='gz':
 				print(file)
-				pds.append(read_macho_lightcurve(macho_path+file))
+				pds.append(read_macho_lightcurve(macho_path, file))
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
