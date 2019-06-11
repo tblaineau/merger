@@ -277,6 +277,7 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 			eros_lcs = load_irods_eros_lightcurves(os.path.join(IRODS_ROOT, eros_ccd[:5], eros_ccd, eros_ccd+quart))
 	end_load_eros = time.time()
 	logging.info(str(end_load_eros-start)+' seconds elapsed for loading EROS files')
+	logging.info(f'{len(eros_lcs)} lines loaded.')
 
 	#loading correspondance file and merging with load EROS stars
 	logging.info("Merging")
@@ -288,6 +289,7 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 	# determine needed tiles from MACHO
 	tiles = np.unique([x.split(":")[1] for x in merged1.id_M.unique()])
 	if not tiles.size:
+		logging.error(f'No common stars in field, correspondace path : {correspondance_path}')
 		raise NameError("No common stars in field !!!!")
 
 	#l o a d   M A C H O
