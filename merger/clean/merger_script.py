@@ -29,6 +29,7 @@ if __name__ == '__main__':
 	parser.add_argument('--MACHO-path', '-pM', type=str, default="/Volumes/DisqueSauvegarde/MACHO/lightcurves/", help="'url' for loading from NCI")
 	parser.add_argument('--correspondance-path', '-pC', type=str, default="/Users/tristanblaineau/")
 	parser.add_argument('--quart', type=str, default="", choices=["k", "l", "m", "n"])
+	parser.add_argument('--verbose', '-v', action='store_true', help='Debug logging level')
 
 	#Retrieve arguments
 	args = parser.parse_args()
@@ -42,6 +43,10 @@ if __name__ == '__main__':
 	correspondance_files_path = args.correspondance_path
 	output_directory = args.output_directory
 	quart = args.quart
+	verbose = args.verbose
+
+	if verbose:
+		logging.basicConfig(level=logging.DEBUG)
 
 	if (quart != "") and EROS_CCD is None:
 		print("Quart value will not be taken into account as the whole field will be scanned.")
