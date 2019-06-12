@@ -197,7 +197,8 @@ def load_macho_from_url(filename):
 	-------
 	pd.DataFrame
 	"""
-	target_url = 'http://macho.nci.org.au/macho_photometry/'+filename[:3]+'/'+filename
+	field = filename.split(".")[0]
+	target_url = 'http://macho.nci.org.au/macho_photometry/'+field+'/'+filename
 	try:
 		file = gzip.decompress(get(target_url).content).decode().split('\n')[:-1]
 	except OSError:
