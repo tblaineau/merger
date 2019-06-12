@@ -2,6 +2,7 @@ import numpy as np
 import astropy.units as units
 import astropy.constants as constants
 import numba as nb
+import logging
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -33,6 +34,28 @@ def r(mass):
 	return r_earth/R_0
 
 @nb.njit
+def R_E(x, mass):
+	return r_0*np.sqrt(mass*x*(1-x))
+
+@nb.njit
+def rho_halo(x):
+	return rho_0*A/((x*r_lmc)**2-2*x*r_lmc*B+A)
+
+@nb.njit
+def f_vt(v_T, v0=220):
+	return (2*v_T/(v0**2))*np.exp(-v_T**2/(v0**2))
+
+@nb.njit
+def p_xvt(x, v_T, mass):
+	return rho_halo(x)/mass*r_lmc*(2*r_0*np.sqrt(mass*x*(1-x))*t_obs*v_T)
+
+@nb.njit
+def pdf_xvt(x, vt, mass):
+	if x<0 or x>1 or vt<0:
+		return 0
+	return p_xvt(x, vt, mass)*f_vt(vt)
+
+@nb.njit
 def delta_u_from_x(x, mass):
 	return r(mass)*np.sqrt((1-x)/x)
 
@@ -40,6 +63,50 @@ def delta_u_from_x(x, mass):
 def tE_from_xvt(x, vt, mass):
 	return r_0 * np.sqrt(mass*x*(1-x)) / (vt*kms_to_pcd)
 
+@nb.njit
+def randomizer_gauss(x, vt):
+	return np.array([np.random.normal(loc=x, scale=0.1), np.random.normal(loc=vt, scale=300)])
+
+def metropolis_hastings(func, g, nb_samples, start, **kwargs):
+	"""
+	Metropolis-Hasting algorithm to pick random value following the joint probability distribution func
+
+	Parameters
+	----------
+	func : function
+		 Joint probability distribution
+	g : function
+		Randomizer. Choose it wisely to converge quickly and have a smooth distribution
+	nb_samples : int
+		Number of points to return. Need to be large so that the output distribution is smooth
+	start : array-like
+		Initial point
+	kwargs :
+		arguments to pass to *func*
+
+
+	Returns
+	-------
+	np.array
+		Array containing all the points
+	"""
+	samples = []
+	current_x = start
+	accepted=0
+	while nb_samples > len(samples):
+		proposed_x = g(*current_x)
+		tmp = func(*current_x, **kwargs)
+		if tmp!=0:
+			threshold = min(1., func(*proposed_x, **kwargs) / tmp)
+		else:
+			threshold = 1
+		if np.random.uniform() < threshold:
+			current_x = proposed_x
+			accepted+=1
+		if current_x[0]>0 and current_x[0]<1:
+			samples.append(current_x)
+	print(accepted, accepted/nb_samples)
+	return np.array(samples)
 
 class Microlensing_generator():
 	"""
@@ -56,7 +123,7 @@ class Microlensing_generator():
 	tmax : int
 		Defines the limits of t_0
 	"""
-	def __init__(self, xvt_file, seed, tmin=48928., tmax=52697., u_max=2., mass=30.,  max_blend=0.7, enable_blending=False):
+	def __init__(self, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2., mass=30.,  max_blend=0.7, enable_blending=False):
 		self.seed = seed
 		self.xvt_file = xvt_file
 
@@ -69,12 +136,34 @@ class Microlensing_generator():
 		self.generate_mass = False
 		self.mass = mass
 
-		self.xvts = np.load(self.xvt_file)
-
-	def generate_parameters(self):
 		if self.seed:
-			self.seed = int(self.seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
 			np.random.seed(self.seed)
+
+		if self.xvt_file:
+			try:
+				self.xvts = np.load(self.xvt_file)
+			except FileNotFoundError:
+				logging.error(f"xvt file not found : {self.xvt_file}")
+		else:
+			self.xvts = metropolis_hastings(pdf_xvt, randomizer_gauss, 10000000, np.array([0.5, 100]))
+
+
+	def generate_parameters(self, seed):
+		"""
+		Generate a set of microlensing parameters, including parallax and blending
+
+		Parameters
+		----------
+		seed : str
+			Seed used for parameter generation (EROS id)
+		Returns
+		-------
+		dict
+			Dictionnary containing the parameters set
+		"""
+		if seed:
+			seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
+			np.random.seed(seed)
 		if self.generate_mass:
 			mass = np.random.uniform(0, 200)
 		else:
