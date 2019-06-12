@@ -116,7 +116,7 @@ class Microlensing_generator():
 	----------
 	xvt_file : str
 		File containing x - v_T pairs generated through the Hasting-Metropolis algorithm
-	seed : str
+	seed : int
 		Seed used for numpy.seed
 	tmin : int
 		test
