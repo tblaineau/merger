@@ -6,7 +6,7 @@ import time
 import logging
 import tarfile
 from irods.session import iRODSSession
-from irods.exception import CollectionDoesNotExist
+from irods.exception import CollectionDoesNotExist, DataObjectDoesNotExist
 import ssl
 
 from requests import get
@@ -45,25 +45,42 @@ def load_irods_eros_lightcurves(irods_filepath):
 	ssl_settings = {'ssl_context': ssl_context}
 	pds = []
 	with iRODSSession(irods_env_file=env_file, **ssl_settings) as session:
-		try:
-			coll = session.collections.get(irods_filepath)
-		except CollectionDoesNotExist:
-			logging.error(f"iRods path not found : {irods_filepath}")
-		for lcfile in coll.data_objects:
-			id_E = lcfile.name
-			if id_E[-4:]=='time':
-				with lcfile.open('r') as f:
-					lc = {'time':[], 'red_E':[], 'rederr_E':[], 'blue_E':[], 'blueerr_E':[], 'id_E':[]}
-					for line in f.readlines()[4:]:
-						line = line.decode().split()
-						lc["time"].append(float(line[0])+49999.5)
-						lc["red_E"].append(float(line[1]))
-						lc["rederr_E"].append(float(line[2]))
-						lc["blue_E"].append(float(line[3]))
-						lc["blueerr_E"].append(float(line[4]))
-						lc["id_E"].append(id_E[:-5])
-				pds.append(pd.DataFrame.from_dict(lc))
-	return pd.concat(pds)
+		if irods_filepath[-4:] == 'time':
+			try:
+				obj = session.data_objects.get(irods_filepath)
+			except DataObjectDoesNotExist:
+				logging.error(f"iRods file not found : {irods_filepath}")
+			with obj.open('r') as f:
+				lc = {'time': [], 'red_E': [], 'rederr_E': [], 'blue_E': [], 'blueerr_E': [], 'id_E': []}
+				for line in f.readlines()[4:]:
+					line = line.decode().split()
+					lc["time"].append(float(line[0]) + 49999.5)
+					lc["red_E"].append(float(line[1]))
+					lc["rederr_E"].append(float(line[2]))
+					lc["blue_E"].append(float(line[3]))
+					lc["blueerr_E"].append(float(line[4]))
+					lc["id_E"].append(f.name[:-5])
+			return pd.DataFrame.from_dict(lc)
+		else:
+			try:
+				coll = session.collections.get(irods_filepath)
+			except CollectionDoesNotExist:
+				logging.error(f"iRods path not found : {irods_filepath}")
+			for lcfile in coll.data_objects:
+				id_E = lcfile.name
+				if id_E[-4:]=='time':
+					with lcfile.open('r') as f:
+						lc = {'time':[], 'red_E':[], 'rederr_E':[], 'blue_E':[], 'blueerr_E':[], 'id_E':[]}
+						for line in f.readlines()[4:]:
+							line = line.decode().split()
+							lc["time"].append(float(line[0])+49999.5)
+							lc["red_E"].append(float(line[1]))
+							lc["rederr_E"].append(float(line[2]))
+							lc["blue_E"].append(float(line[3]))
+							lc["blueerr_E"].append(float(line[4]))
+							lc["id_E"].append(id_E[:-5])
+					pds.append(pd.DataFrame.from_dict(lc))
+			return pd.concat(pds)
 
 
 def read_eros_lighcurve(filepath):
