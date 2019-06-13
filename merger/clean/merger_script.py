@@ -21,7 +21,7 @@ def dir_path_check(dirpath):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--EROS-field', '-fE', type=str, required=True, help="something like lmXXX")
-	parser.add_argument('--EROS-CCD', '-ccdE', type=int, default=None, choices=np.arange(7), required=False)
+	parser.add_argument('--EROS-CCD', '-ccdE', type=int, default=None, choices=np.arange(8), required=False)
 	parser.add_argument('--MACHO-field', '-fM', type=int, required=True)
 	parser.add_argument('--output-directory', '-odir', type=str, default=merger_library.OUTPUT_DIR_PATH)
 	parser.add_argument('-fit', action='store_true')
