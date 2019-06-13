@@ -2,7 +2,7 @@ import time
 import os
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import logging
 from iminuit import Minuit
 
 GLOBAL_COUNTER = 0
@@ -185,17 +185,18 @@ def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_D
 	"""
 	if filename[-4:] != '.pkl':
 		filename += '.pkl'
-	print("Loading "+filename)
+	logging.info("Loading "+filename)
 	merged = pd.read_pickle(os.path.join(input_dir_path, filename))
 	merged.replace(to_replace=[99.999, -99.], value=np.nan, inplace=True)
 	merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
 	if time_mask:
 		merged = merged[merged['time'].isin(time_mask)]
-	print("FILES LOADED")
+	logging.info("FILES LOADED")
+	logging.info(f"{merged.id_E.nunique()}")
 	start = time.time()
 	res = merged.groupby("id_E").apply(fit_ml, cut5=True)
 	end = time.time()
 	res.to_pickle(os.path.join(output_dir_path, 'res_'+filename))
-	print(str(end-start)+" seconds elapsed.")
-	print(str(len(res))+" stars fitted.")
-	print(f'Mean compute time per star : {(end-start)/len(res)}')
+	logging.info(str(end-start)+" seconds elapsed.")
+	logging.info(str(len(res))+" stars fitted.")
+	logging.info(f'Mean compute time per star : {(end-start)/len(res)}')
