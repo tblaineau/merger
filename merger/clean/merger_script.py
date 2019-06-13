@@ -49,7 +49,7 @@ if __name__ == '__main__':
 		logging.basicConfig(level=logging.INFO)
 
 	if (quart != "") and EROS_CCD is None:
-		print("Quart value will not be taken into account as the whole field will be scanned.")
+		logging.warning("Quart value will not be taken into account as the whole field will be scanned.")
 
 	#Check if input paths exist
 	dir_path_check(output_directory)
