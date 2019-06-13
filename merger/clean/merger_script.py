@@ -30,11 +30,13 @@ if __name__ == '__main__':
 	parser.add_argument('--correspondance-path', '-pC', type=str, default="/Users/tristanblaineau/")
 	parser.add_argument('--quart', type=str, default="", choices=["k", "l", "m", "n"])
 	parser.add_argument('--verbose', '-v', action='store_true', help='Debug logging level')
+	parser.add_argument('--MACHO-tile', '-tM', type=int)
 
 	#Retrieve arguments
 	args = parser.parse_args()
 
 	MACHO_field = args.MACHO_field
+	MACHO_tile = args.MACHO_tile
 	EROS_field = args.EROS_field
 	EROS_CCD = args.EROS_CCD
 	fit = args.fit
@@ -62,14 +64,19 @@ if __name__ == '__main__':
 	print(fit)
 
 	#Main
-	if not EROS_CCD is None:
-		eros_ccd = "lm"+EROS_field+str(EROS_CCD)
-		merger_library.merger(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=quart)
-		if fit:
-			iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
-	else:
-		for i in range(0,8):
-			eros_ccd = "lm"+EROS_field+str(i)
-			merger_library.merger(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
+	if not MACHO_tile:
+		if not EROS_CCD is None:
+			eros_ccd = "lm"+EROS_field+str(EROS_CCD)
+			merger_library.merger_eros_first(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=quart)
 			if fit:
-				iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+				iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+		else:
+			for i in range(0,8):
+				eros_ccd = "lm"+EROS_field+str(i)
+				merger_library.merger_eros_first(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
+				if fit:
+					iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+	else:
+		merger_library.merger_macho_first(output_directory, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path)
+		if fit:
+			iminuit_fitter.fit_all(str(MACHO_field) + "_" + str(eros_ccd) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
