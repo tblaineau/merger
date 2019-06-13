@@ -240,9 +240,9 @@ def load_macho_field(MACHO_files_path, field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
-def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=""):
+def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=""):
 	"""
-	Merge EROS and MACHO lightcurves
+	Merge EROS and MACHO lightcurves, using EROS as starter
 	
 	Parameters
 	----------
@@ -319,3 +319,49 @@ def merger(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondan
 	# save merged dataframe
 	logging.info("Saving")
 	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"))
+
+def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path):
+	logging.info("Loading MACHO files")
+
+	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile])
+
+	# loading correspondance file and merging with load MACHO stars
+	logging.info("Merging")
+	correspondance_path = os.path.join(correspondance_files_path, str(MACHO_field) + ".txt")
+	correspondance = pd.read_csv(correspondance_path, names=["id_E", "id_M"], usecols=[0, 3], sep=' ')
+	merged1 = macho_lcs.merge(correspondance, on="id_M", validate="m:1")
+	del macho_lcs
+
+	logging.info("Loading EROS lightcurves")
+
+	if EROS_files_path == 'irods':
+		pds = []
+		IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
+		for id_E in merged1.id_E.unique():
+			print('id_E')
+			pds.append(load_irods_eros_lightcurves(os.path.join(IRODS_ROOT, id_E[:5], id_E[:6], id_E[:7], id_E+".time")))
+		eros_lcs = pd.concat(pds)
+		del pds
+	else:
+		raise logging.error("Usual EROS loading not implemented yet !")
+
+	logging.info("Merging")
+	merged2 = eros_lcs.merge(correspondance, on='id_M', validate="m:1")
+	del eros_lcs
+
+	merged = pd.concat((merged1, merged2), copy=False)
+
+	# replace invalid values in magnitudes with numpy NaN and remove rows with no valid magnitudes
+	merged = merged.replace(to_replace=[99.999, -99.], value=np.nan).dropna(axis=0, how='all',
+																			subset=['blue_E', 'red_E', 'blue_M',
+																					'red_M'])
+
+	# remove lightcurves missing one or more color
+	merged = merged.groupby('id_E').filter(lambda x: x.red_E.count() != 0
+													 and x.red_M.count() != 0
+													 and x.blue_E.count() != 0
+													 and x.blue_M.count() != 0)
+
+	# save merged dataframe
+	logging.info("Saving")
+	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(eros_ccd) + quart + ".pkl"))
