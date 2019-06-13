@@ -145,7 +145,7 @@ class Microlensing_generator():
 			except FileNotFoundError:
 				logging.error(f"xvt file not found : {self.xvt_file}")
 		else:
-			self.xvts = metropolis_hastings(pdf_xvt, randomizer_gauss, 10000000, np.array([0.5, 100]))
+			self.xvts = metropolis_hastings(pdf_xvt, randomizer_gauss, 10000000, np.array([0.5, 100]), mass=self.mass)
 
 
 	def generate_parameters(self, seed):
