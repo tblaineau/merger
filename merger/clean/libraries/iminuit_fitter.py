@@ -175,7 +175,7 @@ def fit_ml(subdf, cut5=False):
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 
-def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH, time_mask=None):
+def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH, time_mask=None):
 	"""Fit all curves in filename
    
 	[description]
@@ -183,10 +183,11 @@ def fit_all(filename, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_D
 	Arguments:
 		filename {str} -- Name of the file containing the merged curves.
 	"""
-	if filename[-4:] != '.pkl':
-		filename += '.pkl'
-	logging.info("Loading "+filename)
-	merged = pd.read_pickle(os.path.join(input_dir_path, filename))
+	if not merged:
+		if filename[-4:] != '.pkl':
+			filename += '.pkl'
+		logging.info("Loading "+filename)
+		merged = pd.read_pickle(os.path.join(input_dir_path, filename))
 	merged.replace(to_replace=[99.999, -99.], value=np.nan, inplace=True)
 	merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'], inplace=True)
 	if time_mask:

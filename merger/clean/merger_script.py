@@ -67,16 +67,16 @@ if __name__ == '__main__':
 	if not MACHO_tile:
 		if not EROS_CCD is None:
 			eros_ccd = "lm"+EROS_field+str(EROS_CCD)
-			merger_library.merger_eros_first(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=quart)
+			merged = merger_library.merger_eros_first(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=quart, save=False)
 			if fit:
-				iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+				iminuit_fitter.fit_all(merged=merged, filename=str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
 		else:
 			for i in range(0,8):
 				eros_ccd = "lm"+EROS_field+str(i)
-				merger_library.merger_eros_first(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path)
+				merged = merger_library.merger_eros_first(output_directory, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, save=False)
 				if fit:
-					iminuit_fitter.fit_all(str(MACHO_field)+"_"+str(eros_ccd)+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+					iminuit_fitter.fit_all(merged=merged, filename= str(MACHO_field)+"_"+str(eros_ccd)+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
 	else:
-		merger_library.merger_macho_first(output_directory, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path)
+		merged = merger_library.merger_macho_first(output_directory, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path, save=False)
 		if fit:
-			iminuit_fitter.fit_all(str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+			iminuit_fitter.fit_all(merged=merged, filename=str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)

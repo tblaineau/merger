@@ -257,7 +257,7 @@ def load_macho_field(MACHO_files_path, field):
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
 
-def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart=""):
+def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart="", save=True):
 	"""
 	Merge EROS and MACHO lightcurves, using EROS as starter
 	
@@ -277,7 +277,7 @@ def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, c
 
 	Returns
 	-------
-	None
+	pd.DataFrame
 	"""
 	start = time.time()
 
@@ -334,10 +334,13 @@ def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, c
 		and x.blue_M.count()!=0)
 
 	# save merged dataframe
-	logging.info("Saving")
-	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"))
+	if save:
+		logging.info("Saving")
+		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"))
 
-def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path):
+	return merged
+
+def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True):
 	logging.info("Loading MACHO files")
 
 	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile])
@@ -380,5 +383,8 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 													 and x.blue_M.count() != 0)
 
 	# save merged dataframe
-	logging.info("Saving")
-	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl"))
+	if save:
+		logging.info("Saving")
+		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl"))
+
+	return merged
