@@ -45,42 +45,25 @@ def load_irods_eros_lightcurves(irods_filepath):
 	ssl_settings = {'ssl_context': ssl_context}
 	pds = []
 	with iRODSSession(irods_env_file=env_file, **ssl_settings) as session:
-		if irods_filepath[-4:] == 'time':
-			try:
-				obj = session.data_objects.get(irods_filepath)
-			except DataObjectDoesNotExist:
-				logging.error(f"iRods file not found : {irods_filepath}")
-			with obj.open('r') as f:
-				lc = {'time': [], 'red_E': [], 'rederr_E': [], 'blue_E': [], 'blueerr_E': [], 'id_E': []}
-				for line in f.readlines()[4:]:
-					line = line.decode().split()
-					lc["time"].append(float(line[0]) + 49999.5)
-					lc["red_E"].append(float(line[1]))
-					lc["rederr_E"].append(float(line[2]))
-					lc["blue_E"].append(float(line[3]))
-					lc["blueerr_E"].append(float(line[4]))
-					lc["id_E"].append(f.name[:-5])
-			return pd.DataFrame.from_dict(lc)
-		else:
-			try:
-				coll = session.collections.get(irods_filepath)
-			except CollectionDoesNotExist:
-				logging.error(f"iRods path not found : {irods_filepath}")
-			for lcfile in coll.data_objects:
-				id_E = lcfile.name
-				if id_E[-4:]=='time':
-					with lcfile.open('r') as f:
-						lc = {'time':[], 'red_E':[], 'rederr_E':[], 'blue_E':[], 'blueerr_E':[], 'id_E':[]}
-						for line in f.readlines()[4:]:
-							line = line.decode().split()
-							lc["time"].append(float(line[0])+49999.5)
-							lc["red_E"].append(float(line[1]))
-							lc["rederr_E"].append(float(line[2]))
-							lc["blue_E"].append(float(line[3]))
-							lc["blueerr_E"].append(float(line[4]))
-							lc["id_E"].append(id_E[:-5])
-					pds.append(pd.DataFrame.from_dict(lc))
-			return pd.concat(pds)
+		try:
+			coll = session.collections.get(irods_filepath)
+		except CollectionDoesNotExist:
+			logging.error(f"iRods path not found : {irods_filepath}")
+		for lcfile in coll.data_objects:
+			id_E = lcfile.name
+			if id_E[-4:]=='time':
+				with lcfile.open('r') as f:
+					lc = {'time':[], 'red_E':[], 'rederr_E':[], 'blue_E':[], 'blueerr_E':[], 'id_E':[]}
+					for line in f.readlines()[4:]:
+						line = line.decode().split()
+						lc["time"].append(float(line[0])+49999.5)
+						lc["red_E"].append(float(line[1]))
+						lc["rederr_E"].append(float(line[2]))
+						lc["blue_E"].append(float(line[3]))
+						lc["blueerr_E"].append(float(line[4]))
+						lc["id_E"].append(id_E[:-5])
+				pds.append(pd.DataFrame.from_dict(lc))
+		return pd.concat(pds)
 
 
 def read_eros_lighcurve(filepath):
@@ -357,9 +340,35 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 	if EROS_files_path == 'irods':
 		pds = []
 		IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
-		for id_E in merged1.id_E.unique():
-			print('id_E')
-			pds.append(load_irods_eros_lightcurves(os.path.join(IRODS_ROOT, id_E[:5], id_E[:6], id_E[:7], id_E+".time")))
+		try:
+			env_file = os.environ['IRODS_ENVIRONMENT_FILE']
+		except KeyError:
+			env_file = os.path.expanduser('~/.irods/irods_environment.json')
+
+		ssl_context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=None, capath=None,
+												 cadata=None)
+		ssl_settings = {'ssl_context': ssl_context}
+		pds = []
+		with iRODSSession(irods_env_file=env_file, **ssl_settings) as session:
+			for id_E in merged1.id_E.unique():
+				logging.info(str(id_E))
+				irods_filepath= os.path.join(IRODS_ROOT, id_E[:5], id_E[:6], id_E[:7], id_E + ".time")
+				if irods_filepath[-4:] == 'time':
+					try:
+						obj = session.data_objects.get(irods_filepath)
+					except DataObjectDoesNotExist:
+						logging.error(f"iRods file not found : {irods_filepath}")
+					with obj.open('r') as f:
+						lc = {'time': [], 'red_E': [], 'rederr_E': [], 'blue_E': [], 'blueerr_E': [], 'id_E': []}
+						for line in f.readlines()[4:]:
+							line = line.decode().split()
+							lc["time"].append(float(line[0]) + 49999.5)
+							lc["red_E"].append(float(line[1]))
+							lc["rederr_E"].append(float(line[2]))
+							lc["blue_E"].append(float(line[3]))
+							lc["blueerr_E"].append(float(line[4]))
+							lc["id_E"].append(id_E)
+					pds.append(pd.DataFrame.from_dict(lc))
 		eros_lcs = pd.concat(pds)
 		del pds
 	else:
