@@ -183,7 +183,7 @@ def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_
 	Arguments:
 		filename {str} -- Name of the file containing the merged curves.
 	"""
-	if not merged:
+	if not isinstance(merged, pd.DataFrame):
 		if filename[-4:] != '.pkl':
 			filename += '.pkl'
 		logging.info("Loading "+filename)

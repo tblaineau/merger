@@ -4,6 +4,7 @@ import scipy.stats as stats
 import time
 
 from merger.clean.libraries.merger_library import *
+from merger.clean.libraries.parameter_generator import Microlensing_generator
 
 def microlensing_amplification(t, u0, t0, tE):
 	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
@@ -75,7 +76,8 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, generator, paralla
 		means[key] = subdf[color_filter['mag']].mean() # <---- use mean as baseline
 
 	#Generate µlens parameters
-	u0, t0, tE, blend_factors, delta_u, theta = generator.generate_parameters(current_id)
+	params = generator.generate_parameters(current_id)
+	u0, t0, tE, blend_factors, delta_u, theta = params["u0"], params["t0"], params["tE"], params["blend"], params["delta_u"], params["theta"]
 	if parallax:
 		A = ma_parallax(subdf.time, u0, t0, tE, delta_u, theta)
 	else:
@@ -117,10 +119,10 @@ merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0
 #simulate on only x% of the lightcurves
 merged = merged.groupby("id_E").filter(lambda x: np.random.rand()<0.02)
 
-g = Microlensing_generator()
+g = Microlensing_generator(seed=12345)
 
 print("Starting simulations...")
 start = time.time()
 simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, generator=g, parallax=True)
 print(time.time()-start)
-simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_parallax.pkl')
+#simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_parallax.pkl')

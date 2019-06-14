@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import time
 from collections import OrderedDict
 
-from merger_library import *
+from merger.clean.libraries.merger_library import *
 
 ### CONVERT TO PANDAS PICKLE
 # field_path = "/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/lm032/"
@@ -129,7 +129,7 @@ def mag_stats(df):
 
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
-merged=pd.read_pickle(WORKING_DIR_PATH+"8_lm0213k.pkl")
+merged=pd.read_pickle(WORKING_DIR_PATH+"81_lm0032.pkl")
 
 merged = merged.groupby('id_E').filter(lambda x: x.red_E.count()!=0 and x.blue_E.count()!=0 and x.red_M.count()!=0 and x.blue_M.count()!=0)
 
@@ -137,4 +137,4 @@ start = time.time()
 ms = mag_stats(merged)
 print(str(time.time()-start)+" seconds elapsed.")
 print("Pour " +str(len(ms))+" étoiles.")
-ms.to_pickle(WORKING_DIR_PATH+'bs_8_lm0213k.pkl')
+ms.to_pickle(WORKING_DIR_PATH+'bs_81_lm0032.pkl')

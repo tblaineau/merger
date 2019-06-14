@@ -3,9 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="compute time per star, max RE t0 init and cut5=True default">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/lightcurve_visualizer/lc_vis.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/lightcurve_visualizer/lc_vis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/test/test_macho_loaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/test/test_macho_loaders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/old/sigma-mag-histo.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/sigma-mag-histo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/old/simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/old/simulator.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,46 +21,10 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1922">
-              <caret line="248" column="30" selection-start-line="248" selection-start-column="30" selection-end-line="248" selection-end-column="30" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/clean/temp.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="14" selection-start-line="14" selection-end-line="14" />
-              <folding>
-                <element signature="e#301#316#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1596">
-              <caret line="160" column="21" lean-forward="true" selection-start-line="160" selection-start-column="21" selection-end-line="160" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#11#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="232">
-              <caret line="202" column="21" selection-start-line="202" selection-start-column="21" selection-end-line="202" selection-end-column="21" />
+            <state relative-caret-position="107">
+              <caret line="374" column="88" selection-start-line="374" selection-start-column="88" selection-end-line="374" selection-end-column="88" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -68,10 +33,69 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="611">
+              <caret line="65" column="9" lean-forward="true" selection-start-line="65" selection-start-column="9" selection-end-line="65" selection-end-column="9" />
+              <folding>
+                <element signature="e#301#316#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="367">
+              <caret line="185" column="10" selection-start-line="185" selection-start-column="10" selection-end-line="185" selection-end-column="10" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/merger/utils/physical_params_generator_testing.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-3442">
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-662">
+              <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/merger/clean/libraries/parameter_generator.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="488">
+              <caret line="133" column="30" selection-start-line="133" selection-start-column="30" selection-end-line="133" selection-end-column="30" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/test/test_eros_loaders.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="437">
-              <caret line="19" column="76" lean-forward="true" selection-start-line="19" selection-start-column="10" selection-end-line="19" selection-end-column="76" />
+            <state relative-caret-position="322">
+              <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
               <folding>
                 <element signature="e#1#10#0" expanded="true" />
               </folding>
@@ -79,23 +103,26 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/merger/test/test_macho_loaders.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/merger/old/simulator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="15" column="75" selection-start-line="15" selection-start-column="75" selection-end-line="15" selection-end-column="75" />
+            <state relative-caret-position="443">
+              <caret line="122" lean-forward="true" selection-start-line="122" selection-end-line="122" />
               <folding>
-                <element signature="e#0#52#0" expanded="true" />
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/clean/merger.py">
+        <entry file="file://$PROJECT_DIR$/merger/old/sigma-mag-histo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
-              <caret line="13" column="64" selection-start-line="13" selection-start-column="64" selection-end-line="13" selection-end-column="64" />
+            <state relative-caret-position="622">
+              <caret line="139" column="49" selection-start-line="139" selection-start-column="49" selection-end-line="139" selection-end-column="49" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -111,21 +138,12 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>xvt_</find>
-      <find>microlens(</find>
-      <find>MASS</find>
-      <find>params_set</find>
-      <find>p_tEdu</find>
-      <find>corr</find>
-      <find>is_va</find>
       <find>pdf</find>
       <find>temp_fitte</find>
       <find>pdf_xvt</find>
       <find>fastd</find>
       <find>3d</find>
-      <find>print</find>
       <find>t,</find>
-      <find>tmin</find>
       <find>xticks</find>
       <find>bar</find>
       <find>max_fitter</find>
@@ -140,7 +158,16 @@
       <find>xaxis</find>
       <find>gzip</find>
       <find>decode</find>
+      <find>logging</find>
+      <find>qcut</find>
+      <find>error</find>
+      <find>print</find>
+      <find>seed</find>
+      <find>tmin</find>
+      <find>max_blend</find>
       <find>decompress</find>
+      <find>blending</find>
+      <find>mass</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
@@ -154,6 +181,11 @@
       <replace>pdf_tEdu</replace>
       <replace>absdiff</replace>
       <replace>_fast</replace>
+      <replace>self.seed</replace>
+      <replace>self.tmin</replace>
+      <replace>self.max_blend</replace>
+      <replace>self.blending</replace>
+      <replace>self.mass</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -180,17 +212,14 @@
         <option value="$PROJECT_DIR$/merger/parallax_estimator/differential_evolution.py" />
         <option value="$PROJECT_DIR$/merger/utils/toy_simulator.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/se_script.py" />
-        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/fitter_check.py" />
-        <option value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py" />
         <option value="$PROJECT_DIR$/merger/parallax_estimator/fittermax/fuse_outputs.py" />
         <option value="$PROJECT_DIR$/../../Lightcurves/assemble_lightcurves.py" />
         <option value="$PROJECT_DIR$/merger/lightcurve_visualizer/lc_vis.py" />
         <option value="$PROJECT_DIR$/merger/old/iminuit_fitter.py" />
         <option value="$PROJECT_DIR$/merger/clean/temp.py" />
-        <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
         <option value="$USER_HOME$/Desktop/tmp1/work/read_irods/read_irods_test.py" />
         <option value="$PROJECT_DIR$/merger/test/test_loaders.py" />
         <option value="$PROJECT_DIR$/merger/old/merger_library.py" />
@@ -199,16 +228,21 @@
         <option value="$PROJECT_DIR$/merger/clean/libraries/__init__.py" />
         <option value="$PROJECT_DIR$/merger/clean/merger.py" />
         <option value="$PROJECT_DIR$/merger/test/test_eros_loaders.py" />
-        <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
+        <option value="$PROJECT_DIR$/merger/old/sigma-mag-histo.py" />
         <option value="$PROJECT_DIR$/merger/test/test_macho_loaders.py" />
+        <option value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py" />
+        <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
+        <option value="$PROJECT_DIR$/merger/old/simulator.py" />
+        <option value="$PROJECT_DIR$/merger/clean/libraries/parameter_generator.py" />
+        <option value="$PROJECT_DIR$/merger/clean/merger_script.py" />
+        <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
+        <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1036" />
-    <option name="y" value="-601" />
-    <option name="width" value="1921" />
-    <option name="height" value="1201" />
+    <option name="width" value="1920" />
+    <option name="height" value="1200" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -288,50 +322,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test_macho_loaders">
-    <configuration name="assemble_lightcurves" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="merger" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../Lightcurves" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../Lightcurves/assemble_lightcurves.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="iminuit_fitter" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="merger" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/clean/libraries" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="temp" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.simulator">
+    <configuration name="merger" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -343,7 +335,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/clean/temp.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/clean/merger_script.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -352,7 +344,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_loaders" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="parameter_generator" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -360,11 +352,53 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/clean/libraries" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/test/test_eros_loaders.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/clean/libraries/parameter_generator.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="similarity_estimator_display" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="merger" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/parallax_estimator" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="simulator" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="merger" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/old" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/old/simulator.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -395,19 +429,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.assemble_lightcurves" />
-      <item itemvalue="Python.temp" />
-      <item itemvalue="Python.iminuit_fitter" />
-      <item itemvalue="Python.test_loaders" />
       <item itemvalue="Python.test_macho_loaders" />
+      <item itemvalue="Python.merger" />
+      <item itemvalue="Python.similarity_estimator_display" />
+      <item itemvalue="Python.parameter_generator" />
+      <item itemvalue="Python.simulator" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.simulator" />
+        <item itemvalue="Python.parameter_generator" />
+        <item itemvalue="Python.similarity_estimator_display" />
         <item itemvalue="Python.test_macho_loaders" />
-        <item itemvalue="Python.test_loaders" />
-        <item itemvalue="Python.temp" />
-        <item itemvalue="Python.iminuit_fitter" />
-        <item itemvalue="Python.assemble_lightcurves" />
+        <item itemvalue="Python.merger" />
       </list>
     </recent_temporary>
   </component>
@@ -425,188 +459,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00068" summary="modified u0 bounds to (0, 2)">
-      <created>1558443058125</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1558443058126</updated>
-    </task>
-    <task id="LOCAL-00069" summary="added simple microlens event curve">
-      <created>1558512750238</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1558512750239</updated>
-    </task>
-    <task id="LOCAL-00070" summary="reset index for future convenience">
-      <created>1558512766022</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
-      <option name="project" value="LOCAL" />
-      <updated>1558512766022</updated>
-    </task>
-    <task id="LOCAL-00071" summary="work">
-      <created>1558512777850</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1558512777850</updated>
-    </task>
-    <task id="LOCAL-00072" summary="added display option">
-      <created>1558512797380</created>
-      <option name="number" value="00072" />
-      <option name="presentableId" value="LOCAL-00072" />
-      <option name="project" value="LOCAL" />
-      <updated>1558512797380</updated>
-    </task>
-    <task id="LOCAL-00073" summary="workspace">
-      <created>1558512803905</created>
-      <option name="number" value="00073" />
-      <option name="presentableId" value="LOCAL-00073" />
-      <option name="project" value="LOCAL" />
-      <updated>1558512803906</updated>
-    </task>
-    <task id="LOCAL-00074" summary="added eros ccd quart support">
-      <created>1558527292509</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1558527292510</updated>
-    </task>
-    <task id="LOCAL-00075" summary="added eros ccd quart support">
-      <created>1558527500101</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
-      <option name="project" value="LOCAL" />
-      <updated>1558527500101</updated>
-    </task>
-    <task id="LOCAL-00076" summary="added eros ccd quart support">
-      <created>1558527511437</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
-      <option name="project" value="LOCAL" />
-      <updated>1558527511438</updated>
-    </task>
-    <task id="LOCAL-00077" summary="change pickle file name to take quart into account">
-      <created>1558528986265</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
-      <option name="project" value="LOCAL" />
-      <updated>1558528986274</updated>
-    </task>
-    <task id="LOCAL-00078" summary="change pickle file name loaded to fit to take quart into account">
-      <created>1558529013973</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1558529013973</updated>
-    </task>
-    <task id="LOCAL-00079" summary="Revert &quot;added eros ccd quart support&quot;&#10;&#10;This reverts commit 566c8c36">
-      <created>1558529074836</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1558529074836</updated>
-    </task>
-    <task id="LOCAL-00080" summary="changed filenames, path+">
-      <created>1558709045833</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1558709045834</updated>
-    </task>
-    <task id="LOCAL-00081" summary="work">
-      <created>1558709102241</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1558709102241</updated>
-    </task>
-    <task id="LOCAL-00082" summary="changed t_E slider range">
-      <created>1558709116840</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1558709116840</updated>
-    </task>
-    <task id="LOCAL-00083" summary="u">
-      <created>1558709122257</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1558709122257</updated>
-    </task>
-    <task id="LOCAL-00084" summary="work">
-      <created>1558709141276</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
-      <option name="project" value="LOCAL" />
-      <updated>1558709141276</updated>
-    </task>
-    <task id="LOCAL-00085" summary="ready to prod">
-      <created>1558962101281</created>
-      <option name="number" value="00085" />
-      <option name="presentableId" value="LOCAL-00085" />
-      <option name="project" value="LOCAL" />
-      <updated>1558962101282</updated>
-    </task>
-    <task id="LOCAL-00086" summary="added return, u_max=2, u_min=0">
-      <created>1558962241866</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
-      <option name="project" value="LOCAL" />
-      <updated>1558962241866</updated>
-    </task>
-    <task id="LOCAL-00087" summary="integral_curvefit">
-      <created>1558962316744</created>
-      <option name="number" value="00087" />
-      <option name="presentableId" value="LOCAL-00087" />
-      <option name="project" value="LOCAL" />
-      <updated>1558962316744</updated>
-    </task>
-    <task id="LOCAL-00088" summary="checkpush">
-      <created>1559895944032</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1559895944033</updated>
-    </task>
-    <task id="LOCAL-00089" summary="compute time per star, max RE t0 init and cut5=True default">
-      <created>1559899365795</created>
-      <option name="number" value="00089" />
-      <option name="presentableId" value="LOCAL-00089" />
-      <option name="project" value="LOCAL" />
-      <updated>1559899365795</updated>
-    </task>
-    <task id="LOCAL-00090" summary="copy from clean">
-      <created>1559920369258</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1559920369258</updated>
-    </task>
-    <task id="LOCAL-00091" summary="added irods load function&#10;(not yet tested)">
-      <created>1559920601444</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1559920601444</updated>
-    </task>
-    <task id="LOCAL-00092" summary="added irods loading function doc">
-      <created>1560239814777</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1560239814777</updated>
-    </task>
-    <task id="LOCAL-00093" summary="modified doc">
-      <created>1560239902140</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1560239902141</updated>
     </task>
     <task id="LOCAL-00094" summary="test file for loaders functions">
       <created>1560240477124</created>
@@ -769,7 +621,189 @@
       <option name="project" value="LOCAL" />
       <updated>1560245798054</updated>
     </task>
-    <option name="localTasksCounter" value="117" />
+    <task id="LOCAL-00117" summary="corrected macho url loading">
+      <created>1560246974978</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1560246974978</updated>
+    </task>
+    <task id="LOCAL-00118" summary="renamed merger.py (conflict with module name)">
+      <created>1560248288495</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1560248288495</updated>
+    </task>
+    <task id="LOCAL-00119" summary="corrected error message">
+      <created>1560248345249</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1560248345249</updated>
+    </task>
+    <task id="LOCAL-00120" summary="corrected correspondance path variable">
+      <created>1560255012596</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1560255012596</updated>
+    </task>
+    <task id="LOCAL-00121" summary="changed docstring">
+      <created>1560256287558</created>
+      <option name="number" value="00121" />
+      <option name="presentableId" value="LOCAL-00121" />
+      <option name="project" value="LOCAL" />
+      <updated>1560256287558</updated>
+    </task>
+    <task id="LOCAL-00122" summary="changed import">
+      <created>1560256508939</created>
+      <option name="number" value="00122" />
+      <option name="presentableId" value="LOCAL-00122" />
+      <option name="project" value="LOCAL" />
+      <updated>1560256508939</updated>
+    </task>
+    <task id="LOCAL-00123" summary="log">
+      <created>1560258254807</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1560258254807</updated>
+    </task>
+    <task id="LOCAL-00124" summary="log">
+      <created>1560258262349</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
+      <option name="project" value="LOCAL" />
+      <updated>1560258262349</updated>
+    </task>
+    <task id="LOCAL-00125" summary="log level">
+      <created>1560258324860</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1560258324860</updated>
+    </task>
+    <task id="LOCAL-00126" summary="correct filename for irods function">
+      <created>1560266182802</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
+      <option name="project" value="LOCAL" />
+      <updated>1560266182802</updated>
+    </task>
+    <task id="LOCAL-00127" summary="logging and error handling">
+      <created>1560267895105</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1560267895105</updated>
+    </task>
+    <task id="LOCAL-00128" summary="corrected load_macho_from_url to work with two-digits fields">
+      <created>1560326685133</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1560326685133</updated>
+    </task>
+    <task id="LOCAL-00129" summary="new clean file to generate mulens parameters">
+      <created>1560350043787</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1560350043788</updated>
+    </task>
+    <task id="LOCAL-00130" summary="added metropolis-hastings and doc">
+      <created>1560351561384</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1560351561384</updated>
+    </task>
+    <task id="LOCAL-00131" summary="corrected doc">
+      <created>1560351621805</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1560351621805</updated>
+    </task>
+    <task id="LOCAL-00132" summary="corrected ccd E choices (0-6 -&gt; 0-7)">
+      <created>1560413461890</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1560413461890</updated>
+    </task>
+    <task id="LOCAL-00133" summary="more informations">
+      <created>1560415555936</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1560415555936</updated>
+    </task>
+    <task id="LOCAL-00134" summary="added mass parameter">
+      <created>1560420388527</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
+      <option name="project" value="LOCAL" />
+      <updated>1560420388527</updated>
+    </task>
+    <task id="LOCAL-00135" summary="added warning">
+      <created>1560427816386</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1560427816386</updated>
+    </task>
+    <task id="LOCAL-00136" summary="added merger_macho_first(), modified name of merger()">
+      <created>1560429389066</created>
+      <option name="number" value="00136" />
+      <option name="presentableId" value="LOCAL-00136" />
+      <option name="project" value="LOCAL" />
+      <updated>1560429389066</updated>
+    </task>
+    <task id="LOCAL-00137" summary="added capability to load one EROS lightcurve at a time in irods">
+      <created>1560429426472</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1560429426472</updated>
+    </task>
+    <task id="LOCAL-00138" summary="can now load MACHO first (for smaller jobs)">
+      <created>1560429443592</created>
+      <option name="number" value="00138" />
+      <option name="presentableId" value="LOCAL-00138" />
+      <option name="project" value="LOCAL" />
+      <updated>1560429443592</updated>
+    </task>
+    <task id="LOCAL-00139" summary="changed name output">
+      <created>1560500547546</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1560500547546</updated>
+    </task>
+    <task id="LOCAL-00140" summary="no intermediate save option">
+      <created>1560507208791</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1560507208791</updated>
+    </task>
+    <task id="LOCAL-00141" summary="changed how one eros irods ligthcurve is read">
+      <created>1560512155310</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1560512155310</updated>
+    </task>
+    <task id="LOCAL-00142" summary="loading time info">
+      <created>1560512417079</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1560512417079</updated>
+    </task>
+    <option name="localTasksCounter" value="143" />
     <servers />
   </component>
   <component name="TodoView">
@@ -782,22 +816,22 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="-721" width="1920" height="1200" extended-state="6" />
+    <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47580644" visible="true" weight="0.13375461" />
-      <window_info id="Structure" order="1" sideWeight="0.5241935" side_tool="true" visible="true" weight="0.13375461" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4764045" visible="true" weight="0.13375461" />
+      <window_info id="Structure" order="1" sideWeight="0.5235955" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.32851985" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.32851985" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3997175" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.4986835" weight="0.37454873" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32942238" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5013165" side_tool="true" weight="0.37454873" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19675091" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.32942238" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
       <window_info anchor="bottom" id="Messages" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -857,63 +891,35 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added irods load function&#10;(not yet tested)" />
-    <MESSAGE value="added irods loading function doc" />
-    <MESSAGE value="modified doc" />
-    <MESSAGE value="test file for loaders functions" />
-    <MESSAGE value="name chaned" />
-    <MESSAGE value="name chaneg" />
-    <MESSAGE value="test file for macho loaders" />
-    <MESSAGE value="added macho read function from online servers" />
-    <MESSAGE value="corrections" />
-    <MESSAGE value="url load" />
-    <MESSAGE value="macho url" />
-    <MESSAGE value="old to clean" />
-    <MESSAGE value="irods eros path" />
-    <MESSAGE value="irods collection error handling" />
-    <MESSAGE value="modified error message" />
-    <MESSAGE value="no closing irods" />
-    <MESSAGE value="no print name irods" />
-    <MESSAGE value="new test for irods" />
-    <MESSAGE value="test module" />
-    <MESSAGE value="rename test function" />
-    <MESSAGE value="clean as module" />
-    <MESSAGE value="test clean library" />
-    <MESSAGE value="same" />
-    <MESSAGE value="added max RE as starting point fit" />
-    <MESSAGE value="full test macho" />
-    <option name="LAST_COMMIT_MESSAGE" value="full test macho" />
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+    <MESSAGE value="corrected macho url loading" />
+    <MESSAGE value="renamed merger.py (conflict with module name)" />
+    <MESSAGE value="corrected error message" />
+    <MESSAGE value="corrected correspondance path variable" />
+    <MESSAGE value="changed docstring" />
+    <MESSAGE value="changed import" />
+    <MESSAGE value="log" />
+    <MESSAGE value="log level" />
+    <MESSAGE value="correct filename for irods function" />
+    <MESSAGE value="logging and error handling" />
+    <MESSAGE value="corrected load_macho_from_url to work with two-digits fields" />
+    <MESSAGE value="new clean file to generate mulens parameters" />
+    <MESSAGE value="added metropolis-hastings and doc" />
+    <MESSAGE value="corrected doc" />
+    <MESSAGE value="corrected ccd E choices (0-6 -&gt; 0-7)" />
+    <MESSAGE value="more informations" />
+    <MESSAGE value="added mass parameter" />
+    <MESSAGE value="added warning" />
+    <MESSAGE value="added merger_macho_first(), modified name of merger()" />
+    <MESSAGE value="added capability to load one EROS lightcurve at a time in irods" />
+    <MESSAGE value="can now load MACHO first (for smaller jobs)" />
+    <MESSAGE value="changed name output" />
+    <MESSAGE value="no intermediate save option" />
+    <MESSAGE value="changed how one eros irods ligthcurve is read" />
+    <MESSAGE value="loading time info" />
+    <option name="LAST_COMMIT_MESSAGE" value="loading time info" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharmCE2019.1/python_stubs/-1199943126/sklearn/neighbors/kd_tree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="217" column="8" selection-start-line="217" selection-start-column="8" selection-end-line="217" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/old/simulator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="91">
-          <caret line="10" column="4" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="42" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1108" />
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharmCE2019.1/python_stubs/-1199943126/numpy/core/_multiarray_umath.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="346">
-          <caret line="7760" column="53" selection-start-line="7760" selection-start-column="49" selection-end-line="7760" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/core/fromnumeric.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="141">
@@ -925,16 +931,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
           <caret line="298" column="14" lean-forward="true" selection-start-line="298" selection-start-column="14" selection-end-line="298" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/old/sigma-mag-histo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret lean-forward="true" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -995,15 +991,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/physical_params_generator_testing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger/utils/fit_analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -1058,13 +1045,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/lib/python3.7/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="1430" column="8" selection-start-line="1430" selection-start-column="8" selection-end-line="1430" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.7/site-packages/matplotlib/axes/_axes.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-4099">
@@ -1104,16 +1084,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
           <caret line="11" column="59" selection-start-line="11" selection-start-column="40" selection-end-line="11" selection-end-column="59" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1937">
-          <caret line="119" column="66" selection-start-line="119" selection-start-column="66" selection-end-line="119" selection-end-column="66" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -1187,22 +1157,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
+    <entry file="file://$PROJECT_DIR$/merger/test/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1544">
-          <caret line="8" selection-start-line="8" selection-end-line="8" />
+        <state relative-caret-position="6003">
+          <caret line="261" column="31" lean-forward="true" selection-start-line="261" selection-start-column="31" selection-end-line="261" selection-end-column="31" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py">
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/temp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3364">
-          <caret line="160" column="151" selection-start-line="160" selection-start-column="151" selection-end-line="160" selection-end-column="151" />
+        <state relative-caret-position="279">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#301#316#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1217,78 +1196,142 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/temp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="14" selection-start-line="14" selection-end-line="14" />
-          <folding>
-            <element signature="e#301#316#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/test/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/old/merger_library.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6003">
-          <caret line="261" column="31" lean-forward="true" selection-start-line="261" selection-start-column="31" selection-end-line="261" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/merger.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="13" column="64" selection-start-line="13" selection-start-column="64" selection-end-line="13" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1596">
-          <caret line="160" column="21" lean-forward="true" selection-start-line="160" selection-start-column="21" selection-end-line="160" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/test/test_eros_loaders.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="437">
-          <caret line="19" column="76" lean-forward="true" selection-start-line="19" selection-start-column="10" selection-end-line="19" selection-end-column="76" />
-          <folding>
-            <element signature="e#1#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
-          <caret line="202" column="21" selection-start-line="202" selection-start-column="21" selection-end-line="202" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger/test/test_macho_loaders.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
           <caret line="15" column="75" selection-start-line="15" selection-start-column="75" selection-end-line="15" selection-end-column="75" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="335">
+          <caret line="138" selection-start-line="138" selection-end-line="138" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/sigma-mag-histo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="622">
+          <caret line="139" column="49" selection-start-line="139" selection-start-column="49" selection-end-line="139" selection-end-column="49" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-239">
+          <caret line="289" column="6" selection-start-line="289" selection-start-column="6" selection-end-line="289" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/builtins.pyi">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="13126">
+          <caret line="597" column="57" selection-start-line="597" selection-start-column="57" selection-end-line="597" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/test/test_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-662">
+          <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-201">
+          <caret line="39" lean-forward="true" selection-start-line="39" selection-end-line="39" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/simulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="443">
+          <caret line="122" lean-forward="true" selection-start-line="122" selection-end-line="122" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/test/test_eros_loaders.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
+          <folding>
+            <element signature="e#1#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/parameter_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="488">
+          <caret line="133" column="30" selection-start-line="133" selection-start-column="30" selection-end-line="133" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/irods/exception.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="18" column="28" selection-start-line="18" selection-start-column="6" selection-end-line="18" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/physical_params_generator_testing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3442">
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="611">
+          <caret line="65" column="9" lean-forward="true" selection-start-line="65" selection-start-column="9" selection-end-line="65" selection-end-column="9" />
+          <folding>
+            <element signature="e#301#316#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="107">
+          <caret line="374" column="88" selection-start-line="374" selection-start-column="88" selection-end-line="374" selection-end-column="88" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="367">
+          <caret line="185" column="10" selection-start-line="185" selection-start-column="10" selection-end-line="185" selection-end-column="10" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
