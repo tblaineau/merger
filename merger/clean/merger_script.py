@@ -79,4 +79,4 @@ if __name__ == '__main__':
 	else:
 		merger_library.merger_macho_first(output_directory, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path)
 		if fit:
-			iminuit_fitter.fit_all(str(MACHO_field) + "_" + str(eros_ccd) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+			iminuit_fitter.fit_all(str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)

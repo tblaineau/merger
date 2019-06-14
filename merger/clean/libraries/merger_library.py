@@ -381,4 +381,4 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 
 	# save merged dataframe
 	logging.info("Saving")
-	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(eros_ccd) + quart + ".pkl"))
+	merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl"))
