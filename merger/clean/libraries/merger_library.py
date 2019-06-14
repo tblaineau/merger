@@ -338,6 +338,7 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 	logging.info("Loading EROS lightcurves")
 
 	if EROS_files_path == 'irods':
+		st1 = time.time()
 		pds = []
 		IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
 		try:
@@ -371,11 +372,12 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 					pds.append(pd.DataFrame.from_dict(lc))
 		eros_lcs = pd.concat(pds)
 		del pds
+		logging.info(f"{time.time()-st1} seconds to load {len(eros_lcs.id_E.nunique())}.")
 	else:
 		raise logging.error("Usual EROS loading not implemented yet !")
 
 	logging.info("Merging")
-	merged2 = eros_lcs.merge(correspondance, on='id_M', validate="m:1")
+	merged2 = eros_lcs.merge(correspondance, on='id_E', validate="m:1")
 	del eros_lcs
 
 	merged = pd.concat((merged1, merged2), copy=False)
