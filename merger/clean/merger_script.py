@@ -25,7 +25,7 @@ if __name__ == '__main__':
 	parser.add_argument('--MACHO-field', '-fM', type=int, required=True)
 	parser.add_argument('--output-directory', '-odir', type=str, default=merger_library.OUTPUT_DIR_PATH)
 	parser.add_argument('-fit', action='store_true')
-	parser.add_argument('--EROS-path', '-pE', type=str, default="/Volumes/DisqueSauvegarde/EROS/ghtcurves/lm/", help="'irods' for laoding from CC-IN2P3 irods")
+	parser.add_argument('--EROS-path', '-pE', type=str, default="/Volumes/DisqueSauvegarde/EROS/lightcurves/lm/", help="'irods' for laoding from CC-IN2P3 irods")
 	parser.add_argument('--MACHO-path', '-pM', type=str, default="/Volumes/DisqueSauvegarde/MACHO/lightcurves/", help="'url' for loading from NCI")
 	parser.add_argument('--correspondance-path', '-pC', type=str, default="/Users/tristanblaineau/")
 	parser.add_argument('--quart', type=str, default="", choices=["k", "l", "m", "n"])
