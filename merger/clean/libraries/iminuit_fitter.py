@@ -42,10 +42,10 @@ def fit_ml(subdf, cut5=False):
 	errBM = subdf[maskBM].blueerr_M
 
 	min_err = 0.01
-	cre = errRE.between(min_err,9.999)
-	cbe = errBE.between(min_err,9.999)
-	crm = errRM.between(min_err,9.999)
-	cbm = errBM.between(min_err,9.999)
+	cre = errRE.between(min_err,9.999, inclusive=False)
+	cbe = errBE.between(min_err,9.999, inclusive=False)
+	crm = errRM.between(min_err,9.999, inclusive=False)
+	cbm = errBM.between(min_err,9.999, inclusive=False)
 
 	# magRE = subdf[maskRE][cre].ampli_red_E
 	# magBE = subdf[maskBE][cbe].ampli_blue_E
@@ -66,6 +66,15 @@ def fit_ml(subdf, cut5=False):
 	cut5BE = np.abs((magBE.rolling(5, center=True).median()-magBE[2:-2]))/errBE[2:-2]<5
 	cut5RM = np.abs((magRM.rolling(5, center=True).median()-magRM[2:-2]))/errRM[2:-2]<5
 	cut5BM = np.abs((magBM.rolling(5, center=True).median()-magBM[2:-2]))/errBM[2:-2]<5
+
+	cut5RE[:2] = True
+	cut5RE[-2:] = True
+	cut5BE[:2] = True
+	cut5BE[-2:] = True
+	cut5RM[:2] = True
+	cut5RM[-2:] = True
+	cut5BM[:2] = True
+	cut5BM[-2:] = True
 
 	tolerance_ratio = 0.9
 	if cut5 and not ((cut5RE.sum()/len(cut5RE)<tolerance_ratio and cut5BE.sum()/len(cut5BE)<tolerance_ratio) 
