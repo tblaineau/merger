@@ -180,13 +180,13 @@ def fit_ml(subdf, cut5=False):
 		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval]
 		+
 		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
-		+ [len(errRE)+len(errBE)+len(errRM)+len(errBM)]
+		+ [len(errRE), len(errBE), len(errRM), len(errBM)]
 		+ [lsq1, lsq2, lsq3, lsq4],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
 		m_flat.values.keys()+['flat_fmin', 'flat_fval']
-		+ ["dof"]
+		+ ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
 		+ ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
 		)
 
