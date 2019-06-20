@@ -169,7 +169,7 @@ def fit_ml(subdf, cut5=False):
 	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
 
 	micro_params = m_micro.values
-	micro_params = m_flat.values
+	flat_params = m_flat.values
 
 	lsq1 = np.sum(((magRE - microlensing_event(timeRE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRE']))/ errRE)**2)
 	lsq2 = np.sum(((magBE - microlensing_event(timeBE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBE']))/ errBE)**2)
@@ -184,10 +184,10 @@ def fit_ml(subdf, cut5=False):
 		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
 		+ [len(errRE), len(errBE), len(errRM), len(errBM)]
 		+ [lsq1, lsq2, lsq3, lsq4]
-		+ [np.sum(((magRE - micro_params['f_magStarRE'])/errRE)**2),
-		   np.sum(((magRM - micro_params['f_magStarRM'])/errRM)**2),
-		   np.sum(((magBE - micro_params['f_magStarBE'])/errBE)**2),
-		   np.sum(((magBM - micro_params['f_magStarBM'])/errBM)**2)],
+		+ [np.sum(((magRE - flat_params['f_magStarRE'])/errRE)**2),
+		   np.sum(((magRM - flat_params['f_magStarRM'])/errRM)**2),
+		   np.sum(((magBE - flat_params['f_magStarBE'])/errBE)**2),
+		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
