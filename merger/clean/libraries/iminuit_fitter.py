@@ -144,7 +144,7 @@ def fit_ml(subdf, cut5=False):
 		error_magStarRM=2., 
 		error_magStarBM=2., 
 		limit_u0=(0,2), 
-		limit_tE=(300, 10000),
+		limit_tE=(50, 10000),
 		limit_t0=(40000, 60000),#(48927, 52698)
 		errordef=1,
 		print_level=0)
@@ -167,17 +167,27 @@ def fit_ml(subdf, cut5=False):
 	global GLOBAL_COUNTER
 	GLOBAL_COUNTER+=1
 	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
+
+	params = m_micro.values
+
+	lsq1 = np.sum(((magRE - microlensing_event(timeRE, params['u0'], params['t0'], params['tE'], params['magStarRE']))/ errRE)**2)
+	lsq2 = np.sum(((magBE - microlensing_event(timeBE, params['u0'], params['t0'], params['tE'], params['magStarBE']))/ errBE)**2)
+	lsq3 = np.sum(((magRM - microlensing_event(timeRM, params['u0'], params['t0'], params['tE'], params['magStarRM']))/ errRM)**2)
+	lsq4 = np.sum(((magBM - microlensing_event(timeBM, params['u0'], params['t0'], params['tE'], params['magStarBM']))/ errBM)**2)
+
 	return pd.Series(
 
 		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval]
 		+
 		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
-		+ [len(errRE)+len(errBE)+len(errRM)+len(errBM)],
+		+ [len(errRE)+len(errBE)+len(errRM)+len(errBM)]
+		+ [lsq1, lsq2, lsq3, lsq4],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
 		m_flat.values.keys()+['flat_fmin', 'flat_fval']
 		+ ["dof"]
+		+ ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
 		)
 
 
