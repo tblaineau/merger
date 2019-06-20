@@ -372,7 +372,7 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 					pds.append(pd.DataFrame.from_dict(lc))
 		eros_lcs = pd.concat(pds)
 		del pds
-		logging.info(f"{time.time()-st1} seconds to load {len(eros_lcs.id_E.nunique())}.")
+		logging.info(f"{time.time()-st1} seconds to load {eros_lcs.id_E.nunique()}.")
 	else:
 		raise logging.error("Usual EROS loading not implemented yet !")
 
