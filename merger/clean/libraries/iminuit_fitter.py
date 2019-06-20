@@ -168,12 +168,14 @@ def fit_ml(subdf, cut5=False):
 	GLOBAL_COUNTER+=1
 	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
 
-	params = m_micro.values
+	micro_params = m_micro.values
+	micro_params = m_flat.values
 
-	lsq1 = np.sum(((magRE - microlensing_event(timeRE, params['u0'], params['t0'], params['tE'], params['magStarRE']))/ errRE)**2)
-	lsq2 = np.sum(((magBE - microlensing_event(timeBE, params['u0'], params['t0'], params['tE'], params['magStarBE']))/ errBE)**2)
-	lsq3 = np.sum(((magRM - microlensing_event(timeRM, params['u0'], params['t0'], params['tE'], params['magStarRM']))/ errRM)**2)
-	lsq4 = np.sum(((magBM - microlensing_event(timeBM, params['u0'], params['t0'], params['tE'], params['magStarBM']))/ errBM)**2)
+	lsq1 = np.sum(((magRE - microlensing_event(timeRE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRE']))/ errRE)**2)
+	lsq2 = np.sum(((magBE - microlensing_event(timeBE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBE']))/ errBE)**2)
+	lsq3 = np.sum(((magRM - microlensing_event(timeRM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRM']))/ errRM)**2)
+	lsq4 = np.sum(((magBM - microlensing_event(timeBM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBM']))/ errBM)**2)
+
 
 	return pd.Series(
 
@@ -181,13 +183,18 @@ def fit_ml(subdf, cut5=False):
 		+
 		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
 		+ [len(errRE), len(errBE), len(errRM), len(errBM)]
-		+ [lsq1, lsq2, lsq3, lsq4],
+		+ [lsq1, lsq2, lsq3, lsq4]
+		+ [np.sum(((magRE - micro_params['f_magStarRE'])/errRE)**2),
+		   np.sum(((magRM - micro_params['f_magStarRM'])/errRM)**2),
+		   np.sum(((magBE - micro_params['f_magStarBE'])/errBE)**2),
+		   np.sum(((magBM - micro_params['f_magStarBM'])/errBM)**2)],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
 		m_flat.values.keys()+['flat_fmin', 'flat_fval']
 		+ ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
 		+ ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
+		+ ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
 		)
 
 
