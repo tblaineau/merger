@@ -182,7 +182,7 @@ def fit_ml(subdf, cut5=False):
 		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval]
 		+
 		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
-		+ [len(errRE), len(errBE), len(errRM), len(errBM)]
+		+ [len(magRE), len(magBE), len(magRM), len(magBM)]
 		+ [lsq1, lsq2, lsq3, lsq4]
 		+ [np.sum(((magRE - flat_params['f_magStarRE'])/errRE)**2),
 		   np.sum(((magRM - flat_params['f_magStarRM'])/errRM)**2),

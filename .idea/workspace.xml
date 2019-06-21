@@ -4,7 +4,7 @@
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/merger_script.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/merger_script.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,8 +21,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="760">
-              <caret line="374" column="88" selection-start-line="374" selection-start-column="88" selection-end-line="374" selection-end-column="88" />
+            <state relative-caret-position="453">
+              <caret line="374" column="81" selection-start-line="374" selection-start-column="81" selection-end-line="374" selection-end-column="81" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -33,8 +33,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="400">
-              <caret line="37" column="34" lean-forward="true" selection-start-line="37" selection-start-column="34" selection-end-line="37" selection-end-column="34" />
+            <state relative-caret-position="906">
+              <caret line="48" selection-start-line="48" selection-end-line="48" />
               <folding>
                 <element signature="e#301#316#0" expanded="true" />
               </folding>
@@ -45,8 +45,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="76" column="22" selection-start-line="76" selection-start-column="22" selection-end-line="76" selection-end-column="22" />
+            <state relative-caret-position="641">
+              <caret line="184" column="56" selection-start-line="184" selection-start-column="56" selection-end-line="184" selection-end-column="56" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -55,9 +55,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/utils/physical_params_generator_testing.py">
+        <entry file="file://$PROJECT_DIR$/merger/utils/bad_time_spotter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
+            <state relative-caret-position="755">
+              <caret line="88" column="17" selection-start-line="88" selection-start-column="17" selection-end-line="88" selection-end-column="17" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -133,11 +134,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>pdf</find>
-      <find>temp_fitte</find>
-      <find>pdf_xvt</find>
-      <find>fastd</find>
-      <find>3d</find>
       <find>t,</find>
       <find>xticks</find>
       <find>bar</find>
@@ -163,6 +159,11 @@
       <find>decompress</find>
       <find>blending</find>
       <find>mass</find>
+      <find>inclus</find>
+      <find>incl</find>
+      <find>merged2</find>
+      <find>isinst</find>
+      <find>len(</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
@@ -229,8 +230,9 @@
         <option value="$PROJECT_DIR$/merger/old/parameter_generator.py" />
         <option value="$PROJECT_DIR$/merger/old/simulator.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/parameter_generator.py" />
-        <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
         <option value="$PROJECT_DIR$/merger/clean/merger_script.py" />
+        <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
+        <option value="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
       </list>
     </option>
@@ -282,6 +284,12 @@
               <item name="merger" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="merger" type="b2602c69:ProjectViewProjectNode" />
+              <item name="merger" type="462c0819:PsiDirectoryNode" />
+              <item name="merger" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -317,8 +325,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.simulator">
-    <configuration name="merger" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.bad_time_spotter">
+    <configuration name="bad_time_spotter" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -326,11 +334,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/clean" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/utils" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/clean/merger_script.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -425,18 +433,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.test_macho_loaders" />
-      <item itemvalue="Python.merger" />
       <item itemvalue="Python.similarity_estimator_display" />
       <item itemvalue="Python.parameter_generator" />
       <item itemvalue="Python.simulator" />
+      <item itemvalue="Python.bad_time_spotter" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.bad_time_spotter" />
         <item itemvalue="Python.simulator" />
         <item itemvalue="Python.parameter_generator" />
         <item itemvalue="Python.similarity_estimator_display" />
         <item itemvalue="Python.test_macho_loaders" />
-        <item itemvalue="Python.merger" />
       </list>
     </recent_temporary>
   </component>
@@ -454,62 +462,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00095" summary="name chaned">
-      <created>1560241297851</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1560241297852</updated>
-    </task>
-    <task id="LOCAL-00096" summary="name chaneg">
-      <created>1560241308514</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1560241308514</updated>
-    </task>
-    <task id="LOCAL-00097" summary="test file for macho loaders">
-      <created>1560241318504</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1560241318504</updated>
-    </task>
-    <task id="LOCAL-00098" summary="added macho read function from online servers">
-      <created>1560241981982</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1560241981982</updated>
-    </task>
-    <task id="LOCAL-00099" summary="corrections">
-      <created>1560242238126</created>
-      <option name="number" value="00099" />
-      <option name="presentableId" value="LOCAL-00099" />
-      <option name="project" value="LOCAL" />
-      <updated>1560242238126</updated>
-    </task>
-    <task id="LOCAL-00100" summary="url load">
-      <created>1560242818375</created>
-      <option name="number" value="00100" />
-      <option name="presentableId" value="LOCAL-00100" />
-      <option name="project" value="LOCAL" />
-      <updated>1560242818375</updated>
-    </task>
-    <task id="LOCAL-00101" summary="macho url">
-      <created>1560242988652</created>
-      <option name="number" value="00101" />
-      <option name="presentableId" value="LOCAL-00101" />
-      <option name="project" value="LOCAL" />
-      <updated>1560242988652</updated>
-    </task>
-    <task id="LOCAL-00102" summary="old to clean">
-      <created>1560243094307</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1560243094307</updated>
     </task>
     <task id="LOCAL-00103" summary="irods eros path">
       <created>1560244493180</created>
@@ -798,7 +750,63 @@
       <option name="project" value="LOCAL" />
       <updated>1560512445812</updated>
     </task>
-    <option name="localTasksCounter" value="144" />
+    <task id="LOCAL-00144" summary="corrected cut5 and error intervals">
+      <created>1560762588961</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1560762588962</updated>
+    </task>
+    <task id="LOCAL-00145" summary="corrected default EROS path">
+      <created>1560762607846</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1560762607846</updated>
+    </task>
+    <task id="LOCAL-00146" summary="workspace">
+      <created>1560762617912</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1560762617912</updated>
+    </task>
+    <task id="LOCAL-00147" summary="added individual chi2">
+      <created>1561020180945</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1561020180945</updated>
+    </task>
+    <task id="LOCAL-00148" summary="added individual counts">
+      <created>1561024174435</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
+      <option name="project" value="LOCAL" />
+      <updated>1561024174435</updated>
+    </task>
+    <task id="LOCAL-00149" summary="corrected info message">
+      <created>1561024654048</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
+      <option name="project" value="LOCAL" />
+      <updated>1561024654049</updated>
+    </task>
+    <task id="LOCAL-00150" summary="added solo chi2 flat">
+      <created>1561030438189</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
+      <option name="project" value="LOCAL" />
+      <updated>1561030438189</updated>
+    </task>
+    <task id="LOCAL-00151" summary="corrected">
+      <created>1561030462561</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1561030462561</updated>
+    </task>
+    <option name="localTasksCounter" value="152" />
     <servers />
   </component>
   <component name="TodoView">
@@ -811,10 +819,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
+    <frame x="0" y="0" width="1920" height="1200" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4752809" visible="true" weight="0.13375461" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4752809" visible="true" weight="0.13375461" />
       <window_info id="Structure" order="1" sideWeight="0.5247191" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -824,7 +832,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19675091" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.32942238" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
@@ -887,14 +895,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="renamed merger.py (conflict with module name)" />
-    <MESSAGE value="corrected error message" />
-    <MESSAGE value="corrected correspondance path variable" />
-    <MESSAGE value="changed docstring" />
-    <MESSAGE value="changed import" />
-    <MESSAGE value="log" />
-    <MESSAGE value="log level" />
-    <MESSAGE value="correct filename for irods function" />
     <MESSAGE value="logging and error handling" />
     <MESSAGE value="corrected load_macho_from_url to work with two-digits fields" />
     <MESSAGE value="new clean file to generate mulens parameters" />
@@ -912,23 +912,17 @@
     <MESSAGE value="changed how one eros irods ligthcurve is read" />
     <MESSAGE value="loading time info" />
     <MESSAGE value="changed check" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed check" />
+    <MESSAGE value="corrected cut5 and error intervals" />
+    <MESSAGE value="corrected default EROS path" />
+    <MESSAGE value="workspace" />
+    <MESSAGE value="added individual chi2" />
+    <MESSAGE value="added individual counts" />
+    <MESSAGE value="corrected info message" />
+    <MESSAGE value="added solo chi2 flat" />
+    <MESSAGE value="corrected" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/core/fromnumeric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="2512" column="4" selection-start-line="2512" selection-start-column="4" selection-end-line="2512" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/core/numeric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="298" column="14" lean-forward="true" selection-start-line="298" selection-start-column="14" selection-end-line="298" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -1289,10 +1283,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/lib/python3.7/tarfile.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="37" column="34" lean-forward="true" selection-start-line="37" selection-start-column="34" selection-end-line="37" selection-end-column="34" />
+        <state relative-caret-position="906">
+          <caret line="48" selection-start-line="48" selection-end-line="48" />
           <folding>
             <element signature="e#301#316#0" expanded="true" />
           </folding>
@@ -1301,18 +1298,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="760">
-          <caret line="374" column="88" selection-start-line="374" selection-start-column="88" selection-end-line="374" selection-end-column="88" />
+        <state relative-caret-position="453">
+          <caret line="374" column="81" selection-start-line="374" selection-start-column="81" selection-end-line="374" selection-end-column="81" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/merger/utils/bad_time_spotter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="755">
+          <caret line="88" column="17" selection-start-line="88" selection-start-column="17" selection-end-line="88" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="76" column="22" selection-start-line="76" selection-start-column="22" selection-end-line="76" selection-end-column="22" />
+        <state relative-caret-position="641">
+          <caret line="184" column="56" selection-start-line="184" selection-start-column="56" selection-end-line="184" selection-end-column="56" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
