@@ -355,6 +355,7 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 				logging.info(str(id_E))
 				irods_filepath= os.path.join(IRODS_ROOT, id_E[:5], id_E[:6], id_E[:7], id_E + ".time")
 				if irods_filepath[-4:] == 'time':
+					st2 = time.time()
 					try:
 						obj = session.data_objects.get(irods_filepath)
 					except DataObjectDoesNotExist:
@@ -370,6 +371,7 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 							lc["blueerr_E"].append(float(line[4]))
 							lc["id_E"].append(id_E)
 					pds.append(pd.DataFrame.from_dict(lc))
+					logging.info(time.time() - st2)
 		eros_lcs = pd.concat(pds)
 		del pds
 		logging.info(f"{time.time()-st1} seconds to load {eros_lcs.id_E.nunique()}.")
