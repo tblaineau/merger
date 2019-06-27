@@ -23,6 +23,8 @@ def weighted_mean(mag, weigth):
 	for i in range(len(mag)):
 		s+=mag[i]*weigth[i]
 		s1+=weigth[i]
+	if s1==0:
+		return np.nan
 	return s/s1
 
 @nb.njit
@@ -35,6 +37,8 @@ def weighted_std(mag, weight):
 		s0 += weight[i] * (mag[i]-m)**2
 		s1 += weight[i]
 		s2 += weight[i]**2
+	if (s1-s2/s1) == 0:
+		return np.nan
 	return s0/(s1-s2/s1)
 
 @nb.njit
@@ -42,6 +46,8 @@ def std_intr(time, mag):
 	s = 0
 	for i in range(1, len(time)-1):
 		s += (mag[i] - (mag[i-1]+(mag[i+1]-mag[i-1])*(time[i]-time[i-1])/(time[i+1]-time[i-1])))**2
+	if len(time)-2==0:
+		return np.nan
 	return  np.sqrt(s/(len(time)-2))
 
 @nb.njit
@@ -55,6 +61,8 @@ def dispersion_one(time, mag, err):
 		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/np.sqrt(sigmaisq))
 		s1 += 1/np.sqrt(sigmaisq)
 		s2 += 1/sigmaisq
+	if (s1-s2/s1) == 0:
+		return np.nan
 	return s0/(s1-s2/s1)
 
 def fit_ml(subdf, cut5=False):
