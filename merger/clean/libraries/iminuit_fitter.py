@@ -4,14 +4,57 @@ import pandas as pd
 import numpy as np
 import logging
 from iminuit import Minuit
+import numba as nb
 
 GLOBAL_COUNTER = 0
 
-
+@nb.njit
 def microlensing_event(t, u0, t0, tE, mag1):
-	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
-	return -2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1 
+	out = []
+	for i in range(len(t)):
+		u = np.sqrt(u0**2 + ((t[i]-t0)**2)/tE**2)
+		out.append(-2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1)
+	return out
 
+@nb.njit
+def weighted_mean(mag, weigth):
+	s = 0
+	s1 = 0
+	for i in range(len(mag)):
+		s+=mag[i]*weigth[i]
+		s1+=weigth[i]
+	return s/s1
+
+@nb.njit
+def weighted_std(mag, weight):
+	s0 = 0
+	s1 = 0
+	s2 = 0
+	m = weighted_mean(mag, weight)
+	for i in range(0, len(mag)):
+		s0 += weight[i] * (mag[i]-m)**2
+		s1 += weight[i]
+		s2 += weight[i]**2
+	print((s1-s2/s1))
+	print(s0)
+	print()
+	return s0/(s1-s2/s1)
+
+@nb.njit
+def std_intr(time, mag):
+	s = 0
+	for i in range(1, len(time)-1):
+		s += (mag[i] - (mag[i-1]+(mag[i+1]-mag[i-1])*(time[i]-time[i-1])/(time[i+1]-time[i-1])))**2
+	return 1/(len(time)-2) * np.sqrt(s)
+
+@nb.njit
+def dispersion_one(time, mag, err):
+	alls = 0
+	for i in range(0, len(time)-2):
+		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
+		sigmaisq = err[i+1]**2 + (1-ri)**2 * err[i]**2 + ri**2 * err[i+2]**2
+		alls += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/sigmaisq)
+	return alls
 
 def fit_ml(subdf, cut5=False):
 	"""Fit on one star
@@ -189,7 +232,14 @@ def fit_ml(subdf, cut5=False):
 		+ [np.sum(((magRE - flat_params['f_magStarRE'])/errRE)**2),
 		   np.sum(((magRM - flat_params['f_magStarRM'])/errRM)**2),
 		   np.sum(((magBE - flat_params['f_magStarBE'])/errBE)**2),
-		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)],
+		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)]
+		+ [dispersion_one(timeRE, magRE, errRE), dispersion_one(timeBE, magBE, errBE),
+		   dispersion_one(timeRM, magRM, errRM), dispersion_one(timeBM, magBM, errRBM)]
+		+ [weighted_std(magRE, errRE), weighted_std(magBE, errBE),
+		   weighted_std(magRM, errRM), weighted_std(magBM, errBM)]
+		+ [std_intr(timeRE, magRE), std_intr(timeBE, magBE),
+		   std_intr(timeRM, magRM), std_intr(timeBM, magBM)]
+		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
@@ -197,6 +247,10 @@ def fit_ml(subdf, cut5=False):
 		+ ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
 		+ ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
 		+ ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
+		+ ['dispersion_RE', 'dispersion_BE', 'dispersion_RM', 'dispersion_BM']
+		+ ['weighted_std_RE', 'weighted_std_BE', 'weighted_std_RM', 'weighted_std_BM']
+		+ ['std_int_RE', 'std_int_BE', 'std_int_RM', 'std_int_BM']
+		+ ['std_RE', 'std_BE', 'std_RM', 'std_BM']
 		)
 
 
