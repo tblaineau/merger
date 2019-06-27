@@ -46,12 +46,16 @@ def std_intr(time, mag):
 
 @nb.njit
 def dispersion_one(time, mag, err):
-	alls = 0
+	s0 = 0
+	s1 = 0
+	s2 = 0
 	for i in range(0, len(time)-2):
 		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
 		sigmaisq = err[i+1]**2 + (1-ri)**2 * err[i]**2 + ri**2 * err[i+2]**2
-		alls += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/sigmaisq)
-	return alls
+		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/np.sqrt(sigmaisq))
+		s1 += 1/np.sqrt(sigmaisq)
+		s2 += 1/sigmaisq
+	return s0/(s1-s2/s1)
 
 def fit_ml(subdf, cut5=False):
 	"""Fit on one star
