@@ -35,9 +35,6 @@ def weighted_std(mag, weight):
 		s0 += weight[i] * (mag[i]-m)**2
 		s1 += weight[i]
 		s2 += weight[i]**2
-	print((s1-s2/s1))
-	print(s0)
-	print()
 	return s0/(s1-s2/s1)
 
 @nb.njit
