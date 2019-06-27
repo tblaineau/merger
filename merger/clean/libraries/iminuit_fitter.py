@@ -42,7 +42,7 @@ def std_intr(time, mag):
 	s = 0
 	for i in range(1, len(time)-1):
 		s += (mag[i] - (mag[i-1]+(mag[i+1]-mag[i-1])*(time[i]-time[i-1])/(time[i+1]-time[i-1])))**2
-	return 1/(len(time)-2) * np.sqrt(s)
+	return  np.sqrt(s/(len(time)-2))
 
 @nb.njit
 def dispersion_one(time, mag, err):
