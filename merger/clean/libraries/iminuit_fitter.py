@@ -234,7 +234,7 @@ def fit_ml(subdf, cut5=False):
 		   np.sum(((magBE - flat_params['f_magStarBE'])/errBE)**2),
 		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)]
 		+ [dispersion_one(timeRE, magRE, errRE), dispersion_one(timeBE, magBE, errBE),
-		   dispersion_one(timeRM, magRM, errRM), dispersion_one(timeBM, magBM, errRBM)]
+		   dispersion_one(timeRM, magRM, errRM), dispersion_one(timeBM, magBM, errBM)]
 		+ [weighted_std(magRE, errRE), weighted_std(magBE, errBE),
 		   weighted_std(magRM, errRM), weighted_std(magBM, errBM)]
 		+ [std_intr(timeRE, magRE), std_intr(timeBE, magBE),
