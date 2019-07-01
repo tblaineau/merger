@@ -19,27 +19,27 @@ def microlensing_event(t, u0, t0, tE, mag1):
 @nb.njit
 def weighted_mean(mag, weigth):
 	s = 0
-	s1 = 0
+	v1 = 0
 	for i in range(len(mag)):
 		s+=mag[i]*weigth[i]
-		s1+=weigth[i]
-	if s1==0:
+		v1+=weigth[i]
+	if v1==0:
 		return np.nan
-	return s/s1
+	return s/v1
 
 @nb.njit
 def weighted_std(mag, weight):
 	s0 = 0
-	s1 = 0
-	s2 = 0
+	v1 = 0
+	v2 = 0
 	m = weighted_mean(mag, weight)
 	for i in range(0, len(mag)):
 		s0 += weight[i] * (mag[i]-m)**2
-		s1 += weight[i]
-		s2 += weight[i]**2
-	if s1==0 or (s1**2-s2/s1**2) == 0:
+		v1 += weight[i]
+		v2 += weight[i]**2
+	if v1==0 or (v1**2-v2/v1**2) == 0:
 		return np.nan
-	return s0/(s1**2-s2/s1**2)
+	return s0/(v1**2-v2/v1**2)
 
 @nb.njit
 def std_interpolated(time, mag):
@@ -69,17 +69,17 @@ def std_interpolated(time, mag):
 @nb.njit
 def weighted_std_interpolated(time, mag, err):
 	s0 = 0
-	s1 = 0
-	s2 = 0
+	v1 = 0
+	v2 = 0
 	for i in range(0, len(time)-2):
 		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
 		sigmaisq = err[i+1]**2 + (1-ri)**2 * err[i]**2 + ri**2 * err[i+2]**2
 		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/np.sqrt(sigmaisq))
-		s1 += 1/np.sqrt(sigmaisq)
-		s2 += 1/sigmaisq
-	if s1==0 or (s1**2-s2/s1**2) == 0:
+		v1 += 1/np.sqrt(sigmaisq)
+		v2 += 1/sigmaisq
+	if v1==0 or (v1**2-v2/v1**2) == 0:
 		return np.nan
-	return s0/(s1**2-s2/s1**2)
+	return s0/(v1**2-v2/v1**2)
 
 def fit_ml(subdf, cut5=False):
 	"""Fit on one star
