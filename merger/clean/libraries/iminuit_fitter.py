@@ -37,21 +37,37 @@ def weighted_std(mag, weight):
 		s0 += weight[i] * (mag[i]-m)**2
 		s1 += weight[i]
 		s2 += weight[i]**2
-	if (s1-s2/s1) == 0:
+	if (s1**2-s2/s1**2) == 0:
 		return np.nan
-	return s0/(s1-s2/s1)
+	return s0/(s1**2-s2/s1**2)
 
 @nb.njit
-def std_intr(time, mag):
+def std_interpolated(time, mag):
+	"""
+	Returns the intrinsic dispersion
+
+	Paramaters
+	----------
+	time : np.array
+		Times of the points
+	mag : np.array
+		Magnitudes of the points
+
+	Returns
+	-------
+	float
+		np.nan if length of time is less than or equal to 2
+		 else returns the intrinsic dispersion
+	"""
 	s = 0
 	for i in range(1, len(time)-1):
 		s += (mag[i] - (mag[i-1]+(mag[i+1]-mag[i-1])*(time[i]-time[i-1])/(time[i+1]-time[i-1])))**2
-	if len(time)-2==0:
+	if len(time)-2<=0:
 		return np.nan
 	return  np.sqrt(s/(len(time)-2))
 
 @nb.njit
-def dispersion_one(time, mag, err):
+def weighted_std_interpolated(time, mag, err):
 	s0 = 0
 	s1 = 0
 	s2 = 0
@@ -61,9 +77,9 @@ def dispersion_one(time, mag, err):
 		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/np.sqrt(sigmaisq))
 		s1 += 1/np.sqrt(sigmaisq)
 		s2 += 1/sigmaisq
-	if (s1-s2/s1) == 0:
+	if (s1**2-s2/s1**2) == 0:
 		return np.nan
-	return s0/(s1-s2/s1)
+	return s0/(s1**2-s2/s1**2)
 
 def fit_ml(subdf, cut5=False):
 	"""Fit on one star
@@ -164,6 +180,9 @@ def fit_ml(subdf, cut5=False):
 		magRM = magRM.values
 		magBM = magBM.values
 
+	if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
+		return pd.Series(None)
+
 	#maximum rolling mean on 100 days in EROS red
 	magRE_T = subdf[maskRE][cre].red_E
 	maxRE = (magRE_T.reindex(pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both').mean()).idxmin()
@@ -242,12 +261,12 @@ def fit_ml(subdf, cut5=False):
 		   np.sum(((magRM - flat_params['f_magStarRM'])/errRM)**2),
 		   np.sum(((magBE - flat_params['f_magStarBE'])/errBE)**2),
 		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)]
-		+ [dispersion_one(timeRE, magRE, errRE), dispersion_one(timeBE, magBE, errBE),
-		   dispersion_one(timeRM, magRM, errRM), dispersion_one(timeBM, magBM, errBM)]
+		+ [weighted_std_interpolated(timeRE, magRE, errRE), weighted_std_interpolated(timeBE, magBE, errBE),
+		   weighted_std_interpolated(timeRM, magRM, errRM), weighted_std_interpolated(timeBM, magBM, errBM)]
 		+ [weighted_std(magRE, errRE), weighted_std(magBE, errBE),
 		   weighted_std(magRM, errRM), weighted_std(magBM, errBM)]
-		+ [std_intr(timeRE, magRE), std_intr(timeBE, magBE),
-		   std_intr(timeRM, magRM), std_intr(timeBM, magBM)]
+		+ [std_interpolated(timeRE, magRE), std_interpolated(timeBE, magBE),
+		   std_interpolated(timeRM, magRM), std_interpolated(timeBM, magBM)]
 		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
