@@ -180,8 +180,8 @@ def fit_ml(subdf, cut5=False):
 		magRM = magRM.values
 		magBM = magBM.values
 
-	if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
-		return pd.Series(None)
+	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
+	# 	return pd.Series(None)
 
 	#maximum rolling mean on 100 days in EROS red
 	magRE_T = subdf[maskRE][cre].red_E
