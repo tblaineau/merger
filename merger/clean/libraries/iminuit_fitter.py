@@ -37,7 +37,7 @@ def weighted_std(mag, weight):
 		s0 += weight[i] * (mag[i]-m)**2
 		s1 += weight[i]
 		s2 += weight[i]**2
-	if (s1**2-s2/s1**2) == 0:
+	if s1==0 or (s1**2-s2/s1**2) == 0:
 		return np.nan
 	return s0/(s1**2-s2/s1**2)
 
@@ -248,23 +248,6 @@ def fit_ml(subdf, cut5=False):
 	lsq2 = np.sum(((magBE - microlensing_event(timeBE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBE']))/ errBE)**2)
 	lsq3 = np.sum(((magRM - microlensing_event(timeRM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRM']))/ errRM)**2)
 	lsq4 = np.sum(((magBM - microlensing_event(timeBM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBM']))/ errBM)**2)
-
-	weighted_std_interpolated(timeRE, magRE, errRE)
-	weighted_std_interpolated(timeBE, magBE, errBE)
-	weighted_std_interpolated(timeRM, magRM, errRM)
-	weighted_std_interpolated(timeBM, magBM, errBM)
-	weighted_std(magRE, errRE)
-	weighted_std(magBE, errBE)
-	weighted_std(magRM, errRM)
-	weighted_std(magBM, errBM)
-	std_interpolated(timeRE, magRE)
-	std_interpolated(timeBE, magBE)
-	std_interpolated(timeRM, magRM)
-	std_interpolated(timeBM, magBM)
-	np.std(magRE)
-	np.std(magBE)
-	np.std(magRM)
-	np.std(magBM)
 
 	return pd.Series(
 
