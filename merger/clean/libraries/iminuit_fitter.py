@@ -77,7 +77,7 @@ def weighted_std_interpolated(time, mag, err):
 		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/np.sqrt(sigmaisq))
 		s1 += 1/np.sqrt(sigmaisq)
 		s2 += 1/sigmaisq
-	if (s1**2-s2/s1**2) == 0:
+	if s1==0 or (s1**2-s2/s1**2) == 0:
 		return np.nan
 	return s0/(s1**2-s2/s1**2)
 
