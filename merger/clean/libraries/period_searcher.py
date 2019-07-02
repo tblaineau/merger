@@ -51,6 +51,36 @@ def auto_correlation(time, mag, err, min_freq, step_freq, nb_steps):
 
 
 def confidence(time, mag, err, min_freq, step_freq, nb_steps):
+	"""
+	Parameters
+	----------
+	time : list-like
+
+	mag : array-like
+
+	err : array-like
+
+	min_freq : float
+		starting frequency to explore
+	step_freq : float
+		frequency step, ideally should be 1/10T
+	nb_steps : int
+		numbers of step to compute
+
+	Returns
+	-------
+
+	np.ndarray
+		list of the reduced chi2s
+	np.ndarray
+		list of frequencies computed
+	float
+		frequency of the minimum chi2
+	float
+		probability of the minimum chi2 found
+	float
+		minimum chi2 value
+	"""
 	chi2s, freqs = auto_correlation(time, mag, err, min_freq, step_freq, nb_steps)
 	freqs = np.array(freqs)
 	mean_chi2 = np.mean(chi2s)
