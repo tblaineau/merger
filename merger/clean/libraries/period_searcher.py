@@ -85,9 +85,17 @@ def confidence(time, mag, err, min_freq, step_freq, nb_steps):
 	freqs = np.array(freqs)
 	mean_chi2 = np.mean(chi2s)
 	reduced_chi2s = ((chi2s - mean_chi2) / mean_chi2) * np.sqrt(len(time) / 2.)
-	min_chi2 = reduced_chi2s.min()
+	min_chi2_idx = reduced_chi2s.argmin()
+	min_chi2 = reduced_chi2s[min_chi2_idx]
 	if mean_chi2 <= 0:
 		best_proba = 1.
 	else:
 		best_proba = np.log10(nb_steps / 2. * scipy.special.erfc(-min_chi2 / np.sqrt(2)))
-	return reduced_chi2s, freqs, best_proba, min_chi2
+	return reduced_chi2s, freqs, best_proba, freqs[min_chi2_idx], min_chi2, freqs[0], np.log10(nb_steps / 2. * scipy.special.erfc(-reduced_chi2s[0] / np.sqrt(2)))
+
+def confidence_use(time, mag, err, nb_steps=1500):
+	time_legnth = time.max() - time.min()
+	min_freq = 1 / time_legnth
+	freq_step = 1 / (10 * time_legnth)
+	_, _, best_proba, best_freq, _ = confidence(time, mag, err, min_freq, freq_step, nb_steps)
+	return best_proba, best_freq, min_freq
