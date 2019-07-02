@@ -251,10 +251,22 @@ def fit_ml(subdf, cut5=False):
 	lsq3 = np.sum(((magRM - microlensing_event(timeRM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRM']))/ errRM)**2)
 	lsq4 = np.sum(((magBM - microlensing_event(timeBM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBM']))/ errBM)**2)
 
-	probaBE, freqBE, min_freqBE = confidence_use(timeBE, magBE, errBE, 1000)
-	probaRE, freqRE, min_freqRE = confidence_use(timeRE, magRE, errRE, 1000)
-	probaBM, freqBM, min_freqBM = confidence_use(timeBM, magBM, errBM, 1000)
-	probaRM, freqRM, min_freqRM = confidence_use(timeRM, magRM, errRM, 1000)
+	if len(timeBE)>10:
+		probaBE, freqBE, min_freqBE = confidence_use(timeBE, magBE, errBE, 1000)
+	else:
+		probaBE, freqBE, min_freqBE = np.nan, np.nan, np.nan
+	if len(timeRE)>10:
+		probaRE, freqRE, min_freqRE = confidence_use(timeRE, magRE, errRE, 1000)
+	else:
+		probaRE, freqRE, min_freqRE = np.nan, np.nan, np.nan
+	if len(timeBM) > 10:
+		probaBM, freqBM, min_freqBM = confidence_use(timeBM, magBM, errBM, 1000)
+	else:
+		probaBM, freqBM, min_freqBM = np.nan, np.nan, np.nan
+	if len(timeRM) > 10:
+		probaRM, freqRM, min_freqRM = confidence_use(timeRM, magRM, errRM, 1000)
+	else:
+		probaRM, freqRM, min_freqRM = np.nan, np.nan, np.nan
 
 	return pd.Series(
 

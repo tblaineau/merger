@@ -32,8 +32,6 @@ def chi2_int(phase, mag, err):
 
 @nb.njit
 def period_search_loop(time, mag, err, frequency):
-	if frequency==0:
-		return np.nan
 	phase=[]
 	for i in range(len(time)):
 		phase.append(time[i]%(1/frequency))
