@@ -97,5 +97,5 @@ def confidence_use(time, mag, err, nb_steps=1500):
 	time_legnth = time.max() - time.min()
 	min_freq = 1 / time_legnth
 	freq_step = 1 / (10 * time_legnth)
-	_, _, best_proba, best_freq, _ = confidence(time, mag, err, min_freq, freq_step, nb_steps)
+	_, _, best_proba, best_freq, _, _, _ = confidence(time, mag, err, min_freq, freq_step, nb_steps)
 	return best_proba, best_freq, min_freq
