@@ -21,6 +21,7 @@ COLOR_FILTERS = {
 
 OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
+
 def load_irods_eros_lightcurves(irods_filepath):
 	"""
 	Load EROS lightcurves from iRods storage.
@@ -96,6 +97,7 @@ def read_eros_lighcurve(filepath):
 		return None
 	return pd.DataFrame.from_dict(lc)
 
+
 def load_eros_files(eros_path):
 	"""[summary]
 
@@ -120,6 +122,7 @@ def load_eros_files(eros_path):
 		print(c)
 	return pd.concat(pds)
 
+
 def read_compressed_eros_lightcurve(lc, exfile, name):
 	"""Append data from EROS lightcurve to dict
 
@@ -139,6 +142,7 @@ def read_compressed_eros_lightcurve(lc, exfile, name):
 		lc["blue_E"].append(float(line[3]))
 		lc["blueerr_E"].append(float(line[4]))
 		lc["id_E"].append(id_E)
+
 
 def load_eros_compressed_files(filepath):
 	"""Load EROS lightcurves from compressed tar.gz archives
@@ -163,6 +167,7 @@ def load_eros_compressed_files(filepath):
 				lcf.close()
 	return pd.DataFrame.from_dict(lc)
 
+
 def read_macho_lightcurve(filepath, filename):
 	"""
 	Read MACHO lightcurves from tile archive.
@@ -183,6 +188,7 @@ def read_macho_lightcurve(filepath, filename):
 		print(os.path.join(filepath, filename)+" doesn't exist.")
 		return None
 	return pd.DataFrame.from_dict(lc)
+
 
 def load_macho_from_url(filename):
 	"""
@@ -229,6 +235,7 @@ def load_macho_tiles(MACHO_files_path, field, tile_list):
 			pds.append(read_macho_lightcurve(macho_path, "F_"+str(field)+"."+str(tile)+".gz"))
 	return pd.concat(pds)
 
+
 def load_macho_field(MACHO_files_path, field):
 	macho_path = MACHO_files_path+"F_"+str(field)+"/"
 	pds = []
@@ -239,6 +246,7 @@ def load_macho_field(MACHO_files_path, field):
 				pds.append(read_macho_lightcurve(macho_path, file))
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return pd.concat(pds)
+
 
 def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart="", save=True):
 	"""
@@ -306,6 +314,8 @@ def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, c
 	merged2 = macho_lcs.merge(correspondance, on='id_M', validate="m:1")
 	del macho_lcs
 	merged = pd.concat((merged1, merged2), copy=False)
+	del merged1
+	del merged2
 
 	# replace invalid values in magnitudes with numpy NaN and remove rows with no valid magnitudes
 	merged = merged.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
