@@ -339,7 +339,6 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 
 	if EROS_files_path == 'irods':
 		st1 = time.time()
-		pds = []
 		IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
 		try:
 			env_file = os.environ['IRODS_ENVIRONMENT_FILE']
