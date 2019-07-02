@@ -241,7 +241,7 @@ def fit_ml(subdf, cut5=False):
 	m_flat.migrad()
 	global GLOBAL_COUNTER
 	GLOBAL_COUNTER+=1
-	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ", end='\r')
+	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ")#, end='\r')
 
 	micro_params = m_micro.values
 	flat_params = m_flat.values
