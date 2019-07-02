@@ -6,6 +6,8 @@ import logging
 from iminuit import Minuit
 import numba as nb
 
+from merger.clean.libraries.period_searcher import confidence_use
+
 GLOBAL_COUNTER = 0
 
 @nb.njit
@@ -249,6 +251,11 @@ def fit_ml(subdf, cut5=False):
 	lsq3 = np.sum(((magRM - microlensing_event(timeRM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRM']))/ errRM)**2)
 	lsq4 = np.sum(((magBM - microlensing_event(timeBM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBM']))/ errBM)**2)
 
+	probaBE, freqBE, min_freqBE = confidence_use(timeBE, magBE, errBE, 1000)
+	probaRE, freqRE, min_freqRE = confidence_use(timeRE, magRE, errRE, 1000)
+	probaBM, freqBM, min_freqBM = confidence_use(timeBM, magBM, errBM, 1000)
+	probaRM, freqRM, min_freqRM = confidence_use(timeRM, magRM, errRM, 1000)
+
 	return pd.Series(
 
 		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval]
@@ -266,7 +273,9 @@ def fit_ml(subdf, cut5=False):
 		   weighted_std(magRM, errRM), weighted_std(magBM, errBM)]
 		+ [std_interpolated(timeRE, magRE), std_interpolated(timeBE, magBE),
 		   std_interpolated(timeRM, magRM), std_interpolated(timeBM, magBM)]
-		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)],
+		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)]
+		+ [probaBE, freqBE, min_freqBE, probaRE, freqRE, min_freqRE,
+		   probaBM, freqBM, min_freqBM, probaRM, freqRM, min_freqRM],
 
 		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
@@ -278,6 +287,8 @@ def fit_ml(subdf, cut5=False):
 		+ ['weighted_std_RE', 'weighted_std_BE', 'weighted_std_RM', 'weighted_std_BM']
 		+ ['std_int_RE', 'std_int_BE', 'std_int_RM', 'std_int_BM']
 		+ ['std_RE', 'std_BE', 'std_RM', 'std_BM']
+		+ ['probaBE', 'freqBE', 'min_freqBE', 'probaRE', 'freqRE', 'min_freqRE',
+		   'probaBM', 'freqBM', 'min_freqBM', 'probaRM', 'freqRM', 'min_freqRM']
 		)
 
 
