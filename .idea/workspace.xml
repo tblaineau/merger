@@ -4,7 +4,6 @@
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="added dispersion stats functions">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/period_searcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/period_searcher.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
@@ -31,14 +30,23 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="413">
+              <caret line="113" column="17" lean-forward="true" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="518">
-              <caret line="28" column="137" selection-start-line="28" selection-start-column="137" selection-end-line="28" selection-end-column="137" />
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="69">
+              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
@@ -46,7 +54,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="263">
+            <state relative-caret-position="640">
               <caret line="34" column="31" lean-forward="true" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
             </state>
           </provider>
@@ -67,22 +75,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/period_searcher.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-568">
-              <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+            <state relative-caret-position="464">
+              <caret line="66" column="18" lean-forward="true" selection-start-line="66" selection-start-column="18" selection-end-line="66" selection-end-column="18" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="243" column="101" selection-start-line="243" selection-start-column="101" selection-end-line="243" selection-end-column="101" />
-              <folding>
-                <element signature="e#0#11#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -91,7 +87,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/old/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="437">
+            <state relative-caret-position="-3908">
               <caret line="19" column="65" selection-start-line="19" selection-start-column="65" selection-end-line="19" selection-end-column="65" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
@@ -103,7 +99,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4370">
+            <state relative-caret-position="545">
               <caret line="195" column="42" selection-start-line="195" selection-start-column="42" selection-end-line="195" selection-end-column="42" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -228,9 +224,9 @@
         <option value="/usr/local/lib/python3.7/site-packages/pandas/core/reshape/concat.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
         <option value="$USER_HOME$/Desktop/tmp/work/merger_fitter_prod/script_eros_first.py" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/period_searcher.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
       </list>
     </option>
@@ -461,20 +457,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00125" summary="log level">
-      <created>1560258324860</created>
-      <option name="number" value="00125" />
-      <option name="presentableId" value="LOCAL-00125" />
-      <option name="project" value="LOCAL" />
-      <updated>1560258324860</updated>
-    </task>
-    <task id="LOCAL-00126" summary="correct filename for irods function">
-      <created>1560266182802</created>
-      <option name="number" value="00126" />
-      <option name="presentableId" value="LOCAL-00126" />
-      <option name="project" value="LOCAL" />
-      <updated>1560266182802</updated>
     </task>
     <task id="LOCAL-00127" summary="logging and error handling">
       <created>1560267895105</created>
@@ -805,7 +787,21 @@
       <option name="project" value="LOCAL" />
       <updated>1562069469206</updated>
     </task>
-    <option name="localTasksCounter" value="174" />
+    <task id="LOCAL-00174" summary="debug$">
+      <created>1562074732419</created>
+      <option name="number" value="00174" />
+      <option name="presentableId" value="LOCAL-00174" />
+      <option name="project" value="LOCAL" />
+      <updated>1562074732419</updated>
+    </task>
+    <task id="LOCAL-00175" summary="debug2 no empty line">
+      <created>1562076757235</created>
+      <option name="number" value="00175" />
+      <option name="presentableId" value="LOCAL-00175" />
+      <option name="project" value="LOCAL" />
+      <updated>1562076757235</updated>
+    </task>
+    <option name="localTasksCounter" value="176" />
     <servers />
   </component>
   <component name="TodoView">
@@ -821,18 +817,18 @@
     <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4717742" visible="true" weight="0.13375461" />
-      <window_info id="Structure" order="1" sideWeight="0.5282258" side_tool="true" visible="true" weight="0.13375461" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47226173" visible="true" weight="0.13375461" />
+      <window_info id="Structure" order="1" sideWeight="0.5277383" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.32851985" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.32851985" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3997175" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" weight="0.19675091" />
-      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.36552346" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" visible="true" weight="0.36552346" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
       <window_info anchor="bottom" id="Messages" order="11" />
@@ -894,8 +890,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="added individual counts" />
-    <MESSAGE value="corrected info message" />
     <MESSAGE value="added solo chi2 flat" />
     <MESSAGE value="corrected" />
     <MESSAGE value="corrected len of counts (mag rather than err)" />
@@ -919,12 +913,11 @@
     <MESSAGE value="added period_search output" />
     <MESSAGE value="two linebreaks between functions" />
     <MESSAGE value="corrected error" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected error" />
+    <MESSAGE value="debug$" />
+    <MESSAGE value="debug2 no empty line" />
+    <option name="LAST_COMMIT_MESSAGE" value="debug2 no empty line" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/merger/utils/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/_differentialevolution.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="253">
@@ -1199,26 +1192,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4370">
-          <caret line="195" column="42" selection-start-line="195" selection-start-column="42" selection-end-line="195" selection-end-column="42" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/old/iminuit_fitter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="437">
-          <caret line="19" column="65" selection-start-line="19" selection-start-column="65" selection-end-line="19" selection-end-column="65" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Library/Caches/PyCharmCE2019.1/python_stubs/-1199943126/pyarrow/lib/Categorical.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
@@ -1254,16 +1227,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="666">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
-          <folding>
-            <element signature="e#301#316#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Desktop/tmp/work/merger_fitter_prod/script_eros_first.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="651">
@@ -1274,20 +1237,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
+    <entry file="file://$USER_HOME$/Library/Caches/PyCharmCE2019.1/python_stubs/-1199943126/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="518">
-          <caret line="28" column="137" selection-start-line="28" selection-start-column="137" selection-end-line="28" selection-end-column="137" />
+        <state relative-caret-position="235">
+          <caret line="3622" column="8" selection-start-line="3622" selection-start-column="8" selection-end-line="3622" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/parameter_generator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="545">
+          <caret line="195" column="42" selection-start-line="195" selection-start-column="42" selection-end-line="195" selection-end-column="42" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py">
+    <entry file="file://$PROJECT_DIR$/merger/old/iminuit_fitter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
-          <caret line="34" column="31" lean-forward="true" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
+        <state relative-caret-position="-3908">
+          <caret line="19" column="65" selection-start-line="19" selection-start-column="65" selection-end-line="19" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1301,27 +1274,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharmCE2019.1/python_stubs/-1199943126/builtins.py">
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="3622" column="8" selection-start-line="3622" selection-start-column="8" selection-end-line="3622" selection-end-column="8" />
+        <state relative-caret-position="640">
+          <caret line="34" column="31" lean-forward="true" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/lib/python3.7/runpy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="479">
+          <caret line="95" column="51" lean-forward="true" selection-start-line="95" selection-start-column="51" selection-end-line="95" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="666">
+          <caret line="48" selection-start-line="48" selection-end-line="48" />
+          <folding>
+            <element signature="e#301#316#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/period_searcher.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-568">
-          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+        <state relative-caret-position="464">
+          <caret line="66" column="18" lean-forward="true" selection-start-line="66" selection-start-column="18" selection-end-line="66" selection-end-column="18" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="69">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="243" column="101" selection-start-line="243" selection-start-column="101" selection-end-line="243" selection-end-column="101" />
+        <state relative-caret-position="413">
+          <caret line="113" column="17" lean-forward="true" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>

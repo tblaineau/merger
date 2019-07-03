@@ -111,7 +111,7 @@ def fit_ml(subdf, cut5=False):
 	errRM = subdf[maskRM].rederr_M
 	errBM = subdf[maskBM].blueerr_M
 
-	min_err = 0.01
+	min_err = 0.0
 	cre = errRE.between(min_err,9.999, inclusive=False)
 	cbe = errBE.between(min_err,9.999, inclusive=False)
 	crm = errRM.between(min_err,9.999, inclusive=False)
@@ -255,14 +255,17 @@ def fit_ml(subdf, cut5=False):
 		probaBE, freqBE, min_freqBE = confidence_use(timeBE, magBE, errBE, 1000)
 	else:
 		probaBE, freqBE, min_freqBE = np.nan, np.nan, np.nan
+
 	if len(timeRE)>10:
 		probaRE, freqRE, min_freqRE = confidence_use(timeRE, magRE, errRE, 1000)
 	else:
 		probaRE, freqRE, min_freqRE = np.nan, np.nan, np.nan
+
 	if len(timeBM) > 10:
 		probaBM, freqBM, min_freqBM = confidence_use(timeBM, magBM, errBM, 1000)
 	else:
 		probaBM, freqBM, min_freqBM = np.nan, np.nan, np.nan
+
 	if len(timeRM) > 10:
 		probaRM, freqRM, min_freqRM = confidence_use(timeRM, magRM, errRM, 1000)
 	else:
