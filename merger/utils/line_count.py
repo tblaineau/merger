@@ -9,6 +9,21 @@ import time
 import numpy as np
 import os
 import argparse
+import gzip
+
+def bufcount(filepath, filename):
+	st1 = time.time()
+	with gzip.open(os.path.join(filepath, filename), 'rt') as f:
+		lines = 0
+		buf_size = 1024 * 1024
+		read_f = f.read # loop optimization
+
+		buf = read_f(buf_size)
+		while buf:
+			lines += buf.count('\n')
+			buf = read_f(buf_size)
+		print(time.time()-st1)
+		return lines
 
 def count_all(filepath):
 	st1 = time.time()
@@ -16,9 +31,9 @@ def count_all(filepath):
 	for filename in os.listdir(filepath):
 		print(filename)
 		if filename[-3:] == '.gz':
-			alls.append((bufcount(filepath, filename), int(filename.split('.')[1])))
+			alls.append((int(filename.split('.')[1]), bufcount(filepath, filename)))
 	print(time.time()-st1)
-	return np.array(alls, dtype=[('linecount', 'i4'), ('tile', 'i4')])
+	return np.array(alls, dtype=[('tile', 'i4'), ('linecount', 'i4')])
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -30,6 +45,8 @@ if __name__ == '__main__':
 	MACHO_files_path = args.path
 	output_path = args.output_path
 
-	for field in range(0, 83):
+	np.savetxt(os.path.join(output_path,'lncnt_'+str(42)+'.txt'), X=count_all(os.path.join(MACHO_files_path, 'F_' + str(42))), fmt='%d')
+
+	for field in range(1, 83):
 		print(field)
-		np.savetxt(count_all(os.path.join(MACHO_files_path, 'F_'+str(field))))
+		np.savetxt(os.path.join(output_path,'lncnt_' + str(field)+'.txt'), X=count_all(os.path.join(MACHO_files_path, 'F_'+str(field))), fmt='%d')
