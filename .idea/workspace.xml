@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="added dispersion stats functions">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
@@ -21,8 +21,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="666">
-              <caret line="48" selection-start-line="48" selection-end-line="48" />
+            <state relative-caret-position="515">
+              <caret line="35" column="4" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="30" />
               <folding>
                 <element signature="e#301#316#0" expanded="true" />
               </folding>
@@ -30,11 +30,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="413">
-              <caret line="113" column="17" lean-forward="true" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
+            <state relative-caret-position="245">
+              <caret line="151" column="63" selection-start-line="151" selection-start-column="63" selection-end-line="151" selection-end-column="63" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -45,26 +45,32 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="69">
-              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+            <state relative-caret-position="199">
+              <caret line="46" column="43" lean-forward="true" selection-start-line="46" selection-start-column="43" selection-end-line="46" selection-end-column="43" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py">
+        <entry file="file://$PROJECT_DIR$/merger/old/sigma-mag-histo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="640">
-              <caret line="34" column="31" lean-forward="true" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
+            <state relative-caret-position="-1641">
+              <caret line="37" column="27" selection-start-line="37" selection-start-column="26" selection-end-line="37" selection-end-column="27" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="149">
-              <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="4" />
+            <state relative-caret-position="416">
+              <caret line="398" column="19" selection-start-line="398" selection-start-column="19" selection-end-line="398" selection-end-column="19" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -76,7 +82,7 @@
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/period_searcher.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="464">
-              <caret line="66" column="18" lean-forward="true" selection-start-line="66" selection-start-column="18" selection-end-line="66" selection-end-column="18" />
+              <caret line="66" column="18" selection-start-line="66" selection-start-column="18" selection-end-line="66" selection-end-column="18" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -87,8 +93,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/old/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3908">
-              <caret line="19" column="65" selection-start-line="19" selection-start-column="65" selection-end-line="19" selection-end-column="65" />
+            <state>
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -119,7 +124,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>load</find>
       <find>72</find>
       <find>binfunc</find>
       <find>_chi2</find>
@@ -128,9 +132,7 @@
       <find>FuncForm</find>
       <find>funcfor</find>
       <find>xaxis</find>
-      <find>gzip</find>
       <find>decode</find>
-      <find>logging</find>
       <find>qcut</find>
       <find>error</find>
       <find>print</find>
@@ -149,6 +151,9 @@
       <find>print(</find>
       <find>@</find>
       <find>s2</find>
+      <find>logging</find>
+      <find>gzip</find>
+      <find>dask</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
@@ -177,8 +182,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/utils/visualize_parameters_space.py" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/utils/visualize_parallax_significance.py" />
         <option value="$PROJECT_DIR$/python_associator/new_nnd.py" />
         <option value="$PROJECT_DIR$/utils/distance_cut_compute.py" />
@@ -222,19 +225,21 @@
         <option value="/usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/lib/python3.7/ntpath.py" />
         <option value="/usr/local/lib/python3.7/site-packages/pandas/core/frame.py" />
         <option value="/usr/local/lib/python3.7/site-packages/pandas/core/reshape/concat.py" />
-        <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
         <option value="$USER_HOME$/Desktop/tmp/work/merger_fitter_prod/script_eros_first.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/period_searcher.py" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
+        <option value="$USER_HOME$/Desktop/tmp/work/visualize_curve.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
+        <option value="$USER_HOME$/Desktop/tmp/dask_test.py" />
+        <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="97" />
+    <option name="y" value="16" />
     <option name="width" value="1920" />
-    <option name="height" value="1200" />
+    <option name="height" value="1184" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -276,15 +281,7 @@
             </path>
             <path>
               <item name="merger" type="b2602c69:ProjectViewProjectNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="parallax_estimator" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="merger" type="b2602c69:ProjectViewProjectNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
             </path>
           </expand>
           <select />
@@ -320,7 +317,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.scratch_2">
+  <component name="RunManager" selected="Python.dask_test">
     <configuration name="bad_time_spotter" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -342,7 +339,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="parameter_generator" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="dask_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="merger" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -350,11 +347,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/merger/clean/libraries" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Desktop/tmp" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/merger/clean/libraries/parameter_generator.py" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/Desktop/tmp/dask_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -428,18 +425,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.bad_time_spotter" />
-      <item itemvalue="Python.parameter_generator" />
       <item itemvalue="Python.simulator" />
       <item itemvalue="Python.scratch_1" />
       <item itemvalue="Python.scratch_2" />
+      <item itemvalue="Python.dask_test" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.scratch_2" />
+        <item itemvalue="Python.dask_test" />
         <item itemvalue="Python.scratch_1" />
+        <item itemvalue="Python.scratch_2" />
         <item itemvalue="Python.bad_time_spotter" />
         <item itemvalue="Python.simulator" />
-        <item itemvalue="Python.parameter_generator" />
       </list>
     </recent_temporary>
   </component>
@@ -457,27 +454,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00127" summary="logging and error handling">
-      <created>1560267895105</created>
-      <option name="number" value="00127" />
-      <option name="presentableId" value="LOCAL-00127" />
-      <option name="project" value="LOCAL" />
-      <updated>1560267895105</updated>
-    </task>
-    <task id="LOCAL-00128" summary="corrected load_macho_from_url to work with two-digits fields">
-      <created>1560326685133</created>
-      <option name="number" value="00128" />
-      <option name="presentableId" value="LOCAL-00128" />
-      <option name="project" value="LOCAL" />
-      <updated>1560326685133</updated>
-    </task>
-    <task id="LOCAL-00129" summary="new clean file to generate mulens parameters">
-      <created>1560350043787</created>
-      <option name="number" value="00129" />
-      <option name="presentableId" value="LOCAL-00129" />
-      <option name="project" value="LOCAL" />
-      <updated>1560350043788</updated>
     </task>
     <task id="LOCAL-00130" summary="added metropolis-hastings and doc">
       <created>1560351561384</created>
@@ -801,7 +777,28 @@
       <option name="project" value="LOCAL" />
       <updated>1562076757235</updated>
     </task>
-    <option name="localTasksCounter" value="176" />
+    <task id="LOCAL-00176" summary="changed limit error from 0.01 to 0.00">
+      <created>1562155007993</created>
+      <option name="number" value="00176" />
+      <option name="presentableId" value="LOCAL-00176" />
+      <option name="project" value="LOCAL" />
+      <updated>1562155007993</updated>
+    </task>
+    <task id="LOCAL-00177" summary="daskify MACHO loading">
+      <created>1562313606846</created>
+      <option name="number" value="00177" />
+      <option name="presentableId" value="LOCAL-00177" />
+      <option name="project" value="LOCAL" />
+      <updated>1562313606846</updated>
+    </task>
+    <task id="LOCAL-00178" summary="added support for small MACHO files (lc &lt; 500000)">
+      <created>1562314862642</created>
+      <option name="number" value="00178" />
+      <option name="presentableId" value="LOCAL-00178" />
+      <option name="project" value="LOCAL" />
+      <updated>1562314862643</updated>
+    </task>
+    <option name="localTasksCounter" value="179" />
     <servers />
   </component>
   <component name="TodoView">
@@ -817,18 +814,18 @@
     <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47226173" visible="true" weight="0.13375461" />
-      <window_info id="Structure" order="1" sideWeight="0.5277383" side_tool="true" visible="true" weight="0.13375461" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47191012" visible="true" weight="0.13375461" />
+      <window_info id="Structure" order="1" sideWeight="0.5280899" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.32851985" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.32761732" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3997175" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" weight="0.19675091" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" visible="true" weight="0.36552346" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19675091" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.36552346" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
       <window_info anchor="bottom" id="Messages" order="11" />
@@ -890,9 +887,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="added solo chi2 flat" />
-    <MESSAGE value="corrected" />
-    <MESSAGE value="corrected len of counts (mag rather than err)" />
     <MESSAGE value="2first, 2last option" />
     <MESSAGE value="time loading information" />
     <MESSAGE value="added dispersion stats functions" />
@@ -915,25 +909,12 @@
     <MESSAGE value="corrected error" />
     <MESSAGE value="debug$" />
     <MESSAGE value="debug2 no empty line" />
-    <option name="LAST_COMMIT_MESSAGE" value="debug2 no empty line" />
+    <MESSAGE value="changed limit error from 0.01 to 0.00" />
+    <MESSAGE value="daskify MACHO loading" />
+    <MESSAGE value="added support for small MACHO files (lc &lt; 500000)" />
+    <option name="LAST_COMMIT_MESSAGE" value="added support for small MACHO files (lc &lt; 500000)" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/local/lib/python3.7/site-packages/scipy/optimize/_differentialevolution.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="774" selection-start-line="774" selection-end-line="774" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger_pandas.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1790">
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger_pyspark.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-350">
@@ -1108,36 +1089,6 @@
     <entry file="file:///usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/lib/python3.7/tarfile.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/old/sigma-mag-histo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3013">
-          <caret line="139" column="49" selection-start-line="139" selection-start-column="49" selection-end-line="139" selection-end-column="49" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4769">
-          <caret line="228" column="36" selection-start-line="228" selection-start-column="36" selection-end-line="228" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="78">
-          <caret line="91" column="114" lean-forward="true" selection-start-line="91" selection-start-column="114" selection-end-line="91" selection-end-column="114" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger/old/simulator.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1669">
@@ -1256,42 +1207,48 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/old/iminuit_fitter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3908">
-          <caret line="19" column="65" selection-start-line="19" selection-start-column="65" selection-end-line="19" selection-end-column="65" />
+        <state>
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
+    <entry file="file://$USER_HOME$/Desktop/tmp/work/visualize_curve.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="149">
-          <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="4" />
+        <state relative-caret-position="230">
+          <caret line="10" selection-start-line="10" selection-end-line="12" selection-end-column="10" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#567#6111#0" />
+            <element signature="e#7265#7448#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py">
+    <entry file="file://$PROJECT_DIR$/merger/utils/visualize_parallax_significance.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="640">
-          <caret line="34" column="31" lean-forward="true" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
+        <state relative-caret-position="-4956">
+          <caret line="228" column="36" selection-start-line="228" selection-start-column="36" selection-end-line="228" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/lib/python3.7/runpy.py">
+    <entry file="file://$PROJECT_DIR$/merger/parallax_estimator/similarity_estimator_display.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
-          <caret line="95" column="51" lean-forward="true" selection-start-line="95" selection-start-column="51" selection-end-line="95" selection-end-column="51" />
+        <state relative-caret-position="471">
+          <caret line="109" column="13" selection-start-line="109" selection-start-column="13" selection-end-line="109" selection-end-column="144" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="666">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
+        <state relative-caret-position="515">
+          <caret line="35" column="4" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="30" />
           <folding>
             <element signature="e#301#316#0" expanded="true" />
           </folding>
@@ -1301,26 +1258,73 @@
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/period_searcher.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="464">
-          <caret line="66" column="18" lean-forward="true" selection-start-line="66" selection-start-column="18" selection-end-line="66" selection-end-column="18" />
+          <caret line="66" column="18" selection-start-line="66" selection-start-column="18" selection-end-line="66" selection-end-column="18" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
+    <entry file="file:///usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/lib/python3.7/runpy.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="69">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        <state relative-caret-position="226">
+          <caret line="84" selection-start-line="84" selection-end-line="84" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/old/sigma-mag-histo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1641">
+          <caret line="37" column="27" selection-start-line="37" selection-start-column="26" selection-end-line="37" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="413">
-          <caret line="113" column="17" lean-forward="true" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
+        <state relative-caret-position="245">
+          <caret line="151" column="63" selection-start-line="151" selection-start-column="63" selection-end-line="151" selection-end-column="63" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="46" column="43" lean-forward="true" selection-start-line="46" selection-start-column="43" selection-end-line="46" selection-end-column="43" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/tmp/dask_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-176">
+          <caret line="47" column="21" lean-forward="true" selection-start-line="47" selection-start-column="21" selection-end-line="47" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#27#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="398" column="19" selection-start-line="398" selection-start-column="19" selection-end-line="398" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>

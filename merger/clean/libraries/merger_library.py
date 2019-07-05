@@ -396,6 +396,7 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 	logging.info("Loading MACHO files")
 
 	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile]).compute()
+	print(macho_lcs)
 
 	# loading correspondance file and merging with load MACHO stars
 	logging.info("Merging")
