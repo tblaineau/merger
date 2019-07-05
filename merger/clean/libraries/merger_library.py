@@ -11,6 +11,9 @@ import ssl
 
 from requests import get
 
+import dask.dataframe as dd
+import dask.array as da
+
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -174,20 +177,38 @@ def read_macho_lightcurve(filepath, filename):
 	"""
 	try:
 		with gzip.open(os.path.join(filepath, filename), 'rt') as f:
-			lc = {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
+			linecount = 0
+			df = None
+			lc = list()  # {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
 			for line in f:
 				line = line.split(';')
-				lc['time'].append(float(line[4]))
-				lc['red_M'].append(float(line[9]))
-				lc['rederr_M'].append(float(line[10]))
-				lc['blue_M'].append(float(line[24]))
-				lc['blueerr_M'].append(float(line[25]))
-				lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
+				temp = list()
+				temp.append(float(line[4]))
+				temp.append(float(line[9]))
+				temp.append(float(line[10]))
+				temp.append(float(line[24]))
+				temp.append(float(line[25]))
+				temp.append(line[1] + ":" + line[2] + ":" + line[3])
+				lc.append(tuple(temp))
+				linecount += 1
+				if linecount > 500000:
+					linecount = 0
+					lc = np.array(lc, dtype=[('time', 'f4'),
+											 ('red_M', 'f4'),
+											 ('rederr_M', 'f4'),
+											 ('blue_M', 'f4'),
+											 ('blueerr_M', 'f4'),
+											 ('id_M', str)])
+					t = da.from_array(lc, chunks='100MB')
+					lc = list()
+					if df is None:
+						df = t.to_dask_dataframe()
+					else:
+						df = dd.concat([df, t.to_dask_dataframe()])
 			f.close()
 	except FileNotFoundError:
-		print(os.path.join(filepath, filename)+" doesn't exist.")
-		return None
-	return pd.DataFrame.from_dict(lc)
+		print(os.path.join(filepath, filename) + " doesn't exist.")
+	return df
 
 
 def load_macho_from_url(filename):
@@ -211,16 +232,36 @@ def load_macho_from_url(filename):
 		logging.error(f"Not a gzipped file : {target_url}")
 		return None
 
-	lc = {'time': [], 'red_M': [], 'rederr_M': [], 'blue_M': [], 'blueerr_M': [], 'id_M': []}
+	#lc = {'time': [], 'red_M': [], 'rederr_M': [], 'blue_M': [], 'blueerr_M': [], 'id_M': []}
+	lc = list()
+	linecount=0
+	df = None
 	for line in file:
+		temp = list()
 		line = line.split(';')
-		lc['time'].append(float(line[4]))
-		lc['red_M'].append(float(line[9]))
-		lc['rederr_M'].append(float(line[10]))
-		lc['blue_M'].append(float(line[24]))
-		lc['blueerr_M'].append(float(line[25]))
-		lc['id_M'].append(line[1] + ":" + line[2] + ":" + line[3])
-	return pd.DataFrame.from_dict(lc)
+		temp.append(float(line[4]))
+		temp.append(float(line[9]))
+		temp.append(float(line[10]))
+		temp.append(float(line[24]))
+		temp.append(float(line[25]))
+		temp.append(line[1] + ":" + line[2] + ":" + line[3])
+		lc.append(tuple(temp))
+		linecount += 1
+		if linecount>500000:
+			linecount=0
+			lc = np.array(lc, dtype=[('time', 'f4'),
+									 ('red_M', 'f4'),
+									 ('rederr_M', 'f4'),
+									 ('blue_M', 'f4'),
+									 ('blueerr_M', 'f4'),
+									 ('id_M', str)])
+			t = da.from_array(lc, chunks='100MB')
+			lc = list()
+			if df is None:
+				df = t.to_dask_dataframe()
+			else:
+				df = dd.concat([df, t.to_dask_dataframe()])
+	return df
 
 
 def load_macho_tiles(MACHO_files_path, field, tile_list):
@@ -336,7 +377,7 @@ def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, c
 def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True):
 	logging.info("Loading MACHO files")
 
-	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile])
+	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile]).compute()
 
 	# loading correspondance file and merging with load MACHO stars
 	logging.info("Merging")
