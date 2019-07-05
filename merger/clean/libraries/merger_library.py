@@ -175,11 +175,11 @@ def read_macho_lightcurve(filepath, filename):
 	"""
 	Read MACHO lightcurves from tile archive.
 	"""
+	df = None
+	lc = list() # {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
 	try:
 		with gzip.open(os.path.join(filepath, filename), 'rt') as f:
 			linecount = 0
-			df = None
-			lc = list()  # {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
 			for line in f:
 				line = line.split(';')
 				temp = list()
@@ -208,6 +208,15 @@ def read_macho_lightcurve(filepath, filename):
 			f.close()
 	except FileNotFoundError:
 		print(os.path.join(filepath, filename) + " doesn't exist.")
+	if df is None:
+		lc = np.array(lc, dtype=[('time', 'f4'),
+								 ('red_M', 'f4'),
+								 ('rederr_M', 'f4'),
+								 ('blue_M', 'f4'),
+								 ('blueerr_M', 'f4'),
+								 ('id_M', str)])
+		t = da.from_array(lc, chunks='100MB')
+		df = t.to_dask_dataframe()
 	return df
 
 
@@ -261,6 +270,15 @@ def load_macho_from_url(filename):
 				df = t.to_dask_dataframe()
 			else:
 				df = dd.concat([df, t.to_dask_dataframe()])
+	if df is None:
+		lc = np.array(lc, dtype=[('time', 'f4'),
+								 ('red_M', 'f4'),
+								 ('rederr_M', 'f4'),
+								 ('blue_M', 'f4'),
+								 ('blueerr_M', 'f4'),
+								 ('id_M', str)])
+		t = da.from_array(lc, chunks='100MB')
+		df = t.to_dask_dataframe()
 	return df
 
 
@@ -274,7 +292,7 @@ def load_macho_tiles(MACHO_files_path, field, tile_list):
 			pds.append(load_macho_from_url("F_"+str(field)+"."+str(tile)+".gz"))
 		else:
 			pds.append(read_macho_lightcurve(macho_path, "F_"+str(field)+"."+str(tile)+".gz"))
-	return pd.concat(pds)
+	return dd.concat(pds)
 
 
 def load_macho_field(MACHO_files_path, field):
@@ -286,7 +304,7 @@ def load_macho_field(MACHO_files_path, field):
 				print(file)
 				pds.append(read_macho_lightcurve(macho_path, file))
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
-	return pd.concat(pds)
+	return dd.concat(pds)
 
 
 def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart="", save=True):
