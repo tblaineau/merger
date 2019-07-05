@@ -45,8 +45,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="199">
-              <caret line="46" column="43" lean-forward="true" selection-start-line="46" selection-start-column="43" selection-end-line="46" selection-end-column="43" />
+            <state relative-caret-position="-1189">
+              <caret line="2" column="17" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -69,8 +69,20 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
-              <caret line="398" column="19" selection-start-line="398" selection-start-column="19" selection-end-line="398" selection-end-column="19" />
+            <state relative-caret-position="610">
+              <caret line="492" column="13" selection-start-line="492" selection-start-column="13" selection-end-line="492" selection-end-column="13" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/Desktop/temp/work/merger/merger/clean/libraries/merger_library.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="325">
+              <caret line="472" column="32" lean-forward="true" selection-start-line="472" selection-start-column="32" selection-end-line="472" selection-end-column="32" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -124,9 +136,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>72</find>
-      <find>binfunc</find>
-      <find>_chi2</find>
       <find>np</find>
       <find>FuncF</find>
       <find>FuncForm</find>
@@ -149,11 +158,14 @@
       <find>len(</find>
       <find>errRBM</find>
       <find>print(</find>
-      <find>@</find>
       <find>s2</find>
       <find>logging</find>
       <find>gzip</find>
       <find>dask</find>
+      <find>copy</find>
+      <find>@</find>
+      <find>@profile</find>
+      <find>mem_checkpoint()</find>
     </findStrings>
     <replaceStrings>
       <replace>t_am</replace>
@@ -182,7 +194,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/utils/visualize_parallax_significance.py" />
         <option value="$PROJECT_DIR$/python_associator/new_nnd.py" />
         <option value="$PROJECT_DIR$/utils/distance_cut_compute.py" />
         <option value="$PROJECT_DIR$/old/parameter_generator.py" />
@@ -230,8 +241,9 @@
         <option value="$PROJECT_DIR$/merger/clean/libraries/period_searcher.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
         <option value="$USER_HOME$/Desktop/tmp/work/visualize_curve.py" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
         <option value="$USER_HOME$/Desktop/tmp/dask_test.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
+        <option value="$USER_HOME$/Desktop/temp/work/merger/merger/clean/libraries/merger_library.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
       </list>
     </option>
@@ -454,20 +466,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00130" summary="added metropolis-hastings and doc">
-      <created>1560351561384</created>
-      <option name="number" value="00130" />
-      <option name="presentableId" value="LOCAL-00130" />
-      <option name="project" value="LOCAL" />
-      <updated>1560351561384</updated>
-    </task>
-    <task id="LOCAL-00131" summary="corrected doc">
-      <created>1560351621805</created>
-      <option name="number" value="00131" />
-      <option name="presentableId" value="LOCAL-00131" />
-      <option name="project" value="LOCAL" />
-      <updated>1560351621805</updated>
     </task>
     <task id="LOCAL-00132" summary="corrected ccd E choices (0-6 -&gt; 0-7)">
       <created>1560413461890</created>
@@ -798,7 +796,21 @@
       <option name="project" value="LOCAL" />
       <updated>1562314862643</updated>
     </task>
-    <option name="localTasksCounter" value="179" />
+    <task id="LOCAL-00179" summary="debug 1">
+      <created>1562314992723</created>
+      <option name="number" value="00179" />
+      <option name="presentableId" value="LOCAL-00179" />
+      <option name="project" value="LOCAL" />
+      <updated>1562314992723</updated>
+    </task>
+    <task id="LOCAL-00180" summary="corrected id_M format">
+      <created>1562315343934</created>
+      <option name="number" value="00180" />
+      <option name="presentableId" value="LOCAL-00180" />
+      <option name="project" value="LOCAL" />
+      <updated>1562315343934</updated>
+    </task>
+    <option name="localTasksCounter" value="181" />
     <servers />
   </component>
   <component name="TodoView">
@@ -814,8 +826,8 @@
     <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47191012" visible="true" weight="0.13375461" />
-      <window_info id="Structure" order="1" sideWeight="0.5280899" side_tool="true" visible="true" weight="0.13375461" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47226173" visible="true" weight="0.13375461" />
+      <window_info active="true" id="Structure" order="1" sideWeight="0.5277383" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
@@ -824,8 +836,8 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19675091" />
-      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.36552346" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" weight="0.19675091" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" visible="true" weight="0.36552346" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
       <window_info anchor="bottom" id="Messages" order="11" />
@@ -887,8 +899,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="2first, 2last option" />
-    <MESSAGE value="time loading information" />
     <MESSAGE value="added dispersion stats functions" />
     <MESSAGE value="errRBM" />
     <MESSAGE value="removed prints" />
@@ -912,25 +922,11 @@
     <MESSAGE value="changed limit error from 0.01 to 0.00" />
     <MESSAGE value="daskify MACHO loading" />
     <MESSAGE value="added support for small MACHO files (lc &lt; 500000)" />
-    <option name="LAST_COMMIT_MESSAGE" value="added support for small MACHO files (lc &lt; 500000)" />
+    <MESSAGE value="debug 1" />
+    <MESSAGE value="corrected id_M format" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected id_M format" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/merger_pyspark.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-350">
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python3.7/site-packages/pandas/io/pickle.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="96" column="74" selection-start-line="96" selection-start-column="74" selection-end-line="96" selection-end-column="74" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.7/site-packages/matplotlib/axes/_axes.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-4099">
@@ -1299,16 +1295,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="46" column="43" lean-forward="true" selection-start-line="46" selection-start-column="43" selection-end-line="46" selection-end-column="43" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Desktop/tmp/dask_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-176">
@@ -1319,10 +1305,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/dask/dataframe/multi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="474">
+          <caret line="968" lean-forward="true" selection-start-line="968" selection-end-line="968" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1189">
+          <caret line="2" column="17" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/temp/work/merger/merger/clean/libraries/merger_library.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="325">
+          <caret line="472" column="32" lean-forward="true" selection-start-line="472" selection-start-column="32" selection-end-line="472" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="398" column="19" selection-start-line="398" selection-start-column="19" selection-end-line="398" selection-end-column="19" />
+        <state relative-caret-position="610">
+          <caret line="492" column="13" selection-start-line="492" selection-start-column="13" selection-end-line="492" selection-end-column="13" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
