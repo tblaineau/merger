@@ -198,7 +198,7 @@ def read_macho_lightcurve(filepath, filename):
 											 ('rederr_M', 'f4'),
 											 ('blue_M', 'f4'),
 											 ('blueerr_M', 'f4'),
-											 ('id_M', str)])
+											 ('id_M', 'U13')])
 					t = da.from_array(lc, chunks='100MB')
 					lc = list()
 					if df is None:
@@ -214,7 +214,7 @@ def read_macho_lightcurve(filepath, filename):
 								 ('rederr_M', 'f4'),
 								 ('blue_M', 'f4'),
 								 ('blueerr_M', 'f4'),
-								 ('id_M', str)])
+								 ('id_M', 'U13')])
 		t = da.from_array(lc, chunks='100MB')
 		df = t.to_dask_dataframe()
 	return df
@@ -263,7 +263,7 @@ def load_macho_from_url(filename):
 									 ('rederr_M', 'f4'),
 									 ('blue_M', 'f4'),
 									 ('blueerr_M', 'f4'),
-									 ('id_M', str)])
+									 ('id_M', 'U13')])
 			t = da.from_array(lc, chunks='100MB')
 			lc = list()
 			if df is None:
@@ -276,7 +276,7 @@ def load_macho_from_url(filename):
 								 ('rederr_M', 'f4'),
 								 ('blue_M', 'f4'),
 								 ('blueerr_M', 'f4'),
-								 ('id_M', str)])
+								 ('id_M', 'U13')])
 		t = da.from_array(lc, chunks='100MB')
 		df = t.to_dask_dataframe()
 	return df
@@ -396,7 +396,6 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 	logging.info("Loading MACHO files")
 
 	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile]).compute()
-	print(macho_lcs)
 
 	# loading correspondance file and merging with load MACHO stars
 	logging.info("Merging")
