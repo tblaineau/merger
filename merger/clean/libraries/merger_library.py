@@ -13,6 +13,7 @@ from requests import get
 
 import dask.dataframe as dd
 import dask.array as da
+from dask.distributed import Client
 
 
 COLOR_FILTERS = {
@@ -22,6 +23,8 @@ COLOR_FILTERS = {
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
 
+CURRENT_DIRECTORY, _ = os.path.split(__file__)
+STAR_COUNT_PATH = os.path.join(CURRENT_DIRECTORY, '../../utils/MACHOstarcounts/')
 OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 
@@ -171,16 +174,44 @@ def load_eros_compressed_files(filepath):
 	return pd.DataFrame.from_dict(lc)
 
 
-def read_macho_lightcurve(filepath, filename):
+def read_macho_lightcurve(filepath, filename, star_nb_start=0, star_nb_stop=-1):
 	"""
 	Read MACHO lightcurves from tile archive.
+
+	Parameters
+	----------
+	filepath : str
+	filename : str
+	star_nb_start : int
+		From which star to start saving value of file, default : 0 (from first line)
+	star_nb_stop : int
+		Star at which the program will stop reading the file, default : -1 (goes to the end of file)
+
+	Returns
+	-------
+	pd.DataFrame
 	"""
-	df = None
+
 	lc = list() # {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
+	curr_star_nb = 0
+	last_star_id = None
 	try:
 		with gzip.open(os.path.join(filepath, filename), 'rt') as f:
-			linecount = 0
+			while curr_star_nb<star_nb_start:
+				for line in f:
+					if last_star_id is None:
+						last_star_id = line[3]
+					elif last_star_id != line[3]:
+						last_star_id = line[3]
+						curr_star_nb+=1
 			for line in f:
+				if last_star_id is None:
+					last_star_id = line[3]
+				elif last_star_id != line[3]:
+					last_star_id = line[3]
+					curr_star_nb += 1
+					if curr_star_nb == star_nb_stop+1:
+						break
 				line = line.split(';')
 				temp = list()
 				temp.append(float(line[4]))
@@ -190,34 +221,16 @@ def read_macho_lightcurve(filepath, filename):
 				temp.append(float(line[25]))
 				temp.append(line[1] + ":" + line[2] + ":" + line[3])
 				lc.append(tuple(temp))
-				linecount += 1
-				if linecount > 500000:
-					linecount = 0
-					lc = np.array(lc, dtype=[('time', 'f4'),
-											 ('red_M', 'f4'),
-											 ('rederr_M', 'f4'),
-											 ('blue_M', 'f4'),
-											 ('blueerr_M', 'f4'),
-											 ('id_M', 'U13')])
-					t = da.from_array(lc, chunks='100MB')
-					lc = list()
-					if df is None:
-						df = t.to_dask_dataframe()
-					else:
-						df = dd.concat([df, t.to_dask_dataframe()])
 			f.close()
 	except FileNotFoundError:
 		print(os.path.join(filepath, filename) + " doesn't exist.")
-	if df is None:
-		lc = np.array(lc, dtype=[('time', 'f4'),
-								 ('red_M', 'f4'),
-								 ('rederr_M', 'f4'),
-								 ('blue_M', 'f4'),
-								 ('blueerr_M', 'f4'),
-								 ('id_M', 'U13')])
-		t = da.from_array(lc, chunks='100MB')
-		df = t.to_dask_dataframe()
-	return df
+	lc = np.array(lc, dtype=[('time', 'f4'),
+							 ('red_M', 'f4'),
+							 ('rederr_M', 'f4'),
+							 ('blue_M', 'f4'),
+							 ('blueerr_M', 'f4'),
+							 ('id_M', 'U13')])
+	return pd.DataFrame.from_records(lc)
 
 
 def load_macho_from_url(filename):
@@ -305,6 +318,31 @@ def load_macho_field(MACHO_files_path, field):
 				pds.append(read_macho_lightcurve(macho_path, file))
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return dd.concat(pds)
+
+
+STARS_PER_JOBS = 1000000
+
+
+def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
+	counts = np.loadtxt(os.path.join(STAR_COUNT_PATH, "strcnt_"+str(MACHO_field)+".txt"), dtype=[('number_of_stars', 'i4'), ('tile', 'i4')])
+	start = (t_indice - 1) * STARS_PER_JOBS
+	end = t_indice * STARS_PER_JOBS - 1
+	tot_linecounts = counts['number_of_lines'].cumsum()
+	start_idx = np.searchsorted(tot_linecounts, start)
+	end_idx = np.searchsorted(tot_linecounts, end)
+	start_tile = counts['tile'][start_idx]
+	end_tile = counts['tile'][end_idx]
+	if start_idx==end_idx:
+		pds = read_macho_lightcurve(MACHO_files_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', start, end)
+	else:
+		pds = list()
+		pds.append(read_macho_lightcurve(MACHO_files_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', star_nb_start=start))
+		pds.append(read_macho_lightcurve(MACHO_files_path, 'F_'+str(MACHO_field)+'.'+str(end_tile)+'.gz', star_nb_stop=end))
+		if start_idx+1 <= end_idx-1:
+			for idx in range(start_idx+1, end_idx):
+				pds.append(read_macho_lightcurve(MACHO_files_path, 'F_' + str(MACHO_field) + '.' + str(counts['tile'][idx]) + '.gz'))
+	return pd.concat(pds, copy=False, sort=False)
+
 
 
 def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, correspondance_files_path, MACHO_files_path, quart="", save=True):
@@ -395,7 +433,7 @@ def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, c
 def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True):
 	logging.info("Loading MACHO files")
 
-	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile]).compute()
+	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile])
 
 	# loading correspondance file and merging with load MACHO stars
 	logging.info("Merging")
@@ -450,7 +488,7 @@ def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path
 	merged2 = eros_lcs.merge(correspondance, on='id_E', validate="m:1")
 	del eros_lcs
 
-	merged = pd.concat((merged1, merged2), copy=False)
+	merged = pd.concat((merged1, merged2), copy=False, sort=False)
 
 	# replace invalid values in magnitudes with numpy NaN and remove rows with no valid magnitudes
 	merged = merged.replace(to_replace=[99.999, -99.], value=np.nan).dropna(axis=0, how='all',
