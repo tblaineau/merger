@@ -80,8 +80,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="621">
-              <caret line="27" column="18" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
+            <state relative-caret-position="669">
+              <caret line="514" column="42" selection-start-line="514" selection-start-column="42" selection-end-line="514" selection-end-column="42" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -477,20 +477,6 @@
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
     </task>
-    <task id="LOCAL-00154" summary="time loading information">
-      <created>1561111164476</created>
-      <option name="number" value="00154" />
-      <option name="presentableId" value="LOCAL-00154" />
-      <option name="project" value="LOCAL" />
-      <updated>1561111164476</updated>
-    </task>
-    <task id="LOCAL-00155" summary="added dispersion stats functions">
-      <created>1561624864358</created>
-      <option name="number" value="00155" />
-      <option name="presentableId" value="LOCAL-00155" />
-      <option name="project" value="LOCAL" />
-      <updated>1561624864359</updated>
-    </task>
     <task id="LOCAL-00156" summary="errRBM">
       <created>1561625169232</created>
       <option name="number" value="00156" />
@@ -820,7 +806,21 @@
       <option name="project" value="LOCAL" />
       <updated>1562594972975</updated>
     </task>
-    <option name="localTasksCounter" value="203" />
+    <task id="LOCAL-00203" summary="new star count">
+      <created>1562597846656</created>
+      <option name="number" value="00203" />
+      <option name="presentableId" value="LOCAL-00203" />
+      <option name="project" value="LOCAL" />
+      <updated>1562597846657</updated>
+    </task>
+    <task id="LOCAL-00204" summary="new load time threshold">
+      <created>1562597871461</created>
+      <option name="number" value="00204" />
+      <option name="presentableId" value="LOCAL-00204" />
+      <option name="project" value="LOCAL" />
+      <updated>1562597871461</updated>
+    </task>
+    <option name="localTasksCounter" value="205" />
     <servers />
   </component>
   <component name="TodoView">
@@ -909,8 +909,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="added support for small MACHO files (lc &lt; 500000)" />
-    <MESSAGE value="debug 1" />
     <MESSAGE value="corrected id_M format" />
     <MESSAGE value="daskify all (from testing)" />
     <MESSAGE value="new script to precompute nb of lines in MACHO fields" />
@@ -934,7 +932,9 @@
     <MESSAGE value="no error for last indice" />
     <MESSAGE value="No more empty files loaded and indexerror" />
     <MESSAGE value="too much time to load error" />
-    <option name="LAST_COMMIT_MESSAGE" value="too much time to load error" />
+    <MESSAGE value="new star count" />
+    <MESSAGE value="new load time threshold" />
+    <option name="LAST_COMMIT_MESSAGE" value="new load time threshold" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
@@ -1309,8 +1309,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
-          <caret line="27" column="18" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
+        <state relative-caret-position="669">
+          <caret line="514" column="42" selection-start-line="514" selection-start-column="42" selection-end-line="514" selection-end-column="42" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>

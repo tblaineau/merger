@@ -477,6 +477,7 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 	logging.info("Loading EROS lightcurves")
 
 	if EROS_files_path == 'irods':
+		times = []
 		st1 = time.time()
 		IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
 		try:
@@ -510,7 +511,8 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 							lc["id_E"].append(id_E)
 					pds.append(pd.DataFrame.from_dict(lc))
 					logging.info(time.time() - st2)
-					if time.time() - st2 > 3:
+					times.append(time.time() - st2)
+					if np.median(times[-10:]) >= 3:
 						raise SystemExit(f"EROS loading take too much time. No time to waste.")
 		eros_lcs = pd.concat(pds)
 		del pds
