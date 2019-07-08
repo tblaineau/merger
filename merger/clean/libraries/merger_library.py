@@ -24,7 +24,7 @@ COLOR_FILTERS = {
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
 
-STAR_COUNT_PATH = pkg_resources.resource_filename('merger', 'utils/MACHOstarcount')
+STAR_COUNT_PATH = pkg_resources.resource_filename('merger', 'utils/MACHOstarcounts')
 STARS_PER_JOBS = 10000
 OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
