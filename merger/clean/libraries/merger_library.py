@@ -15,6 +15,7 @@ import dask.dataframe as dd
 import dask.array as da
 from dask.distributed import Client
 
+import pkg_resources
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -23,8 +24,7 @@ COLOR_FILTERS = {
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
 
-CURRENT_DIRECTORY, _ = os.path.split(__file__)
-STAR_COUNT_PATH = os.path.join(CURRENT_DIRECTORY, '../../utils/MACHOstarcounts/')
+STAR_COUNT_PATH = pkg_resources.resource_filename('merger', 'utils/MACHOstarcount')
 STARS_PER_JOBS = 10000
 OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
