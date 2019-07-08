@@ -510,6 +510,8 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 							lc["id_E"].append(id_E)
 					pds.append(pd.DataFrame.from_dict(lc))
 					logging.info(time.time() - st2)
+					if time.time() - st2 > 2:
+						raise SystemExit(f"EROS loading take too much time. No time to waste.")
 		eros_lcs = pd.concat(pds)
 		del pds
 		logging.info(f"{time.time()-st1} seconds to load {eros_lcs.id_E.nunique()}.")
