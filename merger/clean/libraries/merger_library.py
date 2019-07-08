@@ -195,26 +195,28 @@ def read_macho_lightcurve(filepath, filename, star_nb_start=0, star_nb_stop=-1):
 
 	lc = list() # {'time':[], 'red_M':[], 'rederr_M':[], 'blue_M':[], 'blueerr_M':[], 'id_M':[]}
 	curr_star_nb = 0
-	last_star_id = None
 	try:
 		with gzip.open(os.path.join(filepath, filename), 'rt') as f:
+			line = f.readline().split(';')
+			last_star_id = line[3]
+			f.seek(0)
+
+			#Discard until star_nb_start
 			while curr_star_nb<star_nb_start:
-				for line in f:
-					if last_star_id is None:
-						last_star_id = line[3]
-					elif last_star_id != line[3]:
-						last_star_id = line[3]
-						curr_star_nb+=1
-			for line in f:
-				if last_star_id is None:
+				line = f.readline().split(';')
+				if last_star_id != line[3]:
 					last_star_id = line[3]
-				elif last_star_id != line[3]:
+					curr_star_nb+=1
+
+			#Save until star_nb_stop
+			for line in f:
+				line = line.split(';')
+				temp = list()
+				if last_star_id != line[3]:
 					last_star_id = line[3]
 					curr_star_nb += 1
 					if curr_star_nb == star_nb_stop+1:
 						break
-				line = line.split(';')
-				temp = list()
 				temp.append(float(line[4]))
 				temp.append(float(line[9]))
 				temp.append(float(line[10]))
@@ -224,7 +226,7 @@ def read_macho_lightcurve(filepath, filename, star_nb_start=0, star_nb_stop=-1):
 				lc.append(tuple(temp))
 			f.close()
 	except FileNotFoundError:
-		print(os.path.join(filepath, filename) + " doesn't exist.")
+		logging.error(os.path.join(filepath, filename) + " doesn't exist.")
 	lc = np.array(lc, dtype=[('time', 'f4'),
 							 ('red_M', 'f4'),
 							 ('rederr_M', 'f4'),
@@ -319,9 +321,6 @@ def load_macho_field(MACHO_files_path, field):
 				pds.append(read_macho_lightcurve(macho_path, file))
 				#pds.append(pd.read_csv(os.path.join(macho_path+file), names=["id1", "id2", "id3", "time", "red_M", "rederr_M", "blue_M", "blueerr_M"], usecols=[1,2,3,4,9,10,24,25], sep=';'))
 	return dd.concat(pds)
-
-
-STARS_PER_JOBS = 1000000
 
 
 def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
