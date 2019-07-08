@@ -340,7 +340,7 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 	-------
 	pd.DataFrame
 	"""
-	counts = np.loadtxt(os.path.join(STAR_COUNT_PATH, "strcnt_"+str(MACHO_field)+".txt"), dtype=[('number_of_stars', 'i4'), ('tile', 'i4')])
+	counts = np.loadtxt(os.path.join(STAR_COUNT_PATH, "strcnt_"+str(MACHO_field)+".txt"), dtype=[('tile', 'i4'), ('number_of_stars', 'i4')])
 	start = (t_indice - 1) * STARS_PER_JOBS
 	end = t_indice * STARS_PER_JOBS - 1
 	tot_starcounts = counts['number_of_stars'].cumsum()
