@@ -341,6 +341,7 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 	pd.DataFrame
 	"""
 	counts = np.loadtxt(os.path.join(STAR_COUNT_PATH, "strcnt_"+str(MACHO_field)+".txt"), dtype=[('tile', 'i4'), ('number_of_stars', 'i4')])
+	counts = counts[counts['number_of_stars'] > 0]	#No empty files
 	start = (t_indice - 1) * STARS_PER_JOBS
 	end = t_indice * STARS_PER_JOBS - 1
 	tot_starcounts = counts['number_of_stars'].cumsum()
@@ -360,13 +361,11 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 		pds = read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', start-n_start, end-n_end)
 	else:
 		pds = list()
-		if counts['number_of_stars'][start_idx] > 0:
-			pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', star_nb_start=start-n_start))
+		pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', star_nb_start=start-n_start))
 		pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(end_tile)+'.gz', star_nb_stop=end-n_end))
 		if start_idx+1 <= end_idx-1:
 			for idx in range(start_idx+1, end_idx):
-				if counts['number_of_stars'][idx]>0:
-					pds.append(read_macho_lightcurve(full_path, 'F_' + str(MACHO_field) + '.' + str(counts['tile'][idx]) + '.gz'))
+				pds.append(read_macho_lightcurve(full_path, 'F_' + str(MACHO_field) + '.' + str(counts['tile'][idx]) + '.gz'))
 	return pd.concat(pds, copy=False, sort=False)
 
 

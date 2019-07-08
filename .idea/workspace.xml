@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="added dispersion stats functions">
-      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_1.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_2.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_3.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_4.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_42.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_5.txt" afterDir="false" />
+    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -86,8 +80,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="426">
-              <caret line="324" selection-start-line="324" selection-end-line="324" />
+            <state relative-caret-position="717">
+              <caret line="367" column="16" selection-start-line="367" selection-start-column="16" selection-end-line="367" selection-end-column="16" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -259,10 +253,9 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="16" />
+  <component name="ProjectFrameBounds">
     <option name="width" value="1920" />
-    <option name="height" value="1184" />
+    <option name="height" value="1200" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -483,27 +476,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00149" summary="corrected info message">
-      <created>1561024654048</created>
-      <option name="number" value="00149" />
-      <option name="presentableId" value="LOCAL-00149" />
-      <option name="project" value="LOCAL" />
-      <updated>1561024654049</updated>
-    </task>
-    <task id="LOCAL-00150" summary="added solo chi2 flat">
-      <created>1561030438189</created>
-      <option name="number" value="00150" />
-      <option name="presentableId" value="LOCAL-00150" />
-      <option name="project" value="LOCAL" />
-      <updated>1561030438189</updated>
-    </task>
-    <task id="LOCAL-00151" summary="corrected">
-      <created>1561030462561</created>
-      <option name="number" value="00151" />
-      <option name="presentableId" value="LOCAL-00151" />
-      <option name="project" value="LOCAL" />
-      <updated>1561030462561</updated>
     </task>
     <task id="LOCAL-00152" summary="corrected len of counts (mag rather than err)">
       <created>1561103869638</created>
@@ -827,7 +799,28 @@
       <option name="project" value="LOCAL" />
       <updated>1562589338679</updated>
     </task>
-    <option name="localTasksCounter" value="198" />
+    <task id="LOCAL-00198" summary="add starcounts to git repo">
+      <created>1562590656193</created>
+      <option name="number" value="00198" />
+      <option name="presentableId" value="LOCAL-00198" />
+      <option name="project" value="LOCAL" />
+      <updated>1562590656193</updated>
+    </task>
+    <task id="LOCAL-00199" summary="modified filename of save">
+      <created>1562592301463</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
+      <option name="project" value="LOCAL" />
+      <updated>1562592301463</updated>
+    </task>
+    <task id="LOCAL-00200" summary="no error for last indice">
+      <created>1562592731891</created>
+      <option name="number" value="00200" />
+      <option name="presentableId" value="LOCAL-00200" />
+      <option name="project" value="LOCAL" />
+      <updated>1562592731891</updated>
+    </task>
+    <option name="localTasksCounter" value="201" />
     <servers />
   </component>
   <component name="TodoView">
@@ -840,10 +833,11 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
+    <frame x="0" y="0" width="1920" height="1200" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4707865" visible="true" weight="0.13375461" />
-      <window_info id="Structure" order="1" sideWeight="0.5292135" side_tool="true" visible="true" weight="0.13375461" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4712514" visible="true" weight="0.13375461" />
+      <window_info id="Structure" order="1" sideWeight="0.5287486" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
@@ -852,7 +846,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19675091" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19945848" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.36552346" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
@@ -915,9 +909,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="corrected error" />
-    <MESSAGE value="debug$" />
-    <MESSAGE value="debug2 no empty line" />
     <MESSAGE value="changed limit error from 0.01 to 0.00" />
     <MESSAGE value="daskify MACHO loading" />
     <MESSAGE value="added support for small MACHO files (lc &lt; 500000)" />
@@ -940,7 +931,10 @@
     <MESSAGE value="Corrected load_macho_stars function (now operational)" />
     <MESSAGE value="correct numpy struct array column labels" />
     <MESSAGE value="corrected for empty files and bad ending index" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected for empty files and bad ending index" />
+    <MESSAGE value="add starcounts to git repo" />
+    <MESSAGE value="modified filename of save" />
+    <MESSAGE value="no error for last indice" />
+    <option name="LAST_COMMIT_MESSAGE" value="no error for last indice" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
@@ -1315,8 +1309,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="324" selection-start-line="324" selection-end-line="324" />
+        <state relative-caret-position="717">
+          <caret line="367" column="16" selection-start-line="367" selection-start-column="16" selection-end-line="367" selection-end-column="16" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
