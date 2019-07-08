@@ -325,6 +325,22 @@ STARS_PER_JOBS = 1000000
 
 
 def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
+	"""
+	Load MACHO stars by group of STARS_PER_JOBS stars.
+
+	Parameters
+	----------
+	MACHO_files_path: str
+		Path to MACHO tile files
+	MACHO_field: int
+		Curretn MACHO field
+	t_indice: int
+		Current job array number
+
+	Returns
+	-------
+	pd.DataFrame
+	"""
 	counts = np.loadtxt(os.path.join(STAR_COUNT_PATH, "strcnt_"+str(MACHO_field)+".txt"), dtype=[('number_of_stars', 'i4'), ('tile', 'i4')])
 	start = (t_indice - 1) * STARS_PER_JOBS
 	end = t_indice * STARS_PER_JOBS - 1
