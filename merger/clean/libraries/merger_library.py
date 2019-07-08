@@ -532,6 +532,10 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 	# save merged dataframe
 	if save:
 		logging.info("Saving")
-		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl"))
+		if MACHO_tile:
+			name = MACHO_tile
+		else:
+			name = t_indice
+		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(name) + ".pkl"))
 
 	return merged

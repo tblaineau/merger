@@ -5,6 +5,8 @@ import gzip, os
 import time
 import seaborn as sns
 import wget
+import tarfile
+from astropy.io import fits
 
 def read_macho_lightcurve(filepath, fraction):
 	try:
@@ -79,20 +81,25 @@ def load_macho_field(MACHO_files_path, field, fraction=0.1):
 	return pd.concat(pds)
 
 MACHO_files_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/"
-field = 50
-tile_list = [9033, 9034, 9035, 9036]
+# test
+# field = 50
+# tile_list = [9033, 9034, 9035, 9036]
+
+field = 60
+tile_list = [6859, 6988, 6989]
+
 t = load_macho_tiles(MACHO_files_path, field, tile_list, 0.5)
 print(t)
 
 start=time.time()
 t1 = t.replace(
-    to_replace={'red_M':-99., 
-                'blue_M':-99., 
-                'red_chi2':999., 
-                'blue_chi2':999., 
-                'red_normsky':999., 
-                'blue_normsky':999.}
-    , value=np.nan)
+	to_replace={'red_M':-99.,
+				'blue_M':-99.,
+				'red_chi2':999.,
+				'blue_chi2':999.,
+				'red_normsky':999.,
+				'blue_normsky':999.}
+	, value=np.nan)
 
 t1['blueerr_M'] = np.where(t1.blueerr_M.between(0,9.999, inclusive=False), t1.blueerr_M, np.nan)
 t1['rederr_M'] = np.where(t1.rederr_M.between(0,9.999, inclusive=False), t1.rederr_M, np.nan)
@@ -119,57 +126,57 @@ output = ratio_dist[ratio_dist >= ratio_dist.dropna().quantile(0.95)]
 print(output)
 plt.rcParams['figure.figsize'] = [10, 10]
 for curr_time in output.index:
-    print(curr_time)
-    oid = int(t1[t1.time==curr_time].observation_id.iloc[0])
-    url = 'http://macho.nci.org.au/macho_images/O_'
-    file = 'Obs_'+str(oid)+'-WCS-MEF.tar.gz'
-    print(file)
-    urlpath = url+str(oid//1000)+'/Obs_'+str(oid)+'-WCS-MEF.tar.gz'
-    if not os.path.isfile(file):
-        file = wget.download(urlpath)
-    f = tarfile.open(file, 'r:gz')
-    blue_f, red_f = f.getmembers()
-    hdul = fits.open(f.extractfile(blue_f))
-    plt.figure()
+	print(curr_time)
+	oid = int(t1[t1.time==curr_time].observation_id.iloc[0])
+	url = 'http://macho.nci.org.au/macho_images/O_'
+	file = 'Obs_'+str(oid)+'-WCS-MEF.tar.gz'
+	print(file)
+	urlpath = url+str(oid//1000)+'/Obs_'+str(oid)+'-WCS-MEF.tar.gz'
+	if not os.path.isfile(file):
+		file = wget.download(urlpath)
+	f = tarfile.open(file, 'r:gz')
+	blue_f, red_f = f.getmembers()
+	hdul = fits.open(f.extractfile(blue_f))
+	plt.figure()
 
-    plt.subplot(244)
-    data = hdul[1].data
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.subplot(243)
-    data = hdul[2].data
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.subplot(242)
-    data = hdul[3].data
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.subplot(241)
-    data = hdul[4].data
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.subplot(245)
-    data = hdul[5].data
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.subplot(246)
-    data = hdul[6].data
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.subplot(428)
-    data = hdul[7].data.T
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.subplot(426)
-    data = hdul[8].data.T
-    low = np.percentile(np.array(data).flatten(), 15)
-    high = np.percentile(np.array(data).flatten(), 99)
-    plt.imshow(data, vmin=low, vmax=high)
-    plt.show()
+	plt.subplot(244)
+	data = hdul[1].data
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.subplot(243)
+	data = hdul[2].data
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.subplot(242)
+	data = hdul[3].data
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.subplot(241)
+	data = hdul[4].data
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.subplot(245)
+	data = hdul[5].data
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.subplot(246)
+	data = hdul[6].data
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.subplot(428)
+	data = hdul[7].data.T
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.subplot(426)
+	data = hdul[8].data.T
+	low = np.percentile(np.array(data).flatten(), 15)
+	high = np.percentile(np.array(data).flatten(), 99)
+	plt.imshow(data, vmin=low, vmax=high)
+	plt.show()
