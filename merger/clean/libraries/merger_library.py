@@ -348,15 +348,17 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 	end_idx = np.searchsorted(tot_starcounts, end)
 	start_tile = counts['tile'][start_idx]
 	end_tile = counts['tile'][end_idx]
+	full_path = os.path.join(MACHO_files_path, 'F_'+str(MACHO_field))
+	n = tot_starcounts[start_idx] - counts['number_of_stars'][start_idx]	#First cumulated star number
 	if start_idx==end_idx:
-		pds = read_macho_lightcurve(MACHO_files_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', start, end)
+		pds = read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', start- n, end -n)
 	else:
 		pds = list()
-		pds.append(read_macho_lightcurve(MACHO_files_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', star_nb_start=start))
-		pds.append(read_macho_lightcurve(MACHO_files_path, 'F_'+str(MACHO_field)+'.'+str(end_tile)+'.gz', star_nb_stop=end))
+		pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', star_nb_start=start - n))
+		pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(end_tile)+'.gz', star_nb_stop=end - n))
 		if start_idx+1 <= end_idx-1:
 			for idx in range(start_idx+1, end_idx):
-				pds.append(read_macho_lightcurve(MACHO_files_path, 'F_' + str(MACHO_field) + '.' + str(counts['tile'][idx]) + '.gz'))
+				pds.append(read_macho_lightcurve(full_path, 'F_' + str(MACHO_field) + '.' + str(counts['tile'][idx]) + '.gz'))
 	return pd.concat(pds, copy=False, sort=False)
 
 
