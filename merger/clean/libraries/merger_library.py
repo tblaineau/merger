@@ -328,9 +328,9 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 	counts = np.loadtxt(os.path.join(STAR_COUNT_PATH, "strcnt_"+str(MACHO_field)+".txt"), dtype=[('number_of_stars', 'i4'), ('tile', 'i4')])
 	start = (t_indice - 1) * STARS_PER_JOBS
 	end = t_indice * STARS_PER_JOBS - 1
-	tot_linecounts = counts['number_of_lines'].cumsum()
-	start_idx = np.searchsorted(tot_linecounts, start)
-	end_idx = np.searchsorted(tot_linecounts, end)
+	tot_starcounts = counts['number_of_stars'].cumsum()
+	start_idx = np.searchsorted(tot_starcounts, start)
+	end_idx = np.searchsorted(tot_starcounts, end)
 	start_tile = counts['tile'][start_idx]
 	end_tile = counts['tile'][end_idx]
 	if start_idx==end_idx:
