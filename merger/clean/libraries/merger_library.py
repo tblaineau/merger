@@ -349,16 +349,19 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 	start_tile = counts['tile'][start_idx]
 	end_tile = counts['tile'][end_idx]
 	full_path = os.path.join(MACHO_files_path, 'F_'+str(MACHO_field))
-	n = tot_starcounts[start_idx] - counts['number_of_stars'][start_idx]	#First cumulated star number
+	n_start = tot_starcounts[start_idx] - counts['number_of_stars'][start_idx] 	#First cumulated star number
+	n_end = tot_starcounts[end_idx] - counts['number_of_stars'][end_idx]
 	if start_idx==end_idx:
-		pds = read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', start- n, end -n)
+		pds = read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', start-n_start, end-n_end)
 	else:
 		pds = list()
-		pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', star_nb_start=start - n))
-		pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(end_tile)+'.gz', star_nb_stop=end - n))
+		if counts['number_of_stars'][start_idx] > 0:
+			pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', star_nb_start=start-n_start))
+		pds.append(read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(end_tile)+'.gz', star_nb_stop=end-n_end))
 		if start_idx+1 <= end_idx-1:
 			for idx in range(start_idx+1, end_idx):
-				pds.append(read_macho_lightcurve(full_path, 'F_' + str(MACHO_field) + '.' + str(counts['tile'][idx]) + '.gz'))
+				if counts['number_of_stars'][idx]>0:
+					pds.append(read_macho_lightcurve(full_path, 'F_' + str(MACHO_field) + '.' + str(counts['tile'][idx]) + '.gz'))
 	return pd.concat(pds, copy=False, sort=False)
 
 
