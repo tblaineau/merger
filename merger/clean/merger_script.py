@@ -77,6 +77,6 @@ if __name__ == '__main__':
 				if fit:
 					iminuit_fitter.fit_all(merged=merged, filename= str(MACHO_field)+"_"+str(eros_ccd)+".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
 	else:
-		merged = merger_library.merger_macho_first(output_directory, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path, save=False)
+		merged = merger_library.merger_macho_first(output_directory, MACHO_field, EROS_files_path, correspondance_files_path, MACHO_files_path, save=False, MACHO_tile=MACHO_tile)
 		if fit:
 			iminuit_fitter.fit_all(merged=merged, filename=str(MACHO_field) + "_" + str(MACHO_tile) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)

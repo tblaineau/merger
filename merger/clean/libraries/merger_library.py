@@ -25,6 +25,7 @@ COLOR_FILTERS = {
 
 CURRENT_DIRECTORY, _ = os.path.split(__file__)
 STAR_COUNT_PATH = os.path.join(CURRENT_DIRECTORY, '../../utils/MACHOstarcounts/')
+STARS_PER_JOBS = 10000
 OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 
@@ -430,10 +431,17 @@ def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, c
 
 	return merged
 
-def merger_macho_first(output_dir_path, MACHO_field, MACHO_tile, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True):
+def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True, t_indice=None, MACHO_tile=None,):
 	logging.info("Loading MACHO files")
 
-	macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile])
+	if isinstance(MACHO_tile, list) or isinstance(MACHO_tile, np.ndarray):
+		macho_lcs = load_macho_tiles(MACHO_files_path, MACHO_field, [MACHO_tile])
+	elif isinstance(t_indice, int):
+		macho_lcs = load_macho_stars(MACHO_files_path=MACHO_files_path, MACHO_field=MACHO_field, t_indice=t_indice)
+	else:
+		logging.error("No tile or t_indice defined or bad format")
+		raise SystemExit(0)
+
 
 	# loading correspondance file and merging with load MACHO stars
 	logging.info("Merging")
