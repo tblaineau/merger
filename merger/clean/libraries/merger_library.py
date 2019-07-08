@@ -347,10 +347,15 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 	start_idx = np.searchsorted(tot_starcounts, start)
 	end_idx = np.searchsorted(tot_starcounts, end)
 	start_tile = counts['tile'][start_idx]
-	end_tile = counts['tile'][end_idx]
+	if end_idx >= len(tot_starcounts):
+		end_tile = counts['tile'][-1]
+		n_end = tot_starcounts[-1] - counts['number_of_stars'][-1]
+	else:
+		end_tile = counts['tile'][end_idx]
+		n_end = tot_starcounts[end_idx] - counts['number_of_stars'][end_idx]
+
 	full_path = os.path.join(MACHO_files_path, 'F_'+str(MACHO_field))
 	n_start = tot_starcounts[start_idx] - counts['number_of_stars'][start_idx] 	#First cumulated star number
-	n_end = tot_starcounts[end_idx] - counts['number_of_stars'][end_idx]
 	if start_idx==end_idx:
 		pds = read_macho_lightcurve(full_path, 'F_'+str(MACHO_field)+'.'+str(start_tile)+'.gz', start-n_start, end-n_end)
 	else:
