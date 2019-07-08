@@ -2,8 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="added dispersion stats functions">
+      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_1.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_2.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_3.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_4.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_42.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/merger/utils/MACHOstarcounts/strcnt_5.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/utils/bad_time_spotter.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
@@ -42,7 +47,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="426">
@@ -78,11 +83,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="491">
-              <caret line="359" column="121" selection-start-line="359" selection-start-column="121" selection-end-line="359" selection-end-column="121" />
+            <state relative-caret-position="426">
+              <caret line="324" selection-start-line="324" selection-end-line="324" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -479,13 +484,6 @@
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
     </task>
-    <task id="LOCAL-00148" summary="added individual counts">
-      <created>1561024174435</created>
-      <option name="number" value="00148" />
-      <option name="presentableId" value="LOCAL-00148" />
-      <option name="project" value="LOCAL" />
-      <updated>1561024174435</updated>
-    </task>
     <task id="LOCAL-00149" summary="corrected info message">
       <created>1561024654048</created>
       <option name="number" value="00149" />
@@ -822,7 +820,14 @@
       <option name="project" value="LOCAL" />
       <updated>1562587467252</updated>
     </task>
-    <option name="localTasksCounter" value="197" />
+    <task id="LOCAL-00197" summary="corrected for empty files and bad ending index">
+      <created>1562589338679</created>
+      <option name="number" value="00197" />
+      <option name="presentableId" value="LOCAL-00197" />
+      <option name="project" value="LOCAL" />
+      <updated>1562589338679</updated>
+    </task>
+    <option name="localTasksCounter" value="198" />
     <servers />
   </component>
   <component name="TodoView">
@@ -837,8 +842,8 @@
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.47083926" visible="true" weight="0.13375461" />
-      <window_info id="Structure" order="1" sideWeight="0.52916074" side_tool="true" visible="true" weight="0.13375461" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4707865" visible="true" weight="0.13375461" />
+      <window_info id="Structure" order="1" sideWeight="0.5292135" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
@@ -847,8 +852,8 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" weight="0.19675091" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" visible="true" weight="0.36552346" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19675091" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.36552346" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
       <window_info anchor="bottom" id="Messages" order="11" />
@@ -910,7 +915,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="two linebreaks between functions" />
     <MESSAGE value="corrected error" />
     <MESSAGE value="debug$" />
     <MESSAGE value="debug2 no empty line" />
@@ -935,7 +939,8 @@
     <MESSAGE value="corrected read_macho_stars function (now operational)" />
     <MESSAGE value="Corrected load_macho_stars function (now operational)" />
     <MESSAGE value="correct numpy struct array column labels" />
-    <option name="LAST_COMMIT_MESSAGE" value="correct numpy struct array column labels" />
+    <MESSAGE value="corrected for empty files and bad ending index" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected for empty files and bad ending index" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
@@ -1298,20 +1303,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="491">
-          <caret line="359" column="121" selection-start-line="359" selection-start-column="121" selection-end-line="359" selection-end-column="121" />
+        <state relative-caret-position="426">
+          <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py">
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="426">
-          <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
+          <caret line="324" selection-start-line="324" selection-end-line="324" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
