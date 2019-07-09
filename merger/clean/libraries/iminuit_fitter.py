@@ -87,7 +87,7 @@ def compute_weighted_statistics(mag, weight):
 						v1 ** 4 - 2 * (v1 ** 2) * v2 + 4 * v1 * v3 - 3 * (v2 ** 2))) / den3
 			w_kurtosis = K4 / (K2 ** 2)
 
-	return w_variance, w_skewness, w_kurtosis
+	return [w_variance, w_skewness, w_kurtosis]
 
 
 @nb.njit
@@ -340,8 +340,8 @@ def fit_ml(subdf, cut5=False):
 		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)]
 		+ [weighted_std_interpolated(timeRE, magRE, errRE), weighted_std_interpolated(timeBE, magBE, errBE),
 		   weighted_std_interpolated(timeRM, magRM, errRM), weighted_std_interpolated(timeBM, magBM, errBM)]
-		+ [list(compute_weighted_statistics(magRE, errRE) + compute_weighted_statistics(magBE, errBE) +
-		   compute_weighted_statistics(magRM, errRM) + compute_weighted_statistics(magBM, errBM))]
+		+ compute_weighted_statistics(magRE, errRE) + compute_weighted_statistics(magBE, errBE) +
+		   compute_weighted_statistics(magRM, errRM) + compute_weighted_statistics(magBM, errBM)
 		+ [std_interpolated(timeRE, magRE), std_interpolated(timeBE, magBE),
 		   std_interpolated(timeRM, magRM), std_interpolated(timeBM, magBM)]
 		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)]
