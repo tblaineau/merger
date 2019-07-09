@@ -17,7 +17,6 @@ def microlensing_event(t, u0, t0, tE, mag1):
 		u = np.sqrt(u0**2 + ((t[i]-t0)**2)/tE**2)
 		out.append(-2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1)
 	return out
-
 @nb.njit
 def weighted_mean(mag, weigth):
 	s = 0
@@ -36,12 +35,12 @@ def weighted_std(mag, weight):
 	v2 = 0
 	m = weighted_mean(mag, weight)
 	for i in range(0, len(mag)):
-		s0 += weight[i] * (mag[i]-m)**2
+		s0 += weight[i] * (mag[i] - m)**2
 		v1 += weight[i]
 		v2 += weight[i]**2
-	if v1==0 or (v1**2-v2/v1**2) == 0:
+	if v1==0 or (v1**2 - v2) == 0:
 		return np.nan
-	return s0/(v1**2-v2/v1**2)
+	return np.sqrt(s0*v1/(v1**2 - v2))
 
 @nb.njit
 def std_interpolated(time, mag):
@@ -79,9 +78,9 @@ def weighted_std_interpolated(time, mag, err):
 		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/np.sqrt(sigmaisq))
 		v1 += 1/np.sqrt(sigmaisq)
 		v2 += 1/sigmaisq
-	if v1==0 or (v1**2-v2/v1**2) == 0:
+	if v1==0 or (v1**2 - v2) == 0:
 		return np.nan
-	return s0/(v1**2-v2/v1**2)
+	return np.sqrt(s0*v1/(v1**2 - v2))
 
 def fit_ml(subdf, cut5=False):
 	"""Fit on one star

@@ -62,6 +62,6 @@ if __name__ == '__main__':
 
 	np.savetxt(os.path.join(output_path,'strcnt_'+str(42)+'.txt'), X=star_count(os.path.join(MACHO_files_path, 'F_' + str(42))), fmt='%d')
 
-	for field in range(1, 83):
+	for field in range(6, 83):
 		print(field)
 		np.savetxt(os.path.join(output_path,'strcnt_' + str(field)+'.txt'), X=star_count(os.path.join(MACHO_files_path, 'F_'+str(field))), fmt='%d')
