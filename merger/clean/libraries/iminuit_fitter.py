@@ -233,12 +233,21 @@ def fit_ml(subdf, cut5=False):
 	# 	return pd.Series(None)
 
 	#maximum rolling mean on 100 days in EROS red
-	magRE_T = subdf[maskRE][cre].red_E
-	maxRE = (magRE_T.reindex(pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both').mean()).idxmin()
-	if not np.isnan(maxRE):
-		maxt0 = subdf[maskRE][cre].time.loc[maxRE]
+	meansRE = pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).rolling('100D',
+																												closed='both',
+																												min_periods=10).median()
+	meansRM = pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).rolling('100D',
+																												closed='both',
+																												min_periods=10).median()
+	if (~pd.isna(meansRE)).sum() != 0 and (~pd.isna(meansRM)).sum() != 0:
+		if abs(meansRE.max() - meansRE.min()) > abs(meansRM.max() - meansRM.min()):
+			maxt0 = subdf[maskRE][cre].time.iloc[meansRE.values.argmin()]
+			print('RE')
+		else:
+			maxt0 = subdf[maskRM][crm].time.iloc[meansRM.values.argmin()]
+			print('RM')
 	else:
-		maxt0 = 50500
+		maxt0 = 50745
 
 	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
