@@ -17,6 +17,8 @@ def microlensing_event(t, u0, t0, tE, mag1):
 		u = np.sqrt(u0**2 + ((t[i]-t0)**2)/tE**2)
 		out.append(-2.5*np.log10((u**2+2)/(u*np.sqrt(u**2+4)))+mag1)
 	return out
+
+
 @nb.njit
 def weighted_mean(mag, weigth):
 	s = 0
@@ -28,19 +30,65 @@ def weighted_mean(mag, weigth):
 		return np.nan
 	return s/v1
 
+
 @nb.njit
-def weighted_std(mag, weight):
-	s0 = 0
+def compute_weighted_statistics(mag, weight):
+	"""
+	Compute unbiased weighted variance and 'unbiased' weighted skewness and kurtosis (G1 and G2) as defined in L. Rimoldini (2013) (arXiv:1304.6564v2).
+
+	Parameters
+	----------
+	mag: list or np.array
+	weight: list or np.array
+	"""
+	m = weighted_mean(mag, weight)
+
+	# weighted sum containers
+	s2 = 0
+	s3 = 0
+	s4 = 0
+
+	# wsum of weights containers
 	v1 = 0
 	v2 = 0
-	m = weighted_mean(mag, weight)
+	v3 = 0
+	v4 = 0
+
+	# output format
+	w_variance = np.nan
+	w_skewness = np.nan
+	w_kurtosis = np.nan
+
 	for i in range(0, len(mag)):
-		s0 += weight[i] * (mag[i] - m)**2
-		v1 += weight[i]
-		v2 += weight[i]**2
-	if v1==0 or (v1**2 - v2) == 0:
-		return np.nan
-	return np.sqrt(s0*v1/(v1**2 - v2))
+		w = weight[i]
+
+		v1 += w
+		v2 += w ** 2
+		v3 += w ** 3
+		v4 += w ** 4
+
+		s2 += w * (mag[i] - m) ** 2
+		s3 += w * (mag[i] - m) ** 3
+		s4 += w * (mag[i] - m) ** 4
+
+	den1 = (v1 ** 2 - v2)
+	if den1 != 0:
+		K2 = s2 * v1 / den1
+		w_variance = K2
+
+		den2 = (v1 ** 3 - 3 * v1 * v2 + 2 * v3)
+		if den2 != 0:
+			K3 = s3 * v1 ** 2 / den2
+			w_skewness = K3 / np.power(K2, 3. / 2.)
+
+		den3 = den1 * (v1 ** 4 - 6 * (v1 ** 2) * v2 + 8 * v1 * v3 + 3 * (v2 ** 2) - 6 * v4)
+		if den3 != 0:
+			K4 = (s4 * v1 * (v1 ** 4 - 4 * v1 * v3 + 3 * (v2 ** 2)) - s2 * 3 * v1 * (
+						v1 ** 4 - 2 * (v1 ** 2) * v2 + 4 * v1 * v3 - 3 * (v2 ** 2))) / den3
+			w_kurtosis = K4 / (K2 ** 2)
+
+	return w_variance, w_skewness, w_kurtosis
+
 
 @nb.njit
 def std_interpolated(time, mag):
@@ -283,8 +331,8 @@ def fit_ml(subdf, cut5=False):
 		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)]
 		+ [weighted_std_interpolated(timeRE, magRE, errRE), weighted_std_interpolated(timeBE, magBE, errBE),
 		   weighted_std_interpolated(timeRM, magRM, errRM), weighted_std_interpolated(timeBM, magBM, errBM)]
-		+ [weighted_std(magRE, errRE), weighted_std(magBE, errBE),
-		   weighted_std(magRM, errRM), weighted_std(magBM, errBM)]
+		+ [list(compute_weighted_statistics(magRE, errRE) + compute_weighted_statistics(magBE, errBE) +
+		   compute_weighted_statistics(magRM, errRM) + compute_weighted_statistics(magBM, errBM))]
 		+ [std_interpolated(timeRE, magRE), std_interpolated(timeBE, magBE),
 		   std_interpolated(timeRM, magRM), std_interpolated(timeBM, magBM)]
 		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)]
@@ -298,7 +346,8 @@ def fit_ml(subdf, cut5=False):
 		+ ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
 		+ ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
 		+ ['dispersion_RE', 'dispersion_BE', 'dispersion_RM', 'dispersion_BM']
-		+ ['weighted_std_RE', 'weighted_std_BE', 'weighted_std_RM', 'weighted_std_BM']
+		+ ['w_variance_RE', 'w_skewness_RE', 'w_kurtosis_RE', 'w_variance_BE', 'w_skewness_BE', 'w_kurtosis_BE',
+		   'w_variance_RM', 'w_skewness_RM', 'w_kurtosis_RM', 'w_variance_BM', 'w_skewness_BM', 'w_kurtosis_BM']
 		+ ['std_int_RE', 'std_int_BE', 'std_int_RM', 'std_int_BM']
 		+ ['std_RE', 'std_BE', 'std_RM', 'std_BM']
 		+ ['probaBE', 'freqBE', 'min_freqBE', 'probaRE', 'freqRE', 'min_freqRE',
