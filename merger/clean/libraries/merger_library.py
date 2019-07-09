@@ -345,8 +345,8 @@ def load_macho_stars(MACHO_files_path, MACHO_field, t_indice):
 	start = (t_indice - 1) * STARS_PER_JOBS
 	end = t_indice * STARS_PER_JOBS - 1
 	tot_starcounts = counts['number_of_stars'].cumsum()
-	start_idx = np.searchsorted(tot_starcounts, start)
-	end_idx = np.searchsorted(tot_starcounts, end)
+	start_idx = np.searchsorted(tot_starcounts, start, side="right")
+	end_idx = np.searchsorted(tot_starcounts, end, side="right")
 	start_tile = counts['tile'][start_idx]
 	if end_idx >= len(tot_starcounts):
 		end_tile = counts['tile'][-1]
