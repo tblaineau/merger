@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
     </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,11 +29,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-18">
-              <caret line="316" column="9" selection-start-line="316" selection-start-column="9" selection-end-line="316" selection-end-column="9" />
+            <state relative-caret-position="424">
+              <caret line="343" column="105" selection-start-line="343" selection-start-column="105" selection-end-line="343" selection-end-column="105" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -77,11 +77,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="592">
-              <caret line="101" column="88" selection-start-line="101" selection-start-column="88" selection-end-line="101" selection-end-column="88" />
+            <state relative-caret-position="5155">
+              <caret line="515" column="48" selection-start-line="515" selection-start-column="48" selection-end-line="515" selection-end-column="48" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -257,8 +257,8 @@
         <option value="$PROJECT_DIR$/setup.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
         <option value="$PROJECT_DIR$/merger/utils/line_count.py" />
-        <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
         <option value="$PROJECT_DIR$/merger/clean/libraries/merger_library.py" />
+        <option value="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" />
       </list>
     </option>
   </component>
@@ -485,20 +485,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00165" summary="no nan return for fit_ml (test)">
-      <created>1561986199540</created>
-      <option name="number" value="00165" />
-      <option name="presentableId" value="LOCAL-00165" />
-      <option name="project" value="LOCAL" />
-      <updated>1561986199540</updated>
-    </task>
-    <task id="LOCAL-00166" summary="variable renaming">
-      <created>1561995812878</created>
-      <option name="number" value="00166" />
-      <option name="presentableId" value="LOCAL-00166" />
-      <option name="project" value="LOCAL" />
-      <updated>1561995812878</updated>
     </task>
     <task id="LOCAL-00167" summary="removed useless var declaration">
       <created>1562052909483</created>
@@ -829,7 +815,21 @@
       <option name="project" value="LOCAL" />
       <updated>1562745365107</updated>
     </task>
-    <option name="localTasksCounter" value="214" />
+    <task id="LOCAL-00214" summary="sysexit and 10s">
+      <created>1562746547564</created>
+      <option name="number" value="00214" />
+      <option name="presentableId" value="LOCAL-00214" />
+      <option name="project" value="LOCAL" />
+      <updated>1562746547564</updated>
+    </task>
+    <task id="LOCAL-00215" summary="corrected condition">
+      <created>1562748365514</created>
+      <option name="number" value="00215" />
+      <option name="presentableId" value="LOCAL-00215" />
+      <option name="project" value="LOCAL" />
+      <updated>1562748365514</updated>
+    </task>
+    <option name="localTasksCounter" value="216" />
     <servers />
   </component>
   <component name="TodoView">
@@ -918,8 +918,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="add loading by number of stars" />
-    <MESSAGE value="correct path for starcount files" />
     <MESSAGE value="corrected starcounts path" />
     <MESSAGE value="changed variable name" />
     <MESSAGE value="added doc for load_macho_stars" />
@@ -943,7 +941,9 @@
     <MESSAGE value="correct return statitsics (skew, kurtosis)" />
     <MESSAGE value="corrected idx of start and end" />
     <MESSAGE value="added restarting when irods too slow (test)" />
-    <option name="LAST_COMMIT_MESSAGE" value="added restarting when irods too slow (test)" />
+    <MESSAGE value="sysexit and 10s" />
+    <MESSAGE value="corrected condition" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected condition" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
@@ -1296,16 +1296,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-18">
-          <caret line="316" column="9" selection-start-line="316" selection-start-column="9" selection-end-line="316" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/merger_script.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="504">
@@ -1318,10 +1308,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/merger_library.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="592">
-          <caret line="101" column="88" selection-start-line="101" selection-start-column="88" selection-end-line="101" selection-end-column="88" />
+        <state relative-caret-position="5155">
+          <caret line="515" column="48" selection-start-line="515" selection-start-column="48" selection-end-line="515" selection-end-column="48" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="424">
+          <caret line="343" column="105" selection-start-line="343" selection-start-column="105" selection-end-line="343" selection-end-column="105" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>

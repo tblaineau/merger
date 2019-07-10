@@ -340,8 +340,8 @@ def fit_ml(subdf, cut5=False):
 		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)]
 		+ [weighted_std_interpolated(timeRE, magRE, errRE), weighted_std_interpolated(timeBE, magBE, errBE),
 		   weighted_std_interpolated(timeRM, magRM, errRM), weighted_std_interpolated(timeBM, magBM, errBM)]
-		+ compute_weighted_statistics(magRE, errRE) + compute_weighted_statistics(magBE, errBE) +
-		   compute_weighted_statistics(magRM, errRM) + compute_weighted_statistics(magBM, errBM)
+		+ compute_weighted_statistics(magRE, 1/errRE**2) + compute_weighted_statistics(magBE, 1/errBE**2) +
+		   compute_weighted_statistics(magRM, 1/errRM**2) + compute_weighted_statistics(magBM, 1/errBM**2)
 		+ [std_interpolated(timeRE, magRE), std_interpolated(timeBE, magBE),
 		   std_interpolated(timeRM, magRM), std_interpolated(timeBM, magBM)]
 		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)]
