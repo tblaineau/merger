@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
-    </list>
+    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="" />
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -301,13 +298,14 @@
               <item name="merger" type="b2602c69:ProjectViewProjectNode" />
               <item name="merger" type="462c0819:PsiDirectoryNode" />
               <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="old" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="merger" type="b2602c69:ProjectViewProjectNode" />
               <item name="merger" type="462c0819:PsiDirectoryNode" />
               <item name="merger" type="462c0819:PsiDirectoryNode" />
               <item name="utils" type="462c0819:PsiDirectoryNode" />
+              <item name="MACHOstarcounts" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="merger" type="b2602c69:ProjectViewProjectNode" />
@@ -485,13 +483,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00167" summary="removed useless var declaration">
-      <created>1562052909483</created>
-      <option name="number" value="00167" />
-      <option name="presentableId" value="LOCAL-00167" />
-      <option name="project" value="LOCAL" />
-      <updated>1562052909483</updated>
     </task>
     <task id="LOCAL-00168" summary="add file for period_search/validation">
       <created>1562056104794</created>
@@ -829,7 +820,14 @@
       <option name="project" value="LOCAL" />
       <updated>1562748365514</updated>
     </task>
-    <option name="localTasksCounter" value="216" />
+    <task id="LOCAL-00216" summary="corrected error weight for statistics (err -&gt; 1/err**2)">
+      <created>1562758058364</created>
+      <option name="number" value="00216" />
+      <option name="presentableId" value="LOCAL-00216" />
+      <option name="project" value="LOCAL" />
+      <updated>1562758058364</updated>
+    </task>
+    <option name="localTasksCounter" value="217" />
     <servers />
   </component>
   <component name="TodoView">
@@ -843,10 +841,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4712514" visible="true" weight="0.13375461" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.5287486" side_tool="true" visible="true" weight="0.13375461" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4712514" visible="true" weight="0.13375461" />
+      <window_info id="Structure" order="1" sideWeight="0.5287486" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32942238" />
@@ -918,7 +915,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="corrected starcounts path" />
     <MESSAGE value="changed variable name" />
     <MESSAGE value="added doc for load_macho_stars" />
     <MESSAGE value="corrected read_macho_stars function (now operational)" />
@@ -943,7 +939,8 @@
     <MESSAGE value="added restarting when irods too slow (test)" />
     <MESSAGE value="sysexit and 10s" />
     <MESSAGE value="corrected condition" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected condition" />
+    <MESSAGE value="corrected error weight for statistics (err -&gt; 1/err**2)" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected error weight for statistics (err -&gt; 1/err**2)" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
