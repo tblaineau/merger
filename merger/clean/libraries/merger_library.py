@@ -513,7 +513,7 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 		eros_lcs = ""
 		for i in range(10):
 			eros_lcs = load_irods_eros_lightcurves(idE_list=merged1.id_E.unique())
-			if eros_lcs != "RESTART":
+			if isinstance(eros_lcs, pd.DataFrame):
 				break
 			if i==9:
 				raise SystemExit(f"iRods takes too much times. Restart the job.")
