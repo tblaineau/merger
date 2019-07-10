@@ -99,7 +99,7 @@ def load_irods_eros_lightcurves(irods_filepath="", idE_list=[]):
 					pds.append(pd.DataFrame.from_dict(lc))
 					logging.info(time.time() - st2)
 					times.append(time.time() - st2)
-					if len(times)>10 and np.median(times[-10:]) >= 3:
+					if (len(times)>10 and np.median(times[-10:]) >= 3) or times[-1]>=10.:
 						logging.warning(f"EROS loading take too much time. No time to waste.")
 						logging.warning(f"Restarting EROS loading session...")
 						return "RESTART"
@@ -515,6 +515,8 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 			eros_lcs = load_irods_eros_lightcurves(idE_list=merged1.id_E.unique())
 			if eros_lcs != "RESTART":
 				break
+			if i==9:
+				raise SystemExit(f"iRods takes too much times. Restart the job.")
 		logging.info(f"{time.time()-st1} seconds to load {eros_lcs.id_E.nunique()}.")
 	else:
 		raise logging.error("Usual EROS loading not implemented yet !")
