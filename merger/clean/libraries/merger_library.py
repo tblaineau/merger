@@ -29,7 +29,7 @@ STARS_PER_JOBS = 5000
 OUTPUT_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 
-def load_irods_eros_lightcurves(irods_filepath):
+def load_irods_eros_lightcurves(irods_filepath="", idE_list=[]):
 	"""
 	Load EROS lightcurves from iRods storage.
 
@@ -37,7 +37,9 @@ def load_irods_eros_lightcurves(irods_filepath):
 	Parameters
 	----------
 	irods_filepath : str
-		Path in the iRods directory containing the .time files (lm/lmXXX/lmXXXX/lmXXXXL)
+		Path in the iRods directory containing the .time files (lm/lmXXX/lmXXXX/lmXXXXL) (if loading a full CCD quarter)
+	idE_list : list(str)
+		List of EROS identifiers (lmXXXXLY....). Load only those stars
 
 	Returns
 	-------
@@ -57,20 +59,50 @@ def load_irods_eros_lightcurves(irods_filepath):
 			coll = session.collections.get(irods_filepath)
 		except CollectionDoesNotExist:
 			logging.error(f"iRods path not found : {irods_filepath}")
-		for lcfile in coll.data_objects:
-			id_E = lcfile.name
-			if id_E[-4:]=='time':
-				with lcfile.open('r') as f:
-					lc = {'time':[], 'red_E':[], 'rederr_E':[], 'blue_E':[], 'blueerr_E':[], 'id_E':[]}
-					for line in f.readlines()[4:]:
-						line = line.decode().split()
-						lc["time"].append(float(line[0])+49999.5)
-						lc["red_E"].append(float(line[1]))
-						lc["rederr_E"].append(float(line[2]))
-						lc["blue_E"].append(float(line[3]))
-						lc["blueerr_E"].append(float(line[4]))
-						lc["id_E"].append(id_E[:-5])
-				pds.append(pd.DataFrame.from_dict(lc))
+		if irods_filepath != "":
+			for lcfile in coll.data_objects:
+				id_E = lcfile.name
+				if id_E[-4:]=='time':
+					with lcfile.open('r') as f:
+						lc = {'time':[], 'red_E':[], 'rederr_E':[], 'blue_E':[], 'blueerr_E':[], 'id_E':[]}
+						for line in f.readlines()[4:]:
+							line = line.decode().split()
+							lc["time"].append(float(line[0])+49999.5)
+							lc["red_E"].append(float(line[1]))
+							lc["rederr_E"].append(float(line[2]))
+							lc["blue_E"].append(float(line[3]))
+							lc["blueerr_E"].append(float(line[4]))
+							lc["id_E"].append(id_E[:-5])
+					pds.append(pd.DataFrame.from_dict(lc))
+		elif len(idE_list) != 0:
+			IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
+			times = []
+			for id_E in idE_list:
+				logging.info(str(id_E))
+				irods_filepath= os.path.join(IRODS_ROOT, id_E[:5], id_E[:6], id_E[:7], id_E + ".time")
+				if irods_filepath[-4:] == 'time':
+					st2 = time.time()
+					try:
+						obj = session.data_objects.get(irods_filepath)
+					except DataObjectDoesNotExist:
+						logging.error(f"iRods file not found : {irods_filepath}")
+					with obj.open('r') as f:
+						lc = {'time': [], 'red_E': [], 'rederr_E': [], 'blue_E': [], 'blueerr_E': [], 'id_E': []}
+						for line in f.readlines()[4:]:
+							line = line.decode().split()
+							lc["time"].append(float(line[0]) + 49999.5)
+							lc["red_E"].append(float(line[1]))
+							lc["rederr_E"].append(float(line[2]))
+							lc["blue_E"].append(float(line[3]))
+							lc["blueerr_E"].append(float(line[4]))
+							lc["id_E"].append(id_E)
+					pds.append(pd.DataFrame.from_dict(lc))
+					logging.info(time.time() - st2)
+					times.append(time.time() - st2)
+					if len(times)>10 and np.median(times[-10:]) >= 3:
+						logging.warning(f"EROS loading take too much time. No time to waste.")
+						logging.warning(f"Restarting EROS loading session...")
+						return "RESTART"
 		return pd.concat(pds)
 
 
@@ -477,45 +509,12 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 	logging.info("Loading EROS lightcurves")
 
 	if EROS_files_path == 'irods':
-		times = []
 		st1 = time.time()
-		IRODS_ROOT = '/eros/data/eros2/lightcurves/lm/'
-		try:
-			env_file = os.environ['IRODS_ENVIRONMENT_FILE']
-		except KeyError:
-			env_file = os.path.expanduser('~/.irods/irods_environment.json')
-
-		ssl_context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=None, capath=None,
-												 cadata=None)
-		ssl_settings = {'ssl_context': ssl_context}
-		pds = []
-		with iRODSSession(irods_env_file=env_file, **ssl_settings) as session:
-			for id_E in merged1.id_E.unique():
-				logging.info(str(id_E))
-				irods_filepath= os.path.join(IRODS_ROOT, id_E[:5], id_E[:6], id_E[:7], id_E + ".time")
-				if irods_filepath[-4:] == 'time':
-					st2 = time.time()
-					try:
-						obj = session.data_objects.get(irods_filepath)
-					except DataObjectDoesNotExist:
-						logging.error(f"iRods file not found : {irods_filepath}")
-					with obj.open('r') as f:
-						lc = {'time': [], 'red_E': [], 'rederr_E': [], 'blue_E': [], 'blueerr_E': [], 'id_E': []}
-						for line in f.readlines()[4:]:
-							line = line.decode().split()
-							lc["time"].append(float(line[0]) + 49999.5)
-							lc["red_E"].append(float(line[1]))
-							lc["rederr_E"].append(float(line[2]))
-							lc["blue_E"].append(float(line[3]))
-							lc["blueerr_E"].append(float(line[4]))
-							lc["id_E"].append(id_E)
-					pds.append(pd.DataFrame.from_dict(lc))
-					logging.info(time.time() - st2)
-					times.append(time.time() - st2)
-					if len(times)>10 and np.median(times[-10:]) >= 3:
-						raise SystemExit(f"EROS loading take too much time. No time to waste.")
-		eros_lcs = pd.concat(pds)
-		del pds
+		eros_lcs = ""
+		for i in range(10):
+			eros_lcs = load_irods_eros_lightcurves(idE_list=merged1.id_E.unique())
+			if eros_lcs != "RESTART":
+				break
 		logging.info(f"{time.time()-st1} seconds to load {eros_lcs.id_E.nunique()}.")
 	else:
 		raise logging.error("Usual EROS loading not implemented yet !")
