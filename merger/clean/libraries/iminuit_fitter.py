@@ -148,8 +148,6 @@ def fit_ml(subdf, cut5=False):
 	#sélection des données, pas plus de 10% du temps de calcul en moyenne (0.01s vs 0.1s)
 	#le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
 
-	subdf.sort_values(by='time', ascending=True, inplace=True)
-
 	maskRE = subdf.red_E.notnull() & subdf.rederr_E.notnull()
 	maskBE = subdf.blue_E.notnull() & subdf.blueerr_E.notnull()
 	maskRM = subdf.red_M.notnull() & subdf.rederr_M.notnull()
@@ -235,10 +233,10 @@ def fit_ml(subdf, cut5=False):
 	# 	return pd.Series(None)
 
 	#maximum rolling mean on 100 days in EROS red
-	meansRE = pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).rolling('100D',
+	meansRE = pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
 																												closed='both',
 																												min_periods=10).median()
-	meansRM = pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).rolling('100D',
+	meansRM = pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
 																												closed='both',
 																												min_periods=10).median()
 	if (~pd.isna(meansRE)).sum() != 0 and (~pd.isna(meansRM)).sum() != 0:
