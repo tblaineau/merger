@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="" />
+    <list default="true" id="db4146c8-bbf2-4400-9253-7c8d1b0b9b05" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py" afterDir="false" />
+    </list>
     <list id="df1a86f7-5d42-428c-9a96-d9b80e88147b" name="wait" comment="delete useless files" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -29,8 +32,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="424">
-              <caret line="343" column="105" selection-start-line="343" selection-start-column="105" selection-end-line="343" selection-end-column="105" />
+            <state relative-caret-position="245">
+              <caret line="150" column="61" selection-start-line="150" selection-start-column="61" selection-end-line="150" selection-end-column="61" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -99,22 +102,19 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/old/simulator.py">
+        <entry file="file://$PROJECT_DIR$/MANIFEST.in">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="610">
-              <caret line="123" column="18" selection-start-line="123" selection-start-column="18" selection-end-line="123" selection-end-column="18" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
+            <state>
+              <caret column="35" lean-forward="true" selection-start-column="35" selection-end-column="35" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/merger/clean/libraries/period_searcher.py">
+        <entry file="file://$PROJECT_DIR$/merger/old/simulator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="66" column="18" selection-start-line="66" selection-start-column="18" selection-end-line="66" selection-end-column="18" />
+            <state relative-caret-position="610">
+              <caret line="123" column="18" selection-start-line="123" selection-start-column="18" selection-end-line="123" selection-end-column="18" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -296,19 +296,6 @@
             </path>
             <path>
               <item name="merger" type="b2602c69:ProjectViewProjectNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="merger" type="b2602c69:ProjectViewProjectNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="merger" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
-              <item name="MACHOstarcounts" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="merger" type="b2602c69:ProjectViewProjectNode" />
               <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
             </path>
           </expand>
@@ -483,20 +470,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1554896982307</updated>
-    </task>
-    <task id="LOCAL-00168" summary="add file for period_search/validation">
-      <created>1562056104794</created>
-      <option name="number" value="00168" />
-      <option name="presentableId" value="LOCAL-00168" />
-      <option name="project" value="LOCAL" />
-      <updated>1562056104794</updated>
-    </task>
-    <task id="LOCAL-00169" summary="added some preleminary documentation">
-      <created>1562065847164</created>
-      <option name="number" value="00169" />
-      <option name="presentableId" value="LOCAL-00169" />
-      <option name="project" value="LOCAL" />
-      <updated>1562065847164</updated>
     </task>
     <task id="LOCAL-00170" summary="added &quot;wrapper&quot; for use in fit_ml">
       <created>1562065863529</created>
@@ -827,7 +800,21 @@
       <option name="project" value="LOCAL" />
       <updated>1562758058364</updated>
     </task>
-    <option name="localTasksCounter" value="217" />
+    <task id="LOCAL-00217" summary="adding all starcounts.txt">
+      <created>1562758692603</created>
+      <option name="number" value="00217" />
+      <option name="presentableId" value="LOCAL-00217" />
+      <option name="project" value="LOCAL" />
+      <updated>1562758692603</updated>
+    </task>
+    <task id="LOCAL-00218" summary="sort subdf by time (to avoid error on last job (why?))">
+      <created>1562832275300</created>
+      <option name="number" value="00218" />
+      <option name="presentableId" value="LOCAL-00218" />
+      <option name="project" value="LOCAL" />
+      <updated>1562832275300</updated>
+    </task>
+    <option name="localTasksCounter" value="219" />
     <servers />
   </component>
   <component name="TodoView">
@@ -841,8 +828,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1200" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4712514" visible="true" weight="0.13375461" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4712514" visible="true" weight="0.13375461" />
       <window_info id="Structure" order="1" sideWeight="0.5287486" side_tool="true" visible="true" weight="0.13375461" />
       <window_info id="Favorites" order="2" sideWeight="0.5005903" side_tool="true" weight="0.13954712" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -852,7 +840,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32942238" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19945848" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.49815693" visible="true" weight="0.19945848" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4986835" weight="0.36552346" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.19675091" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.20848376" />
@@ -915,8 +903,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="changed variable name" />
-    <MESSAGE value="added doc for load_macho_stars" />
     <MESSAGE value="corrected read_macho_stars function (now operational)" />
     <MESSAGE value="Corrected load_macho_stars function (now operational)" />
     <MESSAGE value="correct numpy struct array column labels" />
@@ -940,7 +926,9 @@
     <MESSAGE value="sysexit and 10s" />
     <MESSAGE value="corrected condition" />
     <MESSAGE value="corrected error weight for statistics (err -&gt; 1/err**2)" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected error weight for statistics (err -&gt; 1/err**2)" />
+    <MESSAGE value="adding all starcounts.txt" />
+    <MESSAGE value="sort subdf by time (to avoid error on last job (why?))" />
+    <option name="LAST_COMMIT_MESSAGE" value="sort subdf by time (to avoid error on last job (why?))" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
@@ -1210,13 +1198,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MANIFEST.in">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="35" selection-start-column="35" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="276">
@@ -1313,10 +1294,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/MANIFEST.in">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="35" lean-forward="true" selection-start-column="35" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/merger/clean/libraries/iminuit_fitter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="424">
-          <caret line="343" column="105" selection-start-line="343" selection-start-column="105" selection-end-line="343" selection-end-column="105" />
+        <state relative-caret-position="245">
+          <caret line="150" column="61" selection-start-line="150" selection-start-column="61" selection-end-line="150" selection-end-column="61" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
