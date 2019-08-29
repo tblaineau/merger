@@ -48,10 +48,16 @@ def f_vt(v_T, v0=220):
 
 @nb.njit
 def p_xvt(x, v_T, mass):
+	"""
+	Probabilité partielle de détection
+	"""
 	return rho_halo(x)/mass*r_lmc*(2*r_0*np.sqrt(mass*x*(1-x))*t_obs*v_T)
 
 @nb.njit
 def pdf_xvt(x, vt, mass):
+	"""
+	Probabilité de détection (u_0<1 -> pas grave car u_max=constante) d'un événement.
+	"""
 	if x<0 or x>1 or vt<0:
 		return 0
 	return p_xvt(x, vt, mass)*f_vt(vt)
