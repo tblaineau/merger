@@ -12,6 +12,7 @@ COLOR_FILTERS = {
 	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
 }
 
+#distances in parsec
 a=5000
 rho_0=0.0079
 d_sol = 8500
