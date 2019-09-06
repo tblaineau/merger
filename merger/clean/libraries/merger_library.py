@@ -483,7 +483,7 @@ def merger_eros_first(output_dir_path, MACHO_field, eros_ccd, EROS_files_path, c
 	# save merged dataframe
 	if save:
 		logging.info("Saving")
-		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"))
+		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"), compression='bz2')
 
 	return merged
 
@@ -545,6 +545,6 @@ def merger_macho_first(output_dir_path, MACHO_field, EROS_files_path, correspond
 			name = MACHO_tile
 		else:
 			name = t_indice
-		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(name) + ".pkl"))
+		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field) + "_" + str(name) + ".bz2"), compression='bz2')
 
 	return merged
