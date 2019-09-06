@@ -19,11 +19,15 @@ if __name__ == '__main__':
 	assert nb_samples_job>0, 'Invalid number of samples per job.'
 	assert current_job>0, 'Invalid current job number.'
 
-	params_file_idx = (current_job-1)//10
-	params_line_idx = (current_job-1)%10
+	params_file_idx = (current_job-1)//5
+	params_line_idx = (current_job-1)%5
 
-	start = (params_line_idx-1) * nb_samples_job
-	end = params_line_idx * nb_samples_job - 1
+	print(f"File : {params_file_idx}")
+	print(f"line_start : {params_line_idx}")
+
+	start = params_line_idx * nb_samples_job
+	end = (params_line_idx + 1) * nb_samples_job
+
 
 	output_name = args.name
 	parameter_file = args.parameter_file+'_'+str(params_file_idx)+'.npy'
