@@ -131,6 +131,20 @@ def integral_curvefit(params, a=None, b=None):
 	return [m.get_fmin().fval, dict(m.values)]
 
 
+def max_parallax(params):
+	def minus_parallax(t):
+		t = np.array([t])
+		return microlens_parallax(t, 19, 0, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
+
+	m = Minuit(minus_parallax,
+			   t = params["t0"],
+			   error_t = 180,
+			   errordef = 1,
+			   print_level=0)
+	m.migrad()
+	return [m.get_fmin().fval, dict(m.values)['t']]
+
+
 # @nb.jit(nopython=True)
 # def dtw_distance(cnopa, cpara):
 # 	"""
@@ -341,15 +355,17 @@ logging.basicConfig(level=logging.DEBUG)
 #
 # compute_distances('trash.pkl', integral_curvefit, pms, nb_samples=1000)
 
-# logging.debug('Loading xvt_samples')
-# all_xvts = np.load('../test/xvt_samples.npy')
-# logging.debug('Done')
-# logging.debug('Shuffling')
-# np.random.shuffle(all_xvts)
-# logging.debug('Done')
-# logging.debug('Generating parameters sets')
-# pms = generate_parameter_file('parameters1M_u12f.npy', all_xvts, [0.1, 1, 10, 30, 100, 300])
+"""
+logging.debug('Loading xvt_samples')
+all_xvts = np.load('../test/xvt_thick_disk.npy')
+logging.debug('Done')
+logging.debug('Shuffling')
+np.random.shuffle(all_xvts)
+logging.debug('Done')
+logging.debug('Generating parameters sets')
+pms = generate_parameter_file('parameters_u02f_TD', all_xvts[:100000], [0.1, 1, 10, 30, 100, 300])
 
-# pms = np.load('parameters1M_u12f.npy', allow_pickle=True)
-# for idx, a in enumerate(np.split(np.array(pms), 10)):
-# 	np.save('params1M_u12_'+str(idx), a, allow_pickle=True )
+pms = np.load('parameters_u02f_TD.npy', allow_pickle=True)
+print(len(pms))
+for idx, a in enumerate(np.split(np.array(pms), 20)):
+	np.save('parameters_u02f_TD_'+str(idx), a, allow_pickle=True)"""
