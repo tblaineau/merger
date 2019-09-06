@@ -131,7 +131,7 @@ def display_ratios(ax, df, values, cuttoff_list, base_cut_func, range=None, log=
 st1 = time.time()
 df = pd.read_pickle('fastscipyminmax6M02.pkl')
 print(time.time()-st1)
-df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
+#df[['distance', 'fitted_params']] = pd.DataFrame(df.distance.values.tolist(), index=df.index)
 df.loc[:,'distance'] = df.distance.map(lambda x: x[0] if isinstance(x, np.ndarray) else x).abs()
 df.reset_index(inplace=True)
 print(df.distance.max())
