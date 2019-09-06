@@ -2,7 +2,7 @@
 import argparse
 import os
 import numpy as np
-from merger.parallax_estimator.similarity_estimator import compute_distances, minmax_distance_scipy2,
+from merger.parallax_estimator.similarity_estimator import compute_distances, minmax_distance_scipy2
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
