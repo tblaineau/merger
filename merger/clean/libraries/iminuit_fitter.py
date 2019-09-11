@@ -241,11 +241,9 @@ def fit_ml(subdf, cut5=False):
 																												min_periods=10).median()
 	if (~pd.isna(meansRE)).sum() != 0 and (~pd.isna(meansRM)).sum() != 0:
 		if abs(meansRE.max() - meansRE.min()) > abs(meansRM.max() - meansRM.min()):
-			maxt0 = subdf[maskRE][cre].time.iloc[meansRE.values.argmin()]
-			print('RE')
+			maxt0 = timeRE[np.nanargmin(meansRE.values)]
 		else:
-			maxt0 = subdf[maskRM][crm].time.iloc[meansRM.values.argmin()]
-			print('RM')
+			maxt0 = timeRM[np.nanargmin(meansRM.values)]
 	else:
 		maxt0 = 50745
 
