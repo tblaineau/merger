@@ -233,17 +233,36 @@ def fit_ml(subdf, cut5=False):
 	# 	return pd.Series(None)
 
 	#maximum rolling mean on 100 days in EROS red
-	meansRE = pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
+	means = [
+	pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
+																												closed='both',
+																												min_periods=10).median(),
+	pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
+																												closed='both',
+																												min_periods=10).median(),
+	pd.Series(magBE, index=pd.to_datetime(timeBE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
+																												closed='both',
+																												min_periods=10).median(),
+	pd.Series(magBM, index=pd.to_datetime(timeBM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
 																												closed='both',
 																												min_periods=10).median()
-	meansRM = pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
-																												closed='both',
-																												min_periods=10).median()
-	if (~pd.isna(meansRE)).sum() != 0 and (~pd.isna(meansRM)).sum() != 0:
-		if abs(meansRE.max() - meansRE.min()) > abs(meansRM.max() - meansRM.min()):
-			maxt0 = timeRE[np.nanargmin(meansRE.values)]
+	]
+	diffs = []
+	for i in means:
+		if i.sum()>0:
+			diffs.append(i.max()-i.min())
 		else:
-			maxt0 = timeRM[np.nanargmin(meansRM.values)]
+			diffs.append(0)
+	diffs = np.array(diffs)
+	if diffs.sum()>0:
+		if diffs.argmax()==0:
+			maxt0 = timeRE[np.nanargmin(means[0].values)]
+		elif diffs.argmax()==1:
+			maxt0 = timeRM[np.nanargmin(means[1].values)]
+		elif diffs.argmax()==2:
+			maxt0 = timeBE[np.nanargmin(means[2].values)]
+		elif diffs.argmax() == 3:
+			maxt0 = timeBM[np.nanargmin(means[3].values)]
 	else:
 		maxt0 = 50745
 
