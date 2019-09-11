@@ -106,14 +106,17 @@ def curvefit(params, time_interval=3):
 	# 					- microlens_simple(t, params['mag'], params['blend'], m.values['u0'], m.values['t0'], m.values['tE'], params['delta_u'], params['theta']))).max()
 	# return [m.get_fmin().fval, dict(m.values), len(t), init_t]
 
-def integral_curvefit(params, a=None, b=None, epsrel=0.0001):
-	if a is None or b is None:
+def integral_curvefit(params, epsabs=1e-8):
+	if abs(params["tE"])<608.75:
+		a = params['t0'] - 3652.5
+		b = params['t0'] + 3652.5
+	else:
 		a = params['t0'] - 6 * abs(params['tE'])
 		b = params['t0'] + 6 * abs(params['tE'])
 
 	def minuit_wrap(u0, t0, tE):
 		quadargs = (u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
-		return scipy.integrate.quad(absdiff3, a, b, args=quadargs, epsrel=epsrel)[0]
+		return scipy.integrate.quad(absdiff3, a, b, args=quadargs, epsabs=epsabs)[0]
 
 	m = Minuit(minuit_wrap,
 			   u0 = params['u0'],
