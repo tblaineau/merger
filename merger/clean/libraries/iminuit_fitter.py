@@ -249,12 +249,12 @@ def fit_ml(subdf, cut5=False):
 	]
 	diffs = []
 	for i in means:
-		if i.sum()>0:
+		if abs(i.sum())>0:
 			diffs.append(i.max()-i.min())
 		else:
 			diffs.append(0)
 	diffs = np.array(diffs)
-	if diffs.sum()>0:
+	if abs(diffs.sum())>0:
 		if diffs.argmax()==0:
 			maxt0 = timeRE[np.nanargmin(means[0].values)]
 		elif diffs.argmax()==1:
