@@ -45,7 +45,37 @@ def MACHO_raw_to_pickle(filename, input_path, output_path):
 	pd.DataFrame.from_dict(lc).to_pickle(os.path.join(output_path, filename[:-3]+".bz2"), compression='bz2')
 
 
-def MACHO_get_bad_timestamps(field, pickles_path, output_filepath):
+def read_macho_lightcurve(filepath):
+	try:
+		with gzip.open(filepath, 'rt') as f:
+			lc = {'time':[],
+				  'red_M':[],
+				  'rederr_M':[],
+				  'blue_M':[],
+				  'blueerr_M':[],
+				  'id_M':[],
+				  'red_amp': [],
+				  'blue_amp': [],
+				  "observation_id":[]}
+			for line in f:
+				line = line.split(';')
+				lc['id_M'].append(line[1]+":"+line[2]+":"+line[3])
+				lc['time'].append(float(line[4]))
+				lc['red_M'].append(float(line[9]))
+				lc['rederr_M'].append(float(line[10]))
+				lc['blue_M'].append(float(line[24]))
+				lc['blueerr_M'].append(float(line[25]))
+				lc['red_amp'].append(float(line[17]))
+				lc['blue_amp'].append(float(line[32]))
+				lc['observation_id'].append(int(line[5]))
+			f.close()
+	except FileNotFoundError:
+		print(filepath+" doesn't exist.")
+		return None
+	return pd.DataFrame.from_dict(lc)
+
+
+def MACHO_get_bad_timestamps(field, output_filepath, pickles_path=None, archives_path=None):
 	"""
 	Save bad timestamp/amp pairs
 
@@ -58,10 +88,18 @@ def MACHO_get_bad_timestamps(field, pickles_path, output_filepath):
 	output_filepath : str
 		where to save bad timestamps
 	"""
-	field = "F_"+str(field)
 	lpds = []
-	for f in os.listdir(os.path.join(pickles_path, field)):
-		lpds.append(pd.read_pickle(os.path.join(field_pickles_path, f)))
+	if pickles_path:
+		field_pickles_path = os.path.join(pickles_path, "F_"+str(field))
+		for f in os.listdir(field_pickles_path):
+			lpds.append(pd.read_pickle(os.path.join(field_pickles_path, f)))
+	elif archives_path:
+		field_archives_path = os.path.join(archives_path, "F_" + str(field))
+		for f in os.listdir(field_archives_path):
+			lpds.append(read_macho_lightcurve(os.path.join(field_archives_path, f)))
+	else:
+		logging.ERROR('No import path.')
+		return 0
 	df = pd.concat(lpds)
 	del lpds
 
@@ -91,10 +129,10 @@ def MACHO_get_bad_timestamps(field, pickles_path, output_filepath):
 	np.save(os.path.join(output_filepath, field+"_red_bad_timestamps"), red_timestamps)
 	np.save(os.path.join(output_filepath, field+"_blue_bad_timestamps"), blue_timestamps)
 
-MACHO_gz_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_1"
-for f in os.listdir(MACHO_gz_path):
-	if f[-3:] == '.gz':
-		print(f)
-		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_1")
+# MACHO_gz_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_1"
+# for f in os.listdir(MACHO_gz_path):
+# 	if f[-3:] == '.gz':
+# 		print(f)
+# 		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_1")
 
-MACHO_get_bad_timestamps("/Volumes/DisqueSauvegarde/working_dir/pickles/F_1")
+#MACHO_get_bad_timestamps(field=1, pickles_path="/Volumes/DisqueSauvegarde/working_dir/pickles", output_filepath="/Volumes/DisqueSauvegarde/working_dir/pickles")
