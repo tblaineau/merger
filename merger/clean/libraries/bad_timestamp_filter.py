@@ -75,7 +75,7 @@ def read_macho_lightcurve(filepath):
 	return pd.DataFrame.from_dict(lc)
 
 
-def o(field, output_filepath, pickles_path=None, archives_path=None):
+def MACHO_get_bad_timestamps(field, output_filepath, pickles_path=None, archives_path=None):
 	"""
 	Save bad timestamp/amp pairs
 
