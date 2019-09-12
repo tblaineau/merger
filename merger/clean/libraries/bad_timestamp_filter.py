@@ -75,7 +75,7 @@ def read_macho_lightcurve(filepath):
 	return pd.DataFrame.from_dict(lc)
 
 
-def MACHO_get_bad_timestamps(field, output_filepath, pickles_path=None, archives_path=None):
+def o(field, output_filepath, pickles_path=None, archives_path=None):
 	"""
 	Save bad timestamp/amp pairs
 
@@ -126,8 +126,8 @@ def MACHO_get_bad_timestamps(field, output_filepath, pickles_path=None, archives
 	print(red_timestamps)
 	print(blue_timestamps)
 
-	np.save(os.path.join(output_filepath, field+"_red_bad_timestamps"), red_timestamps)
-	np.save(os.path.join(output_filepath, field+"_blue_bad_timestamps"), blue_timestamps)
+	np.save(os.path.join(output_filepath, str(field)+"_red_bad_timestamps"), red_timestamps)
+	np.save(os.path.join(output_filepath, str(field)+"_blue_bad_timestamps"), blue_timestamps)
 
 # MACHO_gz_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_1"
 # for f in os.listdir(MACHO_gz_path):
