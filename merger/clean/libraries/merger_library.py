@@ -259,11 +259,11 @@ def read_macho_lightcurve(filepath, filename, star_nb_start=0, star_nb_stop=-1):
 			f.close()
 	except FileNotFoundError:
 		logging.error(os.path.join(filepath, filename) + " doesn't exist.")
-	lc = np.array(lc, dtype=[('time', 'f4'),
-							 ('red_M', 'f4'),
-							 ('rederr_M', 'f4'),
-							 ('blue_M', 'f4'),
-							 ('blueerr_M', 'f4'),
+	lc = np.array(lc, dtype=[('time', 'f8'),
+							 ('red_M', 'f8'),
+							 ('rederr_M', 'f8'),
+							 ('blue_M', 'f8'),
+							 ('blueerr_M', 'f8'),
 							 ('id_M', 'U13')])
 	return pd.DataFrame.from_records(lc)
 
