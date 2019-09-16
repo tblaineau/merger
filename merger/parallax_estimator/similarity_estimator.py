@@ -107,7 +107,7 @@ def curvefit(params, time_interval=3):
 	# return [m.get_fmin().fval, dict(m.values), len(t), init_t]
 
 def integral_curvefit(params, epsabs=1e-8):
-	if abs(params["tE"])<608.75:
+	if abs(params["tE"]) < 608.75:
 		a = params['t0'] - 3652.5
 		b = params['t0'] + 3652.5
 	else:
@@ -117,25 +117,40 @@ def integral_curvefit(params, epsabs=1e-8):
 	def minuit_wrap(u0, t0, tE):
 		tE = np.power(10, tE)
 		quadargs = (u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
-		return scipy.integrate.quad(absdiff3, a, b, args=quadargs, epsabs=epsabs)[0]
+		val = scipy.integrate.quad(absdiff3, a, b, args=quadargs, epsabs=epsabs)[0]
+		print(u0, t0, tE, val)
+		return val
+
+	def de_wrap(x):
+		u0, t0, tE = x
+		tE = np.power(10, tE)
+		quadargs = (u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
+		val = scipy.integrate.quad(absdiff3, a, b, args=quadargs, epsabs=epsabs)[0]
+		return val
 
 	m = Minuit(minuit_wrap,
-			   u0 = params['u0'],
-			   t0 = params['t0'],
-			   tE = np.log10(np.abs(params['tE'])),
-			   error_u0 = 0.1,
-			   error_t0 = 10,
-			   error_tE = 0.1,
-			   limit_u0 = (0, 3),
-			   limit_t0 = (params['t0']-400, params['t0']+400),
-			   limit_tE = (0, 6),
+			   u0=params['u0'],
+			   t0=params['t0'],
+			   tE=np.log10(np.abs(params['tE'])),
+			   error_u0=0.1,
+			   error_t0=10,
+			   error_tE=0.01,
+			   limit_u0=(0, 3),
+			   limit_t0=(params['t0'] - 400, params['t0'] + 400),
+			   limit_tE=(0, 5),
 			   errordef=1,
 			   print_level=0
 			   )
 	m.migrad()
-	res = dict(m.values)
-	res["tE"] = np.power(res["tE"])
-	return [m.get_fmin().fval, res]
+	errs = dict(m.errors)
+
+	if errs["t0"] >= params["tE"]:
+		de_bounds = [(0, 2), (a, b), (0, 4)]
+		res = scipy.optimize.differential_evolution(de_wrap, de_bounds, strategy='best1bin', popsize=40)
+		resx = dict(zip(["u0", "t0", "tE"], [res.x[0], res.x[1], np.power(10, res.x[2])]))
+		return [res.fun, resx]
+	else:
+		return [m.get_fmin().fval, dict(m.values)]
 
 
 def max_parallax(params):
