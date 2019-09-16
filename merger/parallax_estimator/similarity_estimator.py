@@ -40,9 +40,8 @@ def absdiff2(t, u0, t0, tE, delta_u, theta):
 	t = np.array([t])
 	return -np.abs((microlens_parallax(t, 19, 0, u0, t0, tE, delta_u, theta) - microlens_simple(t, 19., 0., u0, t0,
 																									tE, 0., 0.)))
-
+@nb.njit
 def absdiff3(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
-	t = np.array([t])
 	return (drydiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta))**2
 
 
