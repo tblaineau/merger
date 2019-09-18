@@ -42,6 +42,7 @@ def absdiff2(t, u0, t0, tE, delta_u, theta):
 																									tE, 0., 0.)))
 @nb.njit
 def absdiff3(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta):
+	t = np.array([t])
 	return (drydiff(t, u0, t0, tE, pu0, pt0, ptE, pdu, ptheta))**2
 
 
@@ -117,7 +118,6 @@ def integral_curvefit(params, epsabs=1e-8):
 		tE = np.power(10, tE)
 		quadargs = (u0, t0, tE, params['u0'], params['t0'], params['tE'], params['delta_u'], params['theta'])
 		val = scipy.integrate.quad(absdiff3, a, b, args=quadargs, epsabs=epsabs)[0]
-		print(u0, t0, tE, val)
 		return val
 
 	def de_wrap(x):
@@ -144,12 +144,14 @@ def integral_curvefit(params, epsabs=1e-8):
 	errs = dict(m.errors)
 
 	if errs["t0"] >= params["tE"]:
-		de_bounds = [(0, 2), (a, b), (0, 4)]
+		de_bounds = [(0, 2), (a, b), (0, 5)]
 		res = scipy.optimize.differential_evolution(de_wrap, de_bounds, strategy='best1bin', popsize=40)
 		resx = dict(zip(["u0", "t0", "tE"], [res.x[0], res.x[1], np.power(10, res.x[2])]))
 		return [res.fun, resx]
 	else:
-		return [m.get_fmin().fval, dict(m.values)]
+		resx = dict(m.values)
+		resx['tE'] = np.power(10, resx['tE'])
+		return [m.get_fmin().fval, resx]
 
 
 def max_parallax(params):
