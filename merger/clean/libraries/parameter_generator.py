@@ -92,7 +92,6 @@ def metropolis_hastings(func, g, nb_samples, x0, *args):
 		Array containing all the points
 	"""
 	samples = []
-	current_x = np.zeros(len(x0), dtype=np.float64)
 	current_x = x0
 	accepted=0
 	rds = np.random.uniform(0., 1., nb_samples+100)
