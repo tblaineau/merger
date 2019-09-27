@@ -47,7 +47,6 @@ class Sigmag_histogram:
 		for c in COLOR_FILTERS.values():
 			df['bins_'+c['mag']], self.bin_edges[c['mag']] = pd.qcut(df[c['mag']], 25, retbins=True)
 			self.bin_values[c['mag']] = df.groupby('bins_'+c['mag'])[c['err']].median()
-		print(self.bin_edges, self.bin_values)
 
 	def get_sigma(self, cfilter, mag):
 		"""Get median sigma"""
