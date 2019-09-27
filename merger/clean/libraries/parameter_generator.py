@@ -198,3 +198,38 @@ class Microlensing_generator:
 			'vt': vt,
 		}
 		return params
+
+
+#parallax parameters.
+PERIOD_EARTH = 365.2422
+alphaS = 80.8941667*np.pi/180.
+deltaS = -69.7561111*np.pi/180.
+epsilon = (90. - 66.56070833)*np.pi/180.		#source in LMC
+t_origin = 51442 #(21 septembre 1999) #58747 #(21 septembre 2019)
+
+sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
+beta = np.arcsin(sin_beta) #ok because beta is in -pi/2; pi/2
+if abs(beta)==np.pi/2:
+	lambda_star = 0
+else:
+	lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
+
+
+@nb.njit
+def microlens_parallax(t, mag, blend, u0, t0, tE, delta_u, theta):
+	tau = (t-t0)/tE
+	phi = 2*np.pi * (t-t_origin)/PERIOD_EARTH - lambda_star
+	t1 = u0**2 + tau**2
+	t2 = delta_u**2 * (np.sin(phi)**2 + np.cos(phi)**2*sin_beta**2)
+	t3 = -2*delta_u*u0 * (np.sin(phi)*np.sin(theta) + np.cos(phi)*np.cos(theta)*sin_beta)
+	t4 = 2*tau*delta_u * (np.sin(phi)*np.cos(theta) - np.cos(phi)*np.sin(theta)*sin_beta)
+	u = np.sqrt(t1+t2+t3+t4)
+	parallax  = (u**2+2)/(u*np.sqrt(u**2+4))
+	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * parallax)
+
+
+@nb.njit
+def microlens_simple(t, mag, blend, u0, t0, tE, delta_u, theta):
+	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
+	amp = (u**2+2)/(u*np.sqrt(u**2+4))
+	return - 2.5*np.log10(blend*np.power(10, mag/-2.5) + (1-blend)*np.power(10, mag/-2.5) * amp)
