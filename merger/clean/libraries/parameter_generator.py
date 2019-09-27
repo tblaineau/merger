@@ -50,12 +50,6 @@ def p_xvt(x, v_T, mass):
 	return rho_halo(x)/mass*r_lmc*(2*r_0*np.sqrt(mass*x*(1-x))*t_obs*v_T)
 
 @nb.njit
-def pdf_xvt(x, vt, mass):
-	if x<0 or x>1 or vt<0:
-		return 0
-	return p_xvt(x, vt, mass)*f_vt(vt)
-
-@nb.njit
 def delta_u_from_x(x, mass):
 	return r(mass)*np.sqrt((1-x)/x)
 
@@ -64,10 +58,17 @@ def tE_from_xvt(x, vt, mass):
 	return r_0 * np.sqrt(mass*x*(1-x)) / (vt*kms_to_pcd)
 
 @nb.njit
-def randomizer_gauss(x, vt):
-	return np.array([np.random.normal(loc=x, scale=0.1), np.random.normal(loc=vt, scale=300)])
+def pdf_xvt(x, mass):
+	if x[0]<0 or x[0]>1 or x[1]<0:
+		return 0
+	return p_xvt(x[0], x[1], mass)*f_vt(x[1])
 
-def metropolis_hastings(func, g, nb_samples, start, **kwargs):
+@nb.njit
+def randomizer_gauss(x):
+	return np.array([np.random.normal(loc=x[0], scale=0.1), np.random.normal(loc=x[1], scale=300)])
+
+@nb.njit
+def metropolis_hastings(func, g, nb_samples, x0, *args):
 	"""
 	Metropolis-Hasting algorithm to pick random value following the joint probability distribution func
 
@@ -79,7 +80,7 @@ def metropolis_hastings(func, g, nb_samples, start, **kwargs):
 		Randomizer. Choose it wisely to converge quickly and have a smooth distribution
 	nb_samples : int
 		Number of points to return. Need to be large so that the output distribution is smooth
-	start : array-like
+	x0 : array-like
 		Initial point
 	kwargs :
 		arguments to pass to *func*
@@ -91,22 +92,25 @@ def metropolis_hastings(func, g, nb_samples, start, **kwargs):
 		Array containing all the points
 	"""
 	samples = []
-	current_x = start
+	current_x = np.zeros(len(x0), dtype=np.float64)
+	current_x = x0
 	accepted=0
-	while nb_samples > len(samples):
-		proposed_x = g(*current_x)
-		tmp = func(*current_x, **kwargs)
+	rds = np.random.uniform(0., 1., nb_samples+100)
+	for idx in range(nb_samples+100):
+		proposed_x = g(current_x)
+		tmp = func(current_x, *args)
 		if tmp!=0:
-			threshold = min(1., func(*proposed_x, **kwargs) / tmp)
+			threshold = min(1., func(proposed_x, *args) / tmp)
 		else:
 			threshold = 1
-		if np.random.uniform() < threshold:
+		if rds[idx] < threshold:
 			current_x = proposed_x
 			accepted+=1
-		if current_x[0]>0 and current_x[0]<1:
-			samples.append(current_x)
+		samples.append(current_x)
 	print(accepted, accepted/nb_samples)
-	return np.array(samples)
+	#We crop the hundred first to avoid outliers from x0
+	return samples[100:]
+
 
 class Microlensing_generator():
 	"""
@@ -151,7 +155,7 @@ class Microlensing_generator():
 
 	def generate_parameters(self, seed):
 		"""
-		Generate a set of microlensing parameters, including parallax and blending
+		Generate a set of microlensing parameters, including parallax and blending using S-model and fixed mass
 
 		Parameters
 		----------
