@@ -1,50 +1,62 @@
-import numpy as np
 import pandas as pd
-import scipy.stats as stats
-import time
+import numpy as np
 
-from merger.clean.libraries.merger_library import *
-from merger.clean.libraries.parameter_generator import Microlensing_generator
+from merger.clean.libraries.merger_library import COLOR_FILTERS
+from merger.clean.libraries.parameter_generator import Microlensing_generator, microlens_parallax, microlens_simple
 
-def microlensing_amplification(t, u0, t0, tE):
-	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
-	return (u**2+2)/(u*np.sqrt(u**2+4))
 
-def ma_parallax(t, u0, t0, tE, delta_u, theta):
-	year = 365.2422
-	alphaS = 80.8941667*np.pi/180.
-	deltaS = -69.7561111*np.pi/180.
-	epsilon = (90. - 66.56070833)*np.pi/180.
-	t_origin = 58747 #(21 septembre 2019)
-	sin_beta = np.cos(epsilon)*np.sin(deltaS) - np.sin(epsilon)*np.cos(deltaS)*np.sin(alphaS)
-	beta = np.arcsin(sin_beta) #ok because beta is in [-pi/2; pi/2]
-	if abs(beta)==np.pi/2:
-		lambda_star = 0
-	else:
-		lambda_star = np.sign((np.sin(epsilon)*np.sin(deltaS)+np.cos(epsilon)*np.sin(alphaS)*np.cos(deltaS))/np.cos(beta)) * np.arccos(np.cos(deltaS)*np.cos(alphaS)/np.cos(beta))
-	tau = (t-t0)/tE
-	phi = 2*np.pi * (t-t_origin)/year - lambda_star
-	u_D = np.array([ 
-		-u0*np.sin(theta) + tau*np.cos(theta),
-		 u0*np.cos(theta) + tau*np.sin(theta)
-		])
-	u_t = np.array([
-		-delta_u*np.sin(phi),
-		 delta_u*np.cos(phi)*sin_beta
-		])
-	u = np.linalg.norm(u_D-u_t, axis=0)
-	return (u**2+2)/(u*np.sqrt(u**2+4))
+def load_merged(filepath, fraction=1):
+	"""
+	Load file of merged lightcurves
 
-class Sigma_Baseline:
-	def __init__(self, bin_edges, bin_baseline):
-		self.be = bin_edges
-		self.bb = bin_baseline
-	def get_sigma_base(self,mag):
-		index = np.digitize(mag, self.be)
-		index = np.where(index>=len(self.be)-2, len(self.bb)-1, index-1)
-		return self.bb[index]
+	Parameters
+	----------
+	filepath : str
+		Path to a pandas pickle file containing the lightcurves
+	fraction : float
+		Fraction of the lightcurves to keep (for simulation)
 
-def generate_microlensing_events(subdf, sigmag, raw_stats_df, generator, parallax=False):
+	Returns
+	-------
+	pd.DataFrame
+		fraction of the original merged lightcurves
+	"""
+	df = pd.read_pickle(filepath)
+	if fraction != 1:
+		df = df.groupby('id_M').filter(lambda x: np.random.uniform(0,1) < fraction)
+	return df
+
+
+def clean_lightcurves(df):
+	"""Clean dataframe from bad errors."""
+
+	# magnitude should have already been cleaned but we never know
+	df = df.replace(to_replace=[99.999, -99.], value=np.nan).dropna(axis=0, how='all', subset=list(COLOR_FILTERS.keys()))
+	for c in COLOR_FILTERS.values():
+		df.loc[~df[c['err']].between(0, 9.999, inclusive=False), [c['mag'], c['err']]] = np.nan
+	#drop line without information
+	df.dropna(how='all', subset=list(COLOR_FILTERS.keys()), inplace=True)
+	return df
+
+
+class Sigmag_histogram:
+	#TODO : save and load mechanism
+	def __init__(self, df):
+		self.bin_edges = {}
+		self.bin_values = {}
+		for c in COLOR_FILTERS.values():
+			df['bins_'+c['mag']], self.bin_edges[c['mag']] = pd.qcut(df[c['mag']], 25, retbins=True)
+			self.bin_values[c['mag']] = df.groupby('bins_'+c['mag'])[c['err']].median()
+		print(self.bin_edges, self.bin_values)
+
+	def get_sigma(self, cfilter, mag):
+		"""Get median sigma"""
+		index = np.digitize(mag, self.bin_edges[cfilter])
+		index = np.where(index>=len(self.bin_edges[cfilter])-2, len(self.bin_values[cfilter])-1, index-1)
+		return self.bin_values[cfilter][index]
+
+
+def generate_microlensing_events(subdf, sigmag, generator, parallax=False):
 	""" For a given star, generate µ-lens event
 	
 	[description]
@@ -61,40 +73,36 @@ def generate_microlensing_events(subdf, sigmag, raw_stats_df, generator, paralla
 	Returns:
 		DataFrame -- New star with a µlens event (contains two new columns per filter : 1 for magnitudes, 1 for errors)
 	"""
-
-	#Remove anomalous values of magnitudes
-	subdf=subdf.replace(to_replace=[99.999,-99.], value=np.nan).dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
-
 	current_id = subdf["id_E"].iloc[0]
 	print(current_id)
-
-	means = {}
-	conditions = {}
-	for key, color_filter in COLOR_FILTERS.items():
-		conditions[key] = subdf[color_filter['mag']].notnull() & (subdf[color_filter['err']]<9.999) & (subdf[color_filter['err']]>0)
-		# means[key] = raw_stats_df.loc[current_id][color_filter['mag']]	# <---- use baseline from "raw stats"
-		means[key] = subdf[color_filter['mag']].mean() # <---- use mean as baseline
 
 	#Generate µlens parameters
 	params = generator.generate_parameters(current_id)
 	u0, t0, tE, blend_factors, delta_u, theta = params["u0"], params["t0"], params["tE"], params["blend"], params["delta_u"], params["theta"]
-	if parallax:
-		A = ma_parallax(subdf.time, u0, t0, tE, delta_u, theta)
-	else:
-		A = microlensing_amplification(subdf.time, u0, t0, tE)
 
+	time = subdf.time.values
 
 	for key, color_filter in COLOR_FILTERS.items():
-		#phi_th is the lightcurve with perfect measurements (computed from original baseline)
-		phi_th = -2.5*np.log10(np.power(10, means[key]/-2.5)*blend_factors[key] + np.power(10, means[key]/-2.5)*(1-blend_factors[key])*A[conditions[key]])
-		norm = sigmag.get_sigma_base(means[key]) / sigmag.get_sigma_base(phi_th)
+		mag_i = subdf[color_filter['mag']].values
+		mag_med = np.nanmedian(mag_i)
+		if parallax:
+			mag_th = microlens_parallax(time, mag_med, blend_factors[key], u0, t0, tE, delta_u, theta)
+		else:
+			mag_th = microlens_simple(time, mag_med, blend_factors[key], u0, t0, tE, delta_u, theta)
+		#mag_th is the lightcurve with perfect measurements (computed from original baseline)
 
-		subdf['ampli_'+color_filter['err']] = subdf[conditions[key]][color_filter['err']] / norm
-		subdf['ampli_'+color_filter['mag']] = phi_th + (subdf[conditions[key]][color_filter['mag']] - means[key]) / norm
+		norm = sigmag.get_sigma_base(mag_med) / sigmag.get_sigma_base(mag_th)
+
+		subdf['ampli_'+color_filter['err']] = subdf[color_filter['err']].values / norm
+		subdf['ampli_'+color_filter['mag']] = mag_th + (mag_i - mag_med) / norm
 
 	return subdf
 
-WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
+
+
+
+
+"""WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 # l o a d   s t a r s
 print("Loading stars")
@@ -125,4 +133,4 @@ print("Starting simulations...")
 start = time.time()
 simulated = merged.groupby("id_E").apply(generate_microlensing_events, sigmag=sigmag, raw_stats_df=ms, generator=g, parallax=True)
 print(time.time()-start)
-#simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_parallax.pkl')
+#simulated.to_pickle(WORKING_DIR_PATH+'simulated_50_lm0220_parallax.pkl')"""
