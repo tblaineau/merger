@@ -234,18 +234,10 @@ def fit_ml(subdf, cut5=False):
 
 	#maximum rolling mean on 100 days in EROS red
 	means = [
-	pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
-																												closed='both',
-																												min_periods=10).median(),
-	pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
-																												closed='both',
-																												min_periods=10).median(),
-	pd.Series(magBE, index=pd.to_datetime(timeBE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
-																												closed='both',
-																												min_periods=10).median(),
-	pd.Series(magBM, index=pd.to_datetime(timeBM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D',
-																												closed='both',
-																												min_periods=10).median()
+	pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both', min_periods=10).median(),
+	pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both', min_periods=10).median(),
+	pd.Series(magBE, index=pd.to_datetime(timeBE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both', min_periods=10).median(),
+	pd.Series(magBM, index=pd.to_datetime(timeBM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both', min_periods=10).median()
 	]
 	diffs = []
 	for i in means:
@@ -324,7 +316,7 @@ def fit_ml(subdf, cut5=False):
 	lsq3 = np.sum(((magRM - microlensing_event(timeRM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRM']))/ errRM)**2)
 	lsq4 = np.sum(((magBM - microlensing_event(timeBM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBM']))/ errBM)**2)
 
-	if len(timeBE)>10:
+	"""	if len(timeBE)>10:
 		probaBE, freqBE, min_freqBE = confidence_use(timeBE, magBE, errBE, 1000)
 	else:
 		probaBE, freqBE, min_freqBE = np.nan, np.nan, np.nan
@@ -342,7 +334,7 @@ def fit_ml(subdf, cut5=False):
 	if len(timeRM) > 10:
 		probaRM, freqRM, min_freqRM = confidence_use(timeRM, magRM, errRM, 1000)
 	else:
-		probaRM, freqRM, min_freqRM = np.nan, np.nan, np.nan
+		probaRM, freqRM, min_freqRM = np.nan, np.nan, np.nan"""
 
 	return pd.Series(
 
@@ -357,27 +349,27 @@ def fit_ml(subdf, cut5=False):
 		   np.sum(((magBM - flat_params['f_magStarBM'])/errBM)**2)]
 		+ [weighted_std_interpolated(timeRE, magRE, errRE), weighted_std_interpolated(timeBE, magBE, errBE),
 		   weighted_std_interpolated(timeRM, magRM, errRM), weighted_std_interpolated(timeBM, magBM, errBM)]
-		+ compute_weighted_statistics(magRE, 1/errRE**2) + compute_weighted_statistics(magBE, 1/errBE**2) +
-		   compute_weighted_statistics(magRM, 1/errRM**2) + compute_weighted_statistics(magBM, 1/errBM**2)
+		#+ compute_weighted_statistics(magRE, 1/errRE**2) + compute_weighted_statistics(magBE, 1/errBE**2) +
+		#   compute_weighted_statistics(magRM, 1/errRM**2) + compute_weighted_statistics(magBM, 1/errBM**2)
 		+ [std_interpolated(timeRE, magRE), std_interpolated(timeBE, magBE),
 		   std_interpolated(timeRM, magRM), std_interpolated(timeBM, magBM)]
 		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)]
-		+ [probaBE, freqBE, min_freqBE, probaRE, freqRE, min_freqRE,
-		   probaBM, freqBM, min_freqBM, probaRM, freqRM, min_freqRM],
+		#+ [probaBE, freqBE, min_freqBE, probaRE, freqRE, min_freqRE,
+		#   probaBM, freqBM, min_freqBM, probaRM, freqRM, min_freqRM],
 
-		index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
+		,index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
 		+
 		m_flat.values.keys()+['flat_fmin', 'flat_fval']
 		+ ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
 		+ ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
 		+ ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
 		+ ['dispersion_RE', 'dispersion_BE', 'dispersion_RM', 'dispersion_BM']
-		+ ['w_variance_RE', 'w_skewness_RE', 'w_kurtosis_RE', 'w_variance_BE', 'w_skewness_BE', 'w_kurtosis_BE',
-		   'w_variance_RM', 'w_skewness_RM', 'w_kurtosis_RM', 'w_variance_BM', 'w_skewness_BM', 'w_kurtosis_BM']
+		#+ ['w_variance_RE', 'w_skewness_RE', 'w_kurtosis_RE', 'w_variance_BE', 'w_skewness_BE', 'w_kurtosis_BE',
+		#   'w_variance_RM', 'w_skewness_RM', 'w_kurtosis_RM', 'w_variance_BM', 'w_skewness_BM', 'w_kurtosis_BM']
 		+ ['std_int_RE', 'std_int_BE', 'std_int_RM', 'std_int_BM']
 		+ ['std_RE', 'std_BE', 'std_RM', 'std_BM']
-		+ ['probaBE', 'freqBE', 'min_freqBE', 'probaRE', 'freqRE', 'min_freqRE',
-		   'probaBM', 'freqBM', 'min_freqBM', 'probaRM', 'freqRM', 'min_freqRM']
+		#+ ['probaBE', 'freqBE', 'min_freqBE', 'probaRE', 'freqRE', 'min_freqRE',
+		#   'probaBM', 'freqBM', 'min_freqBM', 'probaRM', 'freqRM', 'min_freqRM']
 		)
 
 
