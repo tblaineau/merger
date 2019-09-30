@@ -108,7 +108,7 @@ def metropolis_hastings(func, g, nb_samples, x0, *args):
 		samples.append(current_x)
 	print(accepted, accepted/nb_samples)
 	#We crop the hundred first to avoid outliers from x0
-	return samples[100:]
+	return np.array(samples[100:])
 
 
 class Microlensing_generator:
