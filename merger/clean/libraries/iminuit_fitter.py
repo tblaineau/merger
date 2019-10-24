@@ -268,6 +268,7 @@ def fit_ml(subdf, cut5=False):
 	lsq2 = np.nan
 	lsq3 = np.nan
 	lsq4 = np.nan
+	maxt0 = np.nan
 
 
 
