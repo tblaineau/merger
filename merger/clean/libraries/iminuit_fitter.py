@@ -232,6 +232,45 @@ def fit_ml(subdf, cut5=False):
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
 	# 	return pd.Series(None)
 
+	#flat fit
+	def least_squares_flat(f_magStarRE, f_magStarBE, f_magStarRM, f_magStarBM):
+		return np.sum(((magRE - f_magStarRE) / errRE) ** 2) + np.sum(((magRM - f_magStarRM) / errRM) ** 2) + np.sum(
+			((magBE - f_magStarBE) / errBE) ** 2) + np.sum(((magBM - f_magStarBM) / errBM) ** 2)
+
+	m_flat = Minuit(least_squares_flat,
+					f_magStarRE=magRE.mean(),
+					f_magStarBE=magBE.mean(),
+					f_magStarRM=magRM.mean(),
+					f_magStarBM=magBM.mean(),
+					error_f_magStarRE=2,
+					error_f_magStarBE=2.,
+					error_f_magStarRM=2.,
+					error_f_magStarBM=2.,
+					errordef=1,
+					print_level=0
+					)
+	m_flat.migrad()
+	global GLOBAL_COUNTER
+	GLOBAL_COUNTER += 1
+	print(str(GLOBAL_COUNTER) + " : " + subdf.id_M.iloc[0])
+	flat_params = m_flat.values
+
+	#init for output
+	micro_values = [np.nan]*7
+	micro_keys = ["u0", "t0", "tE", "magStarRE", "magStarBE", "magStarRM", "magStarBM"]
+	micro_fmin = np.nan
+	micro_fval = np.nan
+	flat_keys = ["magStarRE", "magStarBE", "magStarRM", "magStarBM"]
+	flat_values = m_flat.values.values()
+	flat_fmin = m_flat.get_fmin()
+	flat_fval = m_flat.fval
+	lsq1 = np.nan
+	lsq2 = np.nan
+	lsq3 = np.nan
+	lsq4 = np.nan
+
+
+
 	#maximum rolling mean on 100 days in EROS red
 	means = [
 	pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both', min_periods=10).median(),
@@ -246,101 +285,85 @@ def fit_ml(subdf, cut5=False):
 		else:
 			diffs.append(0)
 	diffs = np.array(diffs)
-	if abs(diffs.sum())>0:
-		if diffs.argmax()==0:
-			maxt0 = timeRE[np.nanargmin(means[0].values)]
-		elif diffs.argmax()==1:
-			maxt0 = timeRM[np.nanargmin(means[1].values)]
-		elif diffs.argmax()==2:
-			maxt0 = timeBE[np.nanargmin(means[2].values)]
-		elif diffs.argmax() == 3:
-			maxt0 = timeBM[np.nanargmin(means[3].values)]
-	else:
-		maxt0 = 50745
 
-	def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
-		lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
-		lsq2 = np.sum(((magBE - microlensing_event(timeBE, u0, t0, tE, magStarBE))/ errBE)**2)
-		lsq3 = np.sum(((magRM - microlensing_event(timeRM, u0, t0, tE, magStarRM))/ errRM)**2)
-		lsq4 = np.sum(((magBM - microlensing_event(timeBM, u0, t0, tE, magStarBM))/ errBM)**2)
-		return lsq1+lsq2+lsq3+lsq4
+	#if max magnitude difference > 0.5mag, fit microlensing event with initial t0 = maxt0
+	if np.max(diffs)>0.5:
+		if abs(diffs.sum())>0:
+			if diffs.argmax()==0:
+				maxt0 = timeRE[np.nanargmin(means[0].values)]
+			elif diffs.argmax()==1:
+				maxt0 = timeRM[np.nanargmin(means[1].values)]
+			elif diffs.argmax()==2:
+				maxt0 = timeBE[np.nanargmin(means[2].values)]
+			elif diffs.argmax() == 3:
+				maxt0 = timeBM[np.nanargmin(means[3].values)]
+		else:
+			maxt0 = 50745
 
-	def least_squares_flat(f_magStarRE, f_magStarBE, f_magStarRM, f_magStarBM):
-		return np.sum(((magRE - f_magStarRE)/errRE)**2) + np.sum(((magRM - f_magStarRM)/errRM)**2) + np.sum(((magBE - f_magStarBE)/errBE)**2) + np.sum(((magBM - f_magStarBM)/errBM)**2)
+		def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
+			lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
+			lsq2 = np.sum(((magBE - microlensing_event(timeBE, u0, t0, tE, magStarBE))/ errBE)**2)
+			lsq3 = np.sum(((magRM - microlensing_event(timeRM, u0, t0, tE, magStarRM))/ errRM)**2)
+			lsq4 = np.sum(((magBM - microlensing_event(timeBM, u0, t0, tE, magStarBM))/ errBM)**2)
+			return lsq1+lsq2+lsq3+lsq4
 
-	m_micro = Minuit(least_squares_microlens, 
-		u0=1., 
-		t0=maxt0,
-		tE=500, 
-		magStarRE=magRE.mean(), 
-		magStarBE=magBE.mean(), 
-		magStarRM=magRM.mean(), 
-		magStarBM=magBM.mean(), 
-		error_u0=0.1, 
-		error_t0=5000, 
-		error_tE=50,
-		error_magStarRE=2, 
-		error_magStarBE=2., 
-		error_magStarRM=2., 
-		error_magStarBM=2., 
-		limit_u0=(0,2), 
-		limit_tE=(50, 10000),
-		limit_t0=(40000, 60000),#(48927, 52698)
-		errordef=1,
-		print_level=0)
+		m_micro = Minuit(least_squares_microlens,
+			u0=1.,
+			t0=maxt0,
+			tE=500,
+			magStarRE=magRE.mean(),
+			magStarBE=magBE.mean(),
+			magStarRM=magRM.mean(),
+			magStarBM=magBM.mean(),
+			error_u0=0.1,
+			error_t0=5000,
+			error_tE=50,
+			error_magStarRE=2,
+			error_magStarBE=2.,
+			error_magStarRM=2.,
+			error_magStarBM=2.,
+			limit_u0=(0,2),
+			limit_tE=(50, 10000),
+			limit_t0=(40000, 60000),#(48927, 52698)
+			errordef=1,
+			print_level=0)
 
-	m_flat = Minuit(least_squares_flat, 
-		f_magStarRE=magRE.mean(), 
-		f_magStarBE=magBE.mean(), 
-		f_magStarRM=magRM.mean(), 
-		f_magStarBM=magBM.mean(), 
-		error_f_magStarRE=2, 
-		error_f_magStarBE=2., 
-		error_f_magStarRM=2., 
-		error_f_magStarBM=2., 
-		errordef=1,
-		print_level=0
-		)
+		m_micro.migrad()
+		micro_params = m_micro.values
 
-	m_micro.migrad()
-	m_flat.migrad()
-	global GLOBAL_COUNTER
-	GLOBAL_COUNTER+=1
-	print(str(GLOBAL_COUNTER)+" : "+subdf.id_M.iloc[0]+" "+str(m_micro.get_fmin().is_valid)+"     ")#, end='\r')
+		lsq1 = np.sum(((magRE - microlensing_event(timeRE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRE']))/ errRE)**2)
+		lsq2 = np.sum(((magBE - microlensing_event(timeBE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBE']))/ errBE)**2)
+		lsq3 = np.sum(((magRM - microlensing_event(timeRM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRM']))/ errRM)**2)
+		lsq4 = np.sum(((magBM - microlensing_event(timeBM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBM']))/ errBM)**2)
 
-	micro_params = m_micro.values
-	flat_params = m_flat.values
+		"""	if len(timeBE)>10:
+			probaBE, freqBE, min_freqBE = confidence_use(timeBE, magBE, errBE, 1000)
+		else:
+			probaBE, freqBE, min_freqBE = np.nan, np.nan, np.nan
+	
+		if len(timeRE)>10:
+			probaRE, freqRE, min_freqRE = confidence_use(timeRE, magRE, errRE, 1000)
+		else:
+			probaRE, freqRE, min_freqRE = np.nan, np.nan, np.nan
+	
+		if len(timeBM) > 10:
+			probaBM, freqBM, min_freqBM = confidence_use(timeBM, magBM, errBM, 1000)
+		else:
+			probaBM, freqBM, min_freqBM = np.nan, np.nan, np.nan
+	
+		if len(timeRM) > 10:
+			probaRM, freqRM, min_freqRM = confidence_use(timeRM, magRM, errRM, 1000)
+		else:
+			probaRM, freqRM, min_freqRM = np.nan, np.nan, np.nan"""
 
-	lsq1 = np.sum(((magRE - microlensing_event(timeRE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRE']))/ errRE)**2)
-	lsq2 = np.sum(((magBE - microlensing_event(timeBE, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBE']))/ errBE)**2)
-	lsq3 = np.sum(((magRM - microlensing_event(timeRM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarRM']))/ errRM)**2)
-	lsq4 = np.sum(((magBM - microlensing_event(timeBM, micro_params['u0'], micro_params['t0'], micro_params['tE'], micro_params['magStarBM']))/ errBM)**2)
-
-	"""	if len(timeBE)>10:
-		probaBE, freqBE, min_freqBE = confidence_use(timeBE, magBE, errBE, 1000)
-	else:
-		probaBE, freqBE, min_freqBE = np.nan, np.nan, np.nan
-
-	if len(timeRE)>10:
-		probaRE, freqRE, min_freqRE = confidence_use(timeRE, magRE, errRE, 1000)
-	else:
-		probaRE, freqRE, min_freqRE = np.nan, np.nan, np.nan
-
-	if len(timeBM) > 10:
-		probaBM, freqBM, min_freqBM = confidence_use(timeBM, magBM, errBM, 1000)
-	else:
-		probaBM, freqBM, min_freqBM = np.nan, np.nan, np.nan
-
-	if len(timeRM) > 10:
-		probaRM, freqRM, min_freqRM = confidence_use(timeRM, magRM, errRM, 1000)
-	else:
-		probaRM, freqRM, min_freqRM = np.nan, np.nan, np.nan"""
+		micro_values = m_micro.values.values()
+		micro_fmin = m_micro.get_fmin()
+		micro_fval = m_micro.fval
 
 	return pd.Series(
-
-		m_micro.values.values()+[m_micro.get_fmin(), m_micro.fval]
+		micro_values+[micro_fmin, micro_fval]
 		+
-		m_flat.values.values()+[m_flat.get_fmin(), m_flat.fval]
+		flat_values+[flat_fmin, flat_fval]
 		+ [len(magRE), len(magBE), len(magRM), len(magBM)]
 		+ [lsq1, lsq2, lsq3, lsq4]
 		+ [np.sum(((magRE - flat_params['f_magStarRE'])/errRE)**2),
@@ -356,10 +379,11 @@ def fit_ml(subdf, cut5=False):
 		+ [np.std(magRE), np.std(magBE), np.std(magRM), np.std(magBM)]
 		#+ [probaBE, freqBE, min_freqBE, probaRE, freqRE, min_freqRE,
 		#   probaBM, freqBM, min_freqBM, probaRM, freqRM, min_freqRM],
+		+ [maxt0, np.max(diffs)]
 
-		,index=m_micro.values.keys()+['micro_fmin', 'micro_fval']
+		,index=micro_keys+['micro_fmin', 'micro_fval']
 		+
-		m_flat.values.keys()+['flat_fmin', 'flat_fval']
+		flat_keys+['flat_fmin', 'flat_fval']
 		+ ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
 		+ ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
 		+ ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
@@ -370,6 +394,7 @@ def fit_ml(subdf, cut5=False):
 		+ ['std_RE', 'std_BE', 'std_RM', 'std_BM']
 		#+ ['probaBE', 'freqBE', 'min_freqBE', 'probaRE', 'freqRE', 'min_freqRE',
 		#   'probaBM', 'freqBM', 'min_freqBM', 'probaRM', 'freqRM', 'min_freqRM']
+		+ ["maxt0", "max_diff"]
 		)
 
 
