@@ -287,6 +287,7 @@ def fit_ml(subdf, cut5=False):
 	diffs = np.array(diffs)
 
 	#if max magnitude difference > 0.5 mag, fit microlensing event with initial t0 = maxt0
+
 	if np.max(diffs)>0.5:
 		if abs(diffs.sum())>0:
 			if diffs.argmax()==0:
@@ -380,9 +381,11 @@ def fit_ml(subdf, cut5=False):
 		#+ [probaBE, freqBE, min_freqBE, probaRE, freqRE, min_freqRE,
 		#   probaBM, freqBM, min_freqBM, probaRM, freqRM, min_freqRM],
 		+ [maxt0, np.max(diffs)]
-		+ [errRE.median(), errBE.median(), errRM.median(), errBM.median()]
+		+ [np.median(errRE), np.median(errBE), np.median(errRM), np.median(errBM),]
 
-		,index=micro_keys+['micro_fmin', 'micro_fval']
+		,
+
+		index=micro_keys+['micro_fmin', 'micro_fval']
 		+
 		flat_keys+['flat_fmin', 'flat_fval']
 		+ ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
