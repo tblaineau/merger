@@ -268,7 +268,6 @@ def fit_ml(subdf, cut5=False):
 	lsq2 = np.nan
 	lsq3 = np.nan
 	lsq4 = np.nan
-	maxt0 = np.nan
 
 
 
@@ -289,18 +288,20 @@ def fit_ml(subdf, cut5=False):
 
 	#if max magnitude difference > 0.5 mag, fit microlensing event with initial t0 = maxt0
 
-	if np.max(diffs)>0.5:
-		if abs(diffs.sum())>0:
-			if diffs.argmax()==0:
-				maxt0 = timeRE[np.nanargmin(means[0].values)]
-			elif diffs.argmax()==1:
-				maxt0 = timeRM[np.nanargmin(means[1].values)]
-			elif diffs.argmax()==2:
-				maxt0 = timeBE[np.nanargmin(means[2].values)]
-			elif diffs.argmax() == 3:
-				maxt0 = timeBM[np.nanargmin(means[3].values)]
-		else:
-			maxt0 = 50745
+
+	if abs(diffs.sum())>0:
+		if diffs.argmax()==0:
+			maxt0 = timeRE[np.nanargmin(means[0].values)]
+		elif diffs.argmax()==1:
+			maxt0 = timeRM[np.nanargmin(means[1].values)]
+		elif diffs.argmax()==2:
+			maxt0 = timeBE[np.nanargmin(means[2].values)]
+		elif diffs.argmax() == 3:
+			maxt0 = timeBM[np.nanargmin(means[3].values)]
+	else:
+		maxt0 = 50745
+
+	if np.max(diffs) > 0.5:
 
 		def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 			lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
