@@ -271,7 +271,7 @@ def fit_ml(subdf, cut5=False):
 
 
 
-	#maximum rolling mean on 100 days in EROS red
+	#maximum rolling median on 100 days in EROS red, with a minimum of 10 points per median
 	means = [
 	pd.Series(magRE, index=pd.to_datetime(timeRE, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both', min_periods=10).median(),
 	pd.Series(magRM, index=pd.to_datetime(timeRM, unit='D', origin='17-11-1858', cache=True)).sort_index().rolling('100D', closed='both', min_periods=10).median(),
@@ -286,7 +286,7 @@ def fit_ml(subdf, cut5=False):
 			diffs.append(0)
 	diffs = np.array(diffs)
 
-	#if max magnitude difference > 0.5mag, fit microlensing event with initial t0 = maxt0
+	#if max magnitude difference > 0.5 mag, fit microlensing event with initial t0 = maxt0
 	if np.max(diffs)>0.5:
 		if abs(diffs.sum())>0:
 			if diffs.argmax()==0:
@@ -380,6 +380,7 @@ def fit_ml(subdf, cut5=False):
 		#+ [probaBE, freqBE, min_freqBE, probaRE, freqRE, min_freqRE,
 		#   probaBM, freqBM, min_freqBM, probaRM, freqRM, min_freqRM],
 		+ [maxt0, np.max(diffs)]
+		+ [errRE.median(), errBE.median(), errRM.median(), errBM.median()]
 
 		,index=micro_keys+['micro_fmin', 'micro_fval']
 		+
@@ -395,6 +396,7 @@ def fit_ml(subdf, cut5=False):
 		#+ ['probaBE', 'freqBE', 'min_freqBE', 'probaRE', 'freqRE', 'min_freqRE',
 		#   'probaBM', 'freqBM', 'min_freqBM', 'probaRM', 'freqRM', 'min_freqRM']
 		+ ["maxt0", "max_diff"]
+		+ ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
 		)
 
 
