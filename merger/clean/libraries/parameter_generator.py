@@ -108,7 +108,7 @@ def metropolis_hastings(func, g, nb_samples, x0, *args):
 		samples.append(current_x)
 	print(accepted, accepted/nb_samples)
 	#We crop the hundred first to avoid outliers from x0
-	return np.array(samples[100:])
+	return samples[100:]
 
 
 class Microlensing_generator:
@@ -149,7 +149,7 @@ class Microlensing_generator:
 				logging.error(f"xvt file not found : {self.xvt_file}")
 		else:
 			logging.info("Generating 10.000.000 x-vt pairs... ")
-			self.xvts = metropolis_hastings(pdf_xvt, randomizer_gauss, 10000000, np.array([0.5, 100]), (10.))
+			self.xvts = np.array(metropolis_hastings(pdf_xvt, randomizer_gauss, 10000000, np.array([0.5, 100]), (10.)))
 
 
 	def generate_parameters(self, seed):
