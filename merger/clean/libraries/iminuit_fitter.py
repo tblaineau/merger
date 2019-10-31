@@ -301,7 +301,7 @@ def fit_ml(subdf, cut5=False):
 	else:
 		maxt0 = 50745
 
-	if np.max(diffs) > 0.5:
+	if np.max(diffs) > 0.:
 
 		def least_squares_microlens(u0, t0, tE, magStarRE, magStarBE, magStarRM, magStarBM):
 			lsq1 = np.sum(((magRE - microlensing_event(timeRE, u0, t0, tE, magStarRE))/ errRE)**2)
