@@ -38,14 +38,6 @@ def microlens_simple(t, mag, blend, u0, t0, tE, delta_u=0, theta=0):
 	return - 2.5*np.log10(blend + (1-blend)* amp) + mag
 
 
-fastmath = False
-
-
-@nb.njit(fastmath=fastmath)
-def microlens_simple_FAST(t, mag, blend, u0, t0, tE, delta_u=0, theta=0):
-	return microlens_simple(t, mag, blend, u0, t0, tE, delta_u=0, theta=0)
-
-
 @nb.njit(fastmath=fastmath)
 def inner_loop(x, a, b, c, dim, recombination, bounds):
 	y = []
