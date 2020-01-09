@@ -80,7 +80,8 @@ def main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_
 @nb.njit(fastmath=fastmath)
 def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01):
 	"""
-	Compute minimum func value using differential evolution algorithm
+	Compute minimum func value using differential evolution algorithm.
+	6 times faster than scipy.optimize.differential_evolution, (~45ms vs ~275ms)
 
 	Parameters
 	----------
@@ -134,3 +135,20 @@ def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01)
 	# if rd<eps and count>20:
 	#    break
 	return all_values[best_idx], init_pop[best_idx], count
+
+
+@nb.njit(fastmath=fastmath)
+def to_minimize_simple(params, t, tx, errx):
+	mag, u0, t0, tE = params
+	s=0
+	for i in range(len(t)):
+		s += (tx[i] - microlens_simple(t[i], mag, 0, u0, t0, tE))**2/errx[i]**2
+	return s
+
+@nb.njit(fastmath=fastmath)
+def to_minimize_parallax(params, t, tx, errx):
+	mag, u0, t0, tE, blend, delta_u, theta = params
+	s=0
+	for i in range(len(t)):
+		s+= (tx[i] - microlens_parallax(t[i], mag, blend, u0, t0, tE, delta_u, theta))**2/errx[i]**2
+	return s
