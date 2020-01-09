@@ -126,6 +126,7 @@ def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01)
 	# rd = rd**2/(min_val**2 + eps)
 	# if rd<eps and count>20:
 	#    break
+	print(all_values[best_idx], init_pop[best_idx], count)
 	return all_values[best_idx], init_pop[best_idx], count
 
 
