@@ -69,7 +69,7 @@ def main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_
 	return best_idx
 
 
-@nb.njit(fastmath=fastmath)
+#@nb.njit(fastmath=fastmath)
 def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01):
 	"""
 	Compute minimum func value using differential evolution algorithm.
@@ -83,7 +83,7 @@ def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01)
 		time values
 	data : sequence
 	errors : sequence
-	bounds : sequence
+	bounds : np.array
 		Limits of the parameter value to explore
 		len(bounds) should be the number of parameters to func
 	pop : int
