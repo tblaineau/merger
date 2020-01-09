@@ -134,6 +134,3 @@ def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01)
 	# if rd<eps and count>20:
 	#    break
 	return all_values[best_idx], init_pop[best_idx], count
-
-import scipy.optimize
-scipy.optimize.differential_evolution()
