@@ -69,7 +69,7 @@ def main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_
 	return best_idx
 
 
-#@nb.njit(fastmath=fastmath)
+@nb.njit(fastmath=fastmath)
 def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01):
 	"""
 	Compute minimum func value using differential evolution algorithm.
@@ -126,7 +126,6 @@ def diff_ev(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01)
 	# rd = rd**2/(min_val**2 + eps)
 	# if rd<eps and count>20:
 	#    break
-	print(all_values[best_idx], init_pop[best_idx], count)
 	return all_values[best_idx], init_pop[best_idx], count
 
 
