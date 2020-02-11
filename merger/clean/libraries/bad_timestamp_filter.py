@@ -75,18 +75,21 @@ def read_macho_lightcurve(filepath):
 	return pd.DataFrame.from_dict(lc)
 
 
-def MACHO_get_bad_timestamps(field, output_filepath, pickles_path=None, archives_path=None):
+def MACHO_get_bad_timestamps(field, output_path, pickles_path=None, archives_path=None):
 	"""
-	Save bad timestamp/amp pairs
+	Save ratio of bad points over all points of each amp and each time.
 
 	Parameters
 	----------
 	field : int
 		MACHO field
 	pickles_path : str
-		path to the pickle lightcurves
-	output_filepath : str
+		path to the pickle lightcurves (can be merged lightcurves)
+	output_path : str
 		where to save bad timestamps
+	archives_path : str
+		path to the .gz macho lightcurves
+
 	"""
 	lpds = []
 	if pickles_path:
@@ -99,7 +102,7 @@ def MACHO_get_bad_timestamps(field, output_filepath, pickles_path=None, archives
 			lpds.append(read_macho_lightcurve(os.path.join(field_archives_path, f)))
 	else:
 		logging.ERROR('No import path.')
-		return 0
+		return 1
 	df = pd.concat(lpds)
 	del lpds
 
@@ -133,6 +136,7 @@ def MACHO_get_bad_timestamps(field, output_filepath, pickles_path=None, archives
 # for f in os.listdir(MACHO_gz_path):
 # 	if f[-3:] == '.gz':
 # 		print(f)
-# 		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_1")
+# 		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
+
 
 #MACHO_get_bad_timestamps(field=1, pickles_path="/Volumes/DisqueSauvegarde/working_dir/pickles", output_filepath="/Volumes/DisqueSauvegarde/working_dir/pickles")
