@@ -4,6 +4,11 @@ import os
 import logging
 import pandas as pd
 
+from irods.session import iRODSSession
+from irods.exception import CollectionDoesNotExist, DataObjectDoesNotExist
+import ssl
+import tarfile
+
 def MACHO_raw_to_pickle(filename, input_path, output_path):
 	"""
 	Read MACHO gzipped lightcurve file and save it to pickle
@@ -117,26 +122,69 @@ def MACHO_get_bad_timestamps(field, output_path, pickles_path=None, archives_pat
 
 	#Compute distance of each points. It is the difference between the median value of the lightcurve and the value of the point divided by the error of the point
 	df[['median_red_M', 'median_blue_M']] = df.groupby('id_M')[['red_M', 'blue_M']].transform('median')
+	#TODO : Compare to sigma intrinsic rather than vanilla errors !
 	df['red_distance'] = (df['median_red_M'] - df['red_M']) / df['rederr_M']
 	df['blue_distance'] = (df['median_blue_M'] - df['blue_M']) / df['blueerr_M']
 
 	red_ratios = df.groupby(['red_amp', 'time'])['red_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
 	blue_ratios = df.groupby(['blue_amp', 'time'])['blue_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
 
-	red_timestamps = red_ratios.index[red_ratios>0.1].tolist()
-	blue_timestamps = blue_ratios.index[blue_ratios>0.1].tolist()
+	np.save(os.path.join(output_path, str(field)+"_red_M_ratios"), red_ratios)
+	np.save(os.path.join(output_path, str(field)+"_blue_M_ratios"), blue_ratios)
+	return 0
 
-	print(red_timestamps)
-	print(blue_timestamps)
+def EROS_get_bad_timestamp(irods_path, output_path):
+	#TODO: write the function
+	"""
+	Get lightcurves from one cdd of one EROS field
 
-	np.save(os.path.join(output_filepath, str(field)+"_red_bad_timestamps"), red_timestamps)
-	np.save(os.path.join(output_filepath, str(field)+"_blue_bad_timestamps"), blue_timestamps)
+	Parameters
+	----------
+	irods_path : str
+		Path to irods ccd directory containting the .tar.gz
+	output_path : str
+		Where to save the timestamps
+	"""
 
-# MACHO_gz_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_1"
+	try:
+		env_file = os.environ['IRODS_ENVIRONMENT_FILE']
+	except KeyError:
+		env_file = os.path.expanduser('~/.irods/irods_environment.json')
+
+	ssl_context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=None, capath=None, cadata=None)
+	ssl_settings = {'ssl_context': ssl_context}
+	pds = []
+	with iRODSSession(irods_env_file=env_file, **ssl_settings) as session:
+		try:
+			coll = session.collections.get(irods_path)
+		except CollectionDoesNotExist:
+			logging.error(f"iRods path not found : {irods_path}")
+
+		for quart_arch in coll.data_objects:
+			all_file = b""
+			with quart_arch.open('r') as f:
+				with tarfile.open(mode='r:gz', fileobj=f) as extr_f:
+					while True:
+						print(extr_f.next())
+				"""print(f)
+				while True:
+					chunk = f.read(1048576)
+					all_file+= chunk
+					if not chunk:
+						break"""
+
+
+#EROS_get_bad_timestamp('/eros/data/eros2/lightcurves/lm/lm001/lm0011','.')
+
+# MACHO_gz_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_42"
 # for f in os.listdir(MACHO_gz_path):
 # 	if f[-3:] == '.gz':
 # 		print(f)
 # 		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
 
 
-#MACHO_get_bad_timestamps(field=1, pickles_path="/Volumes/DisqueSauvegarde/working_dir/pickles", output_filepath="/Volumes/DisqueSauvegarde/working_dir/pickles")
+df = pd.read_pickle("/Volumes/DisqueSauvegarde/working_dir/pickles/F_42/F_42.128.bz2")
+print(df.time)
+print(np.sort(np.load("/Volumes/DisqueSauvegarde/working_dir/pickles/F_42/42_red_M_ratios.npy")))
+
+#MACHO_get_bad_timestamps(field=42, pickles_path="/Volumes/DisqueSauvegarde/working_dir/pickles", output_path="/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
