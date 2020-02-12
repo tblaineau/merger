@@ -176,7 +176,6 @@ def EROS_load_ccd(irods_path):
 						#print(extr_f.next())
 				while True:
 					chunk = f.read(1048576)
-					print('ah')
 					all_file+= chunk
 					if not chunk:
 						break
@@ -190,13 +189,49 @@ def EROS_load_ccd(irods_path):
 							s[:,:-1] = content
 							s[:,-1] = convert_eros_id(os.path.split(file.name)[0].split('.')[0])
 							all_lcs.append(s)
+		logging.info("Loading completed.")
 		all_lcs = np.concatenate(all_lcs)
-		return pd.DataFrame(all_lcs)
+		return pd.DataFrame(all_lcs, columns=["time", "red_E", "rederr_E", "blue_E", "blueerr_E", "id_E"])
 
 
+def EROS_get_bad_timestamp(fccd, output_path=".", irods_path="/eros/data/eros2/lightcurves/lm/"):
+	"""
+	Return bad timestamps
+
+	Parameters
+	----------
+	fccd : int or str
+		Formated as FIELD+QUART
+	irods_path : str
+		path to the lightcurves
+	output_path : str
+		direcetory where to save timestamps
+	"""
+	if isinstance(fccd, str):
+		pass
+	elif isinstance(fccd, int):
+		fccd = str(fccd).zfill(4)
+	else:
+		logging.error(f"Bad formatting for fccd : {fccd}")
+	end_path = os.path.join("lm" + fccd[:-1], "lm" + fccd)
+	df = EROS_load_ccd(os.path.join(irods_path, end_path))
+	df.replace(to_replace=[99.999, 9.999], value=np.nan, inplace=True)
+
+	df.dropna(axis='index', how='all', subset=['red_E', 'blue_E'], inplace=True)
+
+	# Compute distance of each points. It is the difference between the median value of the lightcurve and the value of the point divided by the error of the point
+	df[['median_red_E', 'median_blue_E']] = df.groupby('id_E')[['red_E', 'blue_E']].transform('median')
+	# TODO : Compare to sigma intrinsic rather than vanilla errors !
+	df['red_distance'] = (df['median_red_E'] - df['red_E']) / df['rederr_E']
+	df['blue_distance'] = (df['median_blue_E'] - df['blue_E']) / df['blueerr_E']
+
+	red_ratios = df.groupby('time')['red_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
+	blue_ratios = df.groupby('time')['blue_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
+
+	np.save(os.path.join(output_path, str(fccd) + "_red_E_ratios"), red_ratios)
+	np.save(os.path.join(output_path, str(fccd) + "_blue_E_ratios"), blue_ratios)
 
 
-#EROS_get_bad_timestamp('/eros/data/eros2/lightcurves/lm/lm001/lm0011','.')
 
 # MACHO_gz_path = "/Volumes/DisqueSauvegarde/MACHO/lightcurves/F_42"
 # for f in os.listdir(MACHO_gz_path):
@@ -204,6 +239,6 @@ def EROS_load_ccd(irods_path):
 # 		print(f)
 # 		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
 
-EROS_get_bad_timestamp(irods_path="/eros/data/eros2/lightcurves/lm/lm051/lm0510", output_path=".")
+EROS_get_bad_timestamp(fccd=510, output_path=".")
 
 #MACHO_get_bad_timestamps(field=42, pickles_path="/Volumes/DisqueSauvegarde/working_dir/pickles", output_path="/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
