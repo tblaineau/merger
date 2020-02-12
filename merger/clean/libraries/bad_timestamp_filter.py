@@ -133,8 +133,17 @@ def MACHO_get_bad_timestamps(field, output_path, pickles_path=None, archives_pat
 	np.save(os.path.join(output_path, str(field)+"_blue_M_ratios"), blue_ratios)
 	return 0
 
-def EROS_get_bad_timestamp(irods_path, output_path):
-	#TODO: write the function
+
+import io
+
+def convert_eros_id(erosid):
+	erosid = erosid.replace('lm', '1')
+	for k, v in [('k', '0'), ('l', '1'), ('m', '2'), ('n', '3')]:
+		erosid = erosid.replace(k, v)
+	return erosid[:6]+erosid[6:].zfill(6)
+
+
+def EROS_load_ccd(irods_path):
 	"""
 	Get lightcurves from one cdd of one EROS field
 
@@ -142,8 +151,6 @@ def EROS_get_bad_timestamp(irods_path, output_path):
 	----------
 	irods_path : str
 		Path to irods ccd directory containting the .tar.gz
-	output_path : str
-		Where to save the timestamps
 	"""
 
 	try:
@@ -160,18 +167,33 @@ def EROS_get_bad_timestamp(irods_path, output_path):
 		except CollectionDoesNotExist:
 			logging.error(f"iRods path not found : {irods_path}")
 
+		all_lcs = []
 		for quart_arch in coll.data_objects:
-			all_file = b""
 			with quart_arch.open('r') as f:
-				with tarfile.open(mode='r:gz', fileobj=f) as extr_f:
-					while True:
-						print(extr_f.next())
-				"""print(f)
+				all_file = b""
+				#with tarfile.open(mode='r:gz', fileobj=f) as extr_f:
+					#while True:
+						#print(extr_f.next())
 				while True:
 					chunk = f.read(1048576)
+					print('ah')
 					all_file+= chunk
 					if not chunk:
-						break"""
+						break
+				all_file = io.BytesIO(all_file)
+				with tarfile.open(mode='r:gz', fileobj=all_file) as extr_f:
+					for file in extr_f.getmembers():
+						f = extr_f.extractfile(file)
+						if f:
+							content = np.loadtxt(f, dtype=np.float64, comments="#")
+							s = np.empty((content.shape[0], content.shape[1]+1))
+							s[:,:-1] = content
+							s[:,-1] = convert_eros_id(os.path.split(file.name)[0].split('.')[0])
+							all_lcs.append(s)
+		all_lcs = np.concatenate(all_lcs)
+		return pd.DataFrame(all_lcs)
+
+
 
 
 #EROS_get_bad_timestamp('/eros/data/eros2/lightcurves/lm/lm001/lm0011','.')
@@ -182,9 +204,6 @@ def EROS_get_bad_timestamp(irods_path, output_path):
 # 		print(f)
 # 		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
 
-
-df = pd.read_pickle("/Volumes/DisqueSauvegarde/working_dir/pickles/F_42/F_42.128.bz2")
-print(df.time)
-print(np.sort(np.load("/Volumes/DisqueSauvegarde/working_dir/pickles/F_42/42_red_M_ratios.npy")))
+EROS_get_bad_timestamp(irods_path="/eros/data/eros2/lightcurves/lm/lm051/lm0510", output_path=".")
 
 #MACHO_get_bad_timestamps(field=42, pickles_path="/Volumes/DisqueSauvegarde/working_dir/pickles", output_path="/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
