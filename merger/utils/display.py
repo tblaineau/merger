@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import logging
 
 def hist2d1d(x, y, bins=10, figsize=None, hist_args={"histtype":"step"}, **kwargs):
-	fig, ax = plt.subplots(nrows=2, ncols=2, figsize=figsize, gridspec_kw={'width_ratios': [3, 1], 'height_ratios': [1, 3]})
+	fig, ax = plt.subplots(nrows=2, ncols=2, sharex="col", sharey="row", figsize=figsize, gridspec_kw={'width_ratios': [3, 1], 'height_ratios': [1, 3]})
 	ax[1, 0].hist2d(x, y, bins=bins, **kwargs)
 	try:
 		if not isinstance(bins, int):
