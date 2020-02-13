@@ -123,7 +123,7 @@ def weighted_std_interpolated(time, mag, err):
 	for i in range(0, len(time)-2):
 		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
 		sigmaisq = err[i+1]**2 + (1-ri)**2 * err[i]**2 + ri**2 * err[i+2]**2
-		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/np.sqrt(sigmaisq))
+		s0 += ((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/sigmaisq)
 		v1 += 1/np.sqrt(sigmaisq)
 		v2 += 1/sigmaisq
 	if v1==0 or (v1**2 - v2) == 0:
