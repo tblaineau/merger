@@ -22,3 +22,4 @@ def hist2d1d(x, y, bins=10, figsize=None, hist_args={"histtype":"step"}, range=N
 		ax[1, 1].hist(y, bins=biny, orientation='horizontal', **hist_args)
 
 	ax[0, 1].axis('off')
+	return ax
