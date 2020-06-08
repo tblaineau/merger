@@ -233,17 +233,17 @@ COLOR_FILTERS = {"r":{"mag":"mag_r", "err":"magerr_r"},
 
 @nb.njit
 def to_minimize_simple_nd(params, t, tx, errx):
-    "params : mags_1...mags_n, u0, t0, tE"
-    u0 = params[-3]
-    t0 = params[-2]
-    tE = np.power(10, params[-1])
-    s=0
-    for j in range(len(params)-3):
-        mag = params[j]
-        #s+=loop4d_simple(mag, u0, t0, tE, t[j], tx[j], errx[j])
-        for i in range(len(t[j])):
-            s += (tx[j][i] - microlens_simple(t[j][i], mag, 0, u0, t0, tE))**2/errx[j][i]**2
-    return s
+	"params : mags_1...mags_n, u0, t0, tE"
+	u0 = params[-3]
+	t0 = params[-2]
+	tE = np.power(10, params[-1])
+	s=0
+	for j in range(len(params)-3):
+		mag = params[j]
+		#s+=loop4d_simple(mag, u0, t0, tE, t[j], tx[j], errx[j])
+		for i in range(len(t[j])):
+			s += (tx[j][i] - microlens_simple(t[j][i], mag, 0, u0, t0, tE))**2/errx[j][i]**2
+	return s
 
 
 @nb.njit
