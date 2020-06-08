@@ -3,6 +3,7 @@ import numba as nb
 from merger.clean.libraries.merger_library import COLOR_FILTERS
 from iminuit import Minuit
 import pandas as pd
+from sklearn.utils.random import sample_without_replacement
 
 fastmath = False
 
@@ -70,6 +71,72 @@ def main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_
 		if cval < all_values[best_idx]:
 			best_idx = i
 	return best_idx
+
+
+
+def diff_ev_lhs(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01):
+	"""Compute minimum func value using differential evolution algorithm with input population generated using LHS"""
+	ranges = np.linspace(bounds[:, 0], bounds[:, 1], pop + 1).T
+	ranges = np.array([ranges[:, :-1], ranges[:, 1:]]).T
+	cs = np.random.uniform(low=ranges[:, :, 0], high=ranges[:, :, 1])
+	a =  sample_without_replacement(pop**len(bounds), pop)
+	a = np.array(np.unravel_index(a, [pop] * len(bounds)))
+	init_pop = np.array([cs[a[i], i] for i in range(len(bounds))]).T
+
+	return diff_ev_init_pop(func, times, data, errors, bounds, init_pop, recombination, tol)
+
+
+@nb.njit(fastmath=fastmath)
+def diff_ev_init_pop(func, times, data, errors, bounds, init_pop, recombination=0.7, tol=0.01):
+	"""
+	Compute minimum func value using differential evolution algorithm with input population
+
+	Parameters
+	----------
+	func : function
+		function to minimize, of format func(parameters, time, data, errors)
+	times : sequence
+		time values
+	data : sequence
+	errors : sequence
+	bounds : np.array
+		Limits of the parameter value to explore
+		len(bounds) should be the number of parameters to func
+	init_pop : np.array
+		initial population
+	recombination : float
+		Recombination factor, fraction of non mutated specimen to next generation
+		Should be in [0, 1]
+	tol : float
+		Tolerance factor, used for stopping condition
+
+	Returns
+	-------
+	tuple(float, list, int)
+		Returns minimum function value, corresponding parameters and number of loops
+
+	"""
+	dim = len(bounds)
+	pop = len(init_pop)
+
+	all_values = []
+	for i in range(pop):
+		all_values.append(func(init_pop[i], times, data, errors))
+	all_values = np.array(all_values)
+	best_idx = all_values.argmin()
+	count = 0
+	# loop
+	while count < 1000:
+		best_idx = main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_values, best_idx, bounds)
+		count += 1
+
+		if np.std(all_values) <= np.abs(np.mean(all_values)) * tol:
+			break
+	# rd = np.mean(all_values) - min_val
+	# rd = rd**2/(min_val**2 + eps)
+	# if rd<eps and count>20:
+	#    break
+	return all_values[best_idx], init_pop[best_idx], count
 
 
 @nb.njit(fastmath=fastmath)
