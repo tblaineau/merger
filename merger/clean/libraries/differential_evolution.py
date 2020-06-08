@@ -233,17 +233,17 @@ COLOR_FILTERS = {"r":{"mag":"mag_r", "err":"magerr_r"},
 
 @nb.njit
 def to_minimize_simple_nd(params, t, tx, errx):
-	"params : mags_1...mags_n, u0, t0, tE"
-	u0 = params[-3]
-	t0 = params[-2]
-	tE = params[-1]
-	s=0
-	for j in range(len(params)-3):
-		mag = params[j]
-		#s+=loop4d_simple(mag, u0, t0, tE, t[j], tx[j], errx[j])
-		for i in range(len(t[j])):
-			s += (tx[j][i] - microlens_simple(t[j][i], mag, 0, u0, t0, tE))**2/errx[j][i]**2
-	return s
+    "params : mags_1...mags_n, u0, t0, tE"
+    u0 = params[-3]
+    t0 = params[-2]
+    tE = np.power(10, params[-1])
+    s=0
+    for j in range(len(params)-3):
+        mag = params[j]
+        #s+=loop4d_simple(mag, u0, t0, tE, t[j], tx[j], errx[j])
+        for i in range(len(t[j])):
+            s += (tx[j][i] - microlens_simple(t[j][i], mag, 0, u0, t0, tE))**2/errx[j][i]**2
+    return s
 
 
 @nb.njit
@@ -281,8 +281,7 @@ def fit_ml_de_simple(subdf, do_cut=False):
 		series -- Contains parameters for the microlensing and flat curve fits, their chi2, informations on the fitter (fmin) and dof.
 	"""
 
-	# sélection des données, ~ 53ms
-	# le fit peut durer jusqu'à 0.7s ou aussi rapide que 0.04s (en général False)
+	# print(subdf.name)
 
 	ufilters = subdf.filtercode.unique()
 
@@ -294,7 +293,7 @@ def fit_ml_de_simple(subdf, do_cut=False):
 	time = dict()
 
 	min_err = 0.0
-	remove_extremities = True
+	remove_extremities = False
 	tolerance_ratio = 0.9
 	p = True
 
@@ -327,8 +326,11 @@ def fit_ml_de_simple(subdf, do_cut=False):
 	for key in COLOR_FILTERS.keys():
 		intrinsic_dispersion[key] = np.nan
 	for key in ufilters:
-		intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key], fraction=0.05)
-		errs[key] = errs[key] * intrinsic_dispersion[key]
+		if len(mags[key] <= 3):		# Minimum three points for intrinsic disperion estimation
+			intrinsic_dispersion[key] = 1.
+		else:
+			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key], fraction=0.05)
+			errs[key] = errs[key] * intrinsic_dispersion[key]
 
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
 	# 	return pd.Series(None)
@@ -396,34 +398,73 @@ def fit_ml_de_simple(subdf, do_cut=False):
 	else:
 		maxt0 = 50745
 
-	if np.max(diffs) > 0.:
+	if np.max(diffs) >= 0.:
 		alltimes = np.concatenate(list(time.values()))
-		bounds_simple = np.array([[-10, 30] for _ in ufilters] + [[0, 1], [alltimes.min(), alltimes.max()], [1, 500]])
-		fval, pms, nbloops = diff_ev(to_minimize_simple_nd, list(time.values()), list(mags.values()),
-									 list(errs.values()), bounds=bounds_simple, pop=50)
+		bounds_simple = np.array([[-10, 30] for _ in ufilters] + [[0, 1], [alltimes.min(), alltimes.max()], [0, 3]])
+		fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_nd, list(time.values()), list(mags.values()),
+										 list(errs.values()), bounds=bounds_simple, pop=70, recombination=0.3)
 
 		names = ["u0", "t0", "tE"] + ["magStar_" + key for key in COLOR_FILTERS.keys()]
 		micro_keys = names
 
-		micro_params = dict()
+		# Uncomment the following to compute only DE without minuit optimization
+		"""micro_params = dict()
 		micro_params["u0"] = pms[-3]
 		micro_params["t0"] = pms[-2]
-		micro_params["tE"] = pms[-1]
+		micro_params["tE"] = np.power(10, pms[-1])
 		for i, key in enumerate(ufilters):
-			micro_params["magStar_" + key] = pms[i]
+			micro_params["magStar_"+key] = pms[i] 
 		lsqs = []
 		micro_values = [micro_params['u0'], micro_params['t0'], micro_params['tE']]
 		for key in COLOR_FILTERS.keys():
 			if key in ufilters:
-				lsqs.append(np.sum(((mags[key] - microlens_simple(time[key], micro_params["magStar_" + key], 0,
-																  micro_params['u0'], micro_params['t0'],
-																  micro_params['tE'])) / errs[key]) ** 2))
-				micro_values.append(micro_params["magStar_" + key])
+				lsqs.append(np.sum(((mags[key] - microlens_simple(time[key], micro_params["magStar_"+key], 0, micro_params['u0'], micro_params['t0'], micro_params['tE']))/errs[key])**2))
+				micro_values.append(micro_params["magStar_"+key])
 			else:
 				lsqs.append(np.nan)
 				micro_values.append(np.nan)
 		micro_fmin = np.nan
-		micro_fval = fval
+		micro_fval = fval"""
+		pms = list(pms)
+
+		def least_squares_microlens(x):
+			# print(x)
+			lsq = 0
+			for idx, key in enumerate(ufilters):
+				lsq += np.sum(((mags[key] - microlens_simple(time[key], x[idx + 3], 0., x[0], x[1], x[2])) / errs[key]) ** 2)
+			# plt.plot(time[key], mags[key])
+			# plt.plot(time[key], mulens_simple(time[key], x[0], x[1], x[2], x[idx+3]))
+			# plt.gca().invert_yaxis()
+			# plt.show()
+			return lsq
+
+		start = pms[-3:-1] + [np.power(10, pms[-1])] + pms[:-3]
+		names = ["u0", "t0", "tE"] + ["magStar_" + key for key in ufilters]
+		errors = [0.1, 100, 10] + [2 for key in ufilters]
+		limits = [(0, 2), (58206, 58557), (1, 800)] + [(None, None) for _ in ufilters]
+		m_micro = Minuit.from_array_func(least_squares_microlens,
+										 start=start,
+										 error=errors,
+										 limit=limits,
+										 name=names,
+										 errordef=1,
+										 print_level=0)
+
+		m_micro.migrad()
+		micro_params = m_micro.values
+		lsqs = []
+		micro_values = [micro_params['u0'], micro_params['t0'], micro_params['tE']]
+		for key in COLOR_FILTERS.keys():
+			if key in ufilters:
+				lsqs.append(np.sum(((mags[key] - microlens_simple(time[key], micro_params["magStar_" + key], 0., micro_params['u0'], micro_params['t0'],
+															   micro_params['tE'])) /
+									errs[key]) ** 2))
+				micro_values.append(m_micro.values["magStar_" + key])
+			else:
+				lsqs.append(np.nan)
+				micro_values.append(np.nan)
+		micro_fmin = m_micro.get_fmin()
+		micro_fval = m_micro.fval
 	else:
 		print(means)
 		print(diffs)
@@ -443,8 +484,8 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	return pd.Series(
 		micro_values + [micro_fmin, micro_fval]
-		+
-		flat_values + [flat_fmin, flat_fval]
+		+ flat_values
+		+ [flat_fmin, flat_fval]
 		+ counts
 		+ lsqs
 		+ flat_chi2s
@@ -454,17 +495,13 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 		,
 
-		index=micro_keys + ['micro_fmin', 'micro_fval']
-			  +
-			  flat_keys + ['flat_fmin', 'flat_fval']
-			  + ["counts_" + key for key in
-				 COLOR_FILTERS.keys()]  # ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
-			  + ["micro_chi2_" + key for key in
-				 COLOR_FILTERS.keys()]  # ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
-			  + ["flat_chi2_" + key for key in
-				 COLOR_FILTERS.keys()]  # ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
+		index= micro_keys +['micro_fmin', 'micro_fval']
+			  + flat_keys
+			  + ['flat_fmin', 'flat_fval']
+			  + ["counts_" + key for key in COLOR_FILTERS.keys()]  # ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
+			  + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
+			  + ["flat_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
 			  + ["maxt0", "max_diff"]
-			  + ["magerr_" + key + "_median" for key, cf in
-				 COLOR_FILTERS.items()]  # ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
+			  + ["magerr_" + key + "_median" for key, cf in COLOR_FILTERS.items()]  # ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
 			  + ["intr_disp_" + key for key in intrinsic_dispersion.keys()]
 	)
