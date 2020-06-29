@@ -9,6 +9,8 @@ from irods.exception import CollectionDoesNotExist, DataObjectDoesNotExist
 import ssl
 import tarfile
 
+logging.basicConfig(level=logging.INFO)
+
 def MACHO_raw_to_pickle(filename, input_path, output_path):
 	"""
 	Read MACHO gzipped lightcurve file and save it to pickle
@@ -166,7 +168,7 @@ def EROS_load_ccd(irods_path):
 			coll = session.collections.get(irods_path)
 		except CollectionDoesNotExist:
 			logging.error(f"iRods path not found : {irods_path}")
-
+		logging.info("Starting loading ...")
 		all_lcs = []
 		for quart_arch in coll.data_objects:
 			with quart_arch.open('r') as f:
@@ -175,6 +177,7 @@ def EROS_load_ccd(irods_path):
 					#while True:
 						#print(extr_f.next())
 				while True:
+					logging.info("Chunk read")
 					chunk = f.read(1048576)
 					all_file+= chunk
 					if not chunk:
@@ -187,8 +190,9 @@ def EROS_load_ccd(irods_path):
 							content = np.loadtxt(f, dtype=np.float64, comments="#")
 							s = np.empty((content.shape[0], content.shape[1]+1))
 							s[:,:-1] = content
-							s[:,-1] = convert_eros_id(os.path.split(file.name)[0].split('.')[0])
+							s[:,-1] = convert_eros_id(os.path.split(file.name)[1].split('.')[0])
 							all_lcs.append(s)
+			logging.info("New quart")
 		logging.info("Loading completed.")
 		all_lcs = np.concatenate(all_lcs)
 		return pd.DataFrame(all_lcs, columns=["time", "red_E", "rederr_E", "blue_E", "blueerr_E", "id_E"])
@@ -239,6 +243,6 @@ def EROS_get_bad_timestamp(fccd, output_path=".", irods_path="/eros/data/eros2/l
 # 		print(f)
 # 		MACHO_raw_to_pickle(f, MACHO_gz_path, "/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
 
-EROS_get_bad_timestamp(fccd=510, output_path=".")
+#EROS_get_bad_timestamp(fccd=510, output_path=".")
 
 #MACHO_get_bad_timestamps(field=42, pickles_path="/Volumes/DisqueSauvegarde/working_dir/pickles", output_path="/Volumes/DisqueSauvegarde/working_dir/pickles/F_42")
