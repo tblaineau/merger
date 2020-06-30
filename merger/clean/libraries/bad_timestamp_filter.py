@@ -177,7 +177,7 @@ def EROS_load_ccd(irods_path):
 					#while True:
 						#print(extr_f.next())
 				while True:
-					logging.info("Chunk read")
+					logging.debug("Chunk read")
 					chunk = f.read(1048576)
 					all_file+= chunk
 					if not chunk:
