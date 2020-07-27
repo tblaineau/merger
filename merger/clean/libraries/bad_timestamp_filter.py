@@ -131,8 +131,8 @@ def MACHO_get_bad_timestamps(field, output_path, pickles_path=None, archives_pat
 	red_ratios = df.groupby(['red_amp', 'time'])['red_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
 	blue_ratios = df.groupby(['blue_amp', 'time'])['blue_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
 
-	np.save(os.path.join(output_path, str(field)+"_red_M_ratios"), red_ratios)
-	np.save(os.path.join(output_path, str(field)+"_blue_M_ratios"), blue_ratios)
+	np.save(os.path.join(output_path, str(field)+"_red_M_ratios"), red_ratios.reset_index().values)
+	np.save(os.path.join(output_path, str(field)+"_blue_M_ratios"), blue_ratios.reset_index().values)
 	return 0
 
 
@@ -232,8 +232,8 @@ def EROS_get_bad_timestamp(fccd, output_path=".", irods_path="/eros/data/eros2/l
 	red_ratios = df.groupby('time')['red_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
 	blue_ratios = df.groupby('time')['blue_distance'].agg(lambda x: x[x.abs() > 5].count() / x.count())
 
-	np.save(os.path.join(output_path, str(fccd) + "_red_E_ratios"), red_ratios)
-	np.save(os.path.join(output_path, str(fccd) + "_blue_E_ratios"), blue_ratios)
+	np.save(os.path.join(output_path, str(fccd) + "_red_E_ratios"), red_ratios.reset_index().values)
+	np.save(os.path.join(output_path, str(fccd) + "_blue_E_ratios"), blue_ratios.reset_index().values)
 
 
 
