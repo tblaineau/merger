@@ -228,8 +228,6 @@ def nb_truncated_intrinsic_dispersion(time, mag, err, fraction=0.05):
 	s0 = s0[s0.argsort()[:-maxind]].sum()
 	return np.sqrt(s0/(len(time)-2-maxind))
 
-COLOR_FILTERS = {"r":{"mag":"mag_r", "err":"magerr_r"},
-				 "g":{"mag":"mag_g", "err":"magerr_g"}}
 
 @nb.njit
 def to_minimize_simple_nd(params, t, tx, errx):
@@ -283,11 +281,8 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	# print(subdf.name)
 
-	ufilters = subdf.filtercode.unique()
-
 	mask = dict()
 	errs = dict()
-	cs = dict()
 	mags = dict()
 	cut5 = dict()
 	time = dict()
@@ -297,18 +292,23 @@ def fit_ml_de_simple(subdf, do_cut=False):
 	tolerance_ratio = 0.9
 	p = True
 
-	for key in ufilters:
-		mask[key] = subdf["mag_" + key].notnull() & subdf["magerr_" + key].notnull() & subdf["magerr_" + key].between(
+	ufilters=[]
+
+	for key in COLOR_FILTERS.keys():
+		mask[key] = subdf[COLOR_FILTERS[key]["mag"]].notnull() & subdf[COLOR_FILTERS[key]["err"]].notnull() & subdf[COLOR_FILTERS[key]["err"]].between(
 			min_err, 9.999, inclusive=False)  # No nan and limits on errors
-		mags[key] = subdf[mask[key]]["mag_" + key]  # mags
-		errs[key] = subdf[mask[key]]["magerr_" + key]  # errs
-		cut5[key] = np.abs((mags[key].rolling(5, center=True).median() - mags[key][2:-2])) / errs[key][2:-2] < 5
 
-		if not remove_extremities:
-			cut5[key][:2] = True
-			cut5[key][-2:] = True
+		if mask[key].sum()>2:		#Check if there are more than 3 valid points in the current color
+			ufilters.append(key)
+			mags[key] = subdf[mask[key]][COLOR_FILTERS[key]["mag"]]  # mags
+			errs[key] = subdf[mask[key]][COLOR_FILTERS[key]["err"]]  # errs
+			cut5[key] = np.abs((mags[key].rolling(5, center=True).median() - mags[key][2:-2])) / errs[key][2:-2] < 5
 
-		p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
+			if not remove_extremities:
+				cut5[key][:2] = True
+				cut5[key][-2:] = True
+
+			p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
 
 	if do_cut and not p:
 		for key in ufilters:
