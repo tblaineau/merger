@@ -326,7 +326,7 @@ def fit_ml_de_simple(subdf, do_cut=False):
 	for key in COLOR_FILTERS.keys():
 		intrinsic_dispersion[key] = np.nan
 	for key in ufilters:
-		if len(mags[key] <= 3):		# Minimum three points for intrinsic disperion estimation
+		if len(mags[key])<=3:		# Minimum three points for intrinsic dispersion estimation
 			intrinsic_dispersion[key] = 1.
 		else:
 			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key], fraction=0.05)
