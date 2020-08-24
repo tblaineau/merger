@@ -473,8 +473,7 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	return pd.Series(
 		micro_values + [micro_fmin, micro_fval] + [micro_minos_errors]
-		+
-		flat_values + [flat_fmin, flat_fval]
+		+ flat_values + [flat_fmin, flat_fval]
 		+ counts
 		+ lsqs
 		+ flat_chi2s
@@ -484,15 +483,10 @@ def fit_ml_de_simple(subdf, do_cut=False):
 		,
 
 		index=micro_keys + ['micro_fmin', 'micro_fval'] + ["micro_minos_errors"]
-			  +
-			  flat_keys + ['flat_fmin', 'flat_fval']
-			  + ["counts_" + key for key in
-				 COLOR_FILTERS.keys()]  # ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
-			  + ["micro_chi2_" + key for key in
-				 COLOR_FILTERS.keys()]  # ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
-			  + ["flat_chi2_" + key for key in
-				 COLOR_FILTERS.keys()]  # ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
-			  + ["magerr_" + key + "_median" for key, cf in
-				 COLOR_FILTERS.items()]  # ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
+			  + flat_keys + ['flat_fmin', 'flat_fval']
+			  + ["counts_" + key for key in COLOR_FILTERS.keys()]  # ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
+			  + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
+			  + ["flat_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
+			  + ["magerr_" + key + "_median" for key, cf in COLOR_FILTERS.items()]  # ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
 			  + ["intr_disp_" + key for key in intrinsic_dispersion.keys()]
 	)
