@@ -288,7 +288,7 @@ def latin_hypercube_sampling(bounds, pop):
 GLOBAL_COUNTER = 0
 
 
-def fit_ml_de_simple(subdf, do_cut=False):
+def fit_ml_de_simple(subdf, do_cut=False, hesse=False, minos=False):
 	"""Fit on one star
 
 	Color filter names must be stocked in a COLOR_FILTERS dictionnary
@@ -303,6 +303,12 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	do_cut : bool
 		If True, clean aberrant points using distance from median of 5 points (default: {False})
+
+	hesse : bool
+		Use HESSE to compute paraoblic errors (not really valid as the chi2 profile is not parabolic, for tE)
+
+	minos : bool
+		Use MINOS to compute asymetric errors (slow the function, ~x1.5)
 
 	Returns
 	-------
@@ -417,7 +423,6 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	names = ["u0", "t0", "tE"] + ["magStar_" + key for key in COLOR_FILTERS.keys()]
 	micro_keys = names
-	micro_error_labels = ["error_"+name for name in names]
 
 	pms = list(pms)
 
@@ -441,33 +446,49 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	m_micro.migrad()
 	micro_params = m_micro.values
-	m_micro.hesse()
 
-	"""micro_minos_errors = []
-	micro_minos_errors_labels = ["u0", "t0", "tE"]
-	try:
-		merrors = m_micro.minos()
-		micro_minos_errors = [merrors["u0"], merrors["t0"], merrors["tE"]]
-		for key, item in COLOR_FILTERS.items():
-			micro_minos_errors_labels.append(item["mag"])
+	micro_errors = []
+	micro_error_labels = []
+
+	if hesse:
+		m_micro.hesse()
+		micro_error_labels = ["error_" + name for name in names]
+		micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
+		for key in COLOR_FILTERS.keys():
 			if key in ufilters:
-				micro_minos_errors.append(merrors["magStar_" + key])
+				micro_errors.append(m_micro.errors["magStar_" + key])
 			else:
-				micro_minos_errors.append(np.nan)
-	except RuntimeError:
-		print("Migrad did not converge properly on star " + str(subdf.name))"""
+				micro_errors.append(np.nan)
+	elif minos:
+		for name in names:
+			micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
+		micro_errors = [np.nan]*(3+len(COLOR_FILTERS))*4
+		try:
+			merrors = m_micro.minos()
+		except RuntimeError:
+			print("Migrad did not converge properly on star " + str(subdf.name))
+		if merrors:
+			micro_errors = [merrors["u0"].lower, merrors["u0"].upper, merrors["u0"].lower_valid, merrors["u0"].upper_valid,
+							merrors["t0"].lower, merrors["t0"].upper, merrors["t0"].lower_valid,
+							merrors["t0"].upper_valid,
+							merrors["tE"].lower, merrors["tE"].upper, merrors["tE"].lower_valid,
+							merrors["tE"].upper_valid]
+			for key in COLOR_FILTERS.keys():
+				if key in ufilters:
+					micro_errors += [merrors["magStar_" + key].lower, merrors["magStar_" + key].upper,
+										 merrors["magStar_" + key].lower_valid, merrors["magStar_" + key].upper_valid]
+				else:
+					micro_errors+=[np.nan]*4
+
 	lsqs = []
 	micro_values = [micro_params['u0'], micro_params['t0'], micro_params['tE']]
-	micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
 	for key in COLOR_FILTERS.keys():
 		if key in ufilters:
 			lsqs.append(np.sum(((mags[key] - microlens_simple(time[key], micro_params["magStar_" + key], 0, micro_params['u0'], micro_params['t0'], micro_params['tE'])) / errs[key]) ** 2))
 			micro_values.append(m_micro.values["magStar_" + key])
-			micro_errors.append(m_micro.errors["magStar_" + key])
 		else:
 			lsqs.append(np.nan)
 			micro_values.append(np.nan)
-			micro_errors.append(np.nan)
 	micro_fmin = m_micro.get_fmin()
 	micro_fval = m_micro.fval
 
