@@ -463,6 +463,7 @@ def fit_ml_de_simple(subdf, do_cut=False, hesse=False, minos=False):
 		for name in names:
 			micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
 		micro_errors = [np.nan]*(3+len(COLOR_FILTERS))*4
+		merrors=False
 		try:
 			merrors = m_micro.minos()
 		except RuntimeError:
