@@ -417,6 +417,7 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	names = ["u0", "t0", "tE"] + ["magStar_" + key for key in COLOR_FILTERS.keys()]
 	micro_keys = names
+	micro_error_labels = ["error_"+name for name in names]
 
 	pms = list(pms)
 
@@ -440,21 +441,33 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 	m_micro.migrad()
 	micro_params = m_micro.values
+	m_micro.hesse()
+
+	"""micro_minos_errors = []
+	micro_minos_errors_labels = ["u0", "t0", "tE"]
 	try:
-		m_micro.minos()
-		micro_minos_errors = m_micro.np_merrors()
+		merrors = m_micro.minos()
+		micro_minos_errors = [merrors["u0"], merrors["t0"], merrors["tE"]]
+		for key, item in COLOR_FILTERS.items():
+			micro_minos_errors_labels.append(item["mag"])
+			if key in ufilters:
+				micro_minos_errors.append(merrors["magStar_" + key])
+			else:
+				micro_minos_errors.append(np.nan)
 	except RuntimeError:
-		print("Migrad did not converge properly on star " + str(subdf.name))
-		micro_minos_errors = np.nan
+		print("Migrad did not converge properly on star " + str(subdf.name))"""
 	lsqs = []
 	micro_values = [micro_params['u0'], micro_params['t0'], micro_params['tE']]
+	micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
 	for key in COLOR_FILTERS.keys():
 		if key in ufilters:
 			lsqs.append(np.sum(((mags[key] - microlens_simple(time[key], micro_params["magStar_" + key], 0, micro_params['u0'], micro_params['t0'], micro_params['tE'])) / errs[key]) ** 2))
 			micro_values.append(m_micro.values["magStar_" + key])
+			micro_errors.append(m_micro.errors["magStar_" + key])
 		else:
 			lsqs.append(np.nan)
 			micro_values.append(np.nan)
+			micro_errors.append(np.nan)
 	micro_fmin = m_micro.get_fmin()
 	micro_fval = m_micro.fval
 
@@ -472,7 +485,7 @@ def fit_ml_de_simple(subdf, do_cut=False):
 			median_errors.append(np.nan)
 
 	return pd.Series(
-		micro_values + [micro_fmin, micro_fval] + [micro_minos_errors]
+		micro_values + [micro_fmin, micro_fval] + micro_errors
 		+ flat_values + [flat_fmin, flat_fval]
 		+ counts
 		+ lsqs
@@ -482,7 +495,7 @@ def fit_ml_de_simple(subdf, do_cut=False):
 
 		,
 
-		index=micro_keys + ['micro_fmin', 'micro_fval'] + ["micro_minos_errors"]
+		index=micro_keys + ['micro_fmin', 'micro_fval'] + micro_error_labels
 			  + flat_keys + ['flat_fmin', 'flat_fval']
 			  + ["counts_" + key for key in COLOR_FILTERS.keys()]  # ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
 			  + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
