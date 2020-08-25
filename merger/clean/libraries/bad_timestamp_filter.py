@@ -82,7 +82,7 @@ def read_macho_lightcurve(filepath):
 	return pd.DataFrame.from_dict(lc)
 
 
-def MACHO_get_bad_timestamps(field, output_path, pickles_path=None, archives_path=None):
+def MACHO_get_bad_timestamps(field, output_path, fraction=1, pickles_path=None, archives_path=None):
 	"""
 	Save ratio of bad points over all points of each amp and each time.
 
@@ -100,13 +100,21 @@ def MACHO_get_bad_timestamps(field, output_path, pickles_path=None, archives_pat
 	"""
 	lpds = []
 	if pickles_path:
+		if fraction !=1:
+			print("Fraction not implemented")
 		field_pickles_path = os.path.join(pickles_path, "F_"+str(field))
 		for f in os.listdir(field_pickles_path):
 			lpds.append(pd.read_pickle(os.path.join(field_pickles_path, f)))
 	elif archives_path:
 		field_archives_path = os.path.join(archives_path, "F_" + str(field))
 		for f in os.listdir(field_archives_path):
-			lpds.append(read_macho_lightcurve(os.path.join(field_archives_path, f)))
+			print(f)
+			temp = read_macho_lightcurve(os.path.join(field_archives_path, f))
+			if fraction!=1:
+				us = temp.id_M.unique()
+				index = np.random.choice(np.arange(0, len(us),1), int(fraction*len(us)), replace=False)
+				temp = temp[temp.id_M.isin(us[index])]
+			lpds.append(temp)
 	else:
 		logging.ERROR('No import path.')
 		return 1
