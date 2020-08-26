@@ -114,7 +114,7 @@ def diff_ev_init_pop(func, times, data, errors, bounds, init_pop, recombination=
 	best_idx = all_values.argmin()
 	count = 0
 	# loop
-	while count < 1:
+	while count < 1000:
 		best_idx = main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_values, best_idx, bounds)
 		count += 1
 
