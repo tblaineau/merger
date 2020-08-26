@@ -1,4 +1,5 @@
 from merger.clean.libraries import merger_library, iminuit_fitter
+from merger.clean.libraries.differential_evolution import fit_ml_de_simple
 import argparse, os, logging
 import numpy as np
 import pandas as pd
@@ -77,4 +78,10 @@ if __name__ == '__main__':
 
                 merged = merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
 
-                iminuit_fitter.fit_all(merged=merged, filename=str(MACHO_field) + "_" + str(t) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
+                iminuit_fitter.fit_all(merged=merged, 
+                                       filename=str(MACHO_field) + "_" + str(t) + ".pkl",
+                                       input_dir_path=output_directory,
+                                       output_dir_path=output_directory,
+                                       fit_function=fit_ml_de_simple,
+                                       do_cut5=False,
+                                       hesse=True)
