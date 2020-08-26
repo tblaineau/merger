@@ -452,8 +452,8 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	micro_error_labels = []
 
 	if hesse:
-		micro_error_labels = ["error_" + name for name in names]
-		micro_errors = [np.nan]*len(names)
+		micro_error_labels = ["error_" + name for name in micro_keys]
+		micro_errors = [np.nan]*len(micro_keys)
 		try:
 			m_micro.hesse()
 		except iminuit_warnings.HesseFailedWarning:
@@ -466,7 +466,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 				else:
 					micro_errors.append(np.nan)
 	elif minos:
-		for name in names:
+		for name in micro_keys:
 			micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
 		micro_errors = [np.nan]*(3+len(COLOR_FILTERS))*4
 		merrors=False
