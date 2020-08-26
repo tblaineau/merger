@@ -74,19 +74,6 @@ def main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_
 	return best_idx
 
 
-
-def diff_ev_lhs(func, times, data, errors, bounds, pop, recombination=0.7, tol=0.01):
-	"""Compute minimum func value using differential evolution algorithm with input population generated using LHS"""
-	ranges = np.linspace(bounds[:, 0], bounds[:, 1], pop + 1).T
-	ranges = np.array([ranges[:, :-1], ranges[:, 1:]]).T
-	cs = np.random.uniform(low=ranges[:, :, 0], high=ranges[:, :, 1])
-	a =  sample_without_replacement(pop**len(bounds), pop)
-	a = np.array(np.unravel_index(a, [pop] * len(bounds)))
-	init_pop = np.array([cs[a[i], i] for i in range(len(bounds))]).T
-
-	return diff_ev_init_pop(func, times, data, errors, bounds, init_pop, recombination, tol)
-
-
 @nb.njit(fastmath=fastmath)
 def diff_ev_init_pop(func, times, data, errors, bounds, init_pop, recombination=0.7, tol=0.01):
 	"""
@@ -127,7 +114,7 @@ def diff_ev_init_pop(func, times, data, errors, bounds, init_pop, recombination=
 	best_idx = all_values.argmin()
 	count = 0
 	# loop
-	while count < 1000:
+	while count < 1:
 		best_idx = main_loop(func, times, data, errors, dim, recombination, init_pop, pop, all_values, best_idx, bounds)
 		count += 1
 
@@ -224,7 +211,7 @@ def nb_truncated_intrinsic_dispersion(time, mag, err, fraction=0.05):
 		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
 		sigmaisq = err[i+1]**2 + (1-ri)**2 * err[i]**2 + ri**2 * err[i+2]**2
 		s0.append(((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/sigmaisq))
-	maxind = int(len(time)*fraction)
+	maxind = int(len(time)*fraction)+1
 	s0 = np.array(s0)
 	s0 = s0[s0.argsort()[:-maxind]].sum()
 	return np.sqrt(s0/(len(time)-2-maxind))
@@ -379,7 +366,10 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		else:
 			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key],
 																		  fraction=0.05)
-			errs[key] = errs[key] * intrinsic_dispersion[key]
+			if intrinsic_dispersion[key] > 0:
+				errs[key] = errs[key] * intrinsic_dispersion[key]
+			else:
+				print("null intrinsic dispersion for "+subdf.name)
 
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
 	# 	return pd.Series(None)
@@ -419,8 +409,11 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 
 	alltimes = np.concatenate(list(time.values()))
 	bounds_simple = np.array([[-30, 30] for _ in ufilters] + [[0, 1], [alltimes.min(), alltimes.max()], [0, 3]])
-	fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_nd, list(time.values()), list(mags.values()),
+	try:
+		fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_nd, list(time.values()), list(mags.values()),
 									 list(errs.values()), bounds=bounds_simple, pop=70, recombination=0.3)
+	except ZeroDivisionError:
+		logging.error("Divison by zero in diffev. Current star: "+str(subdf.name))
 
 	names = ["u0", "t0", "tE"] + ["magStar_" + key for key in COLOR_FILTERS.keys()]
 	micro_keys = names
