@@ -1,7 +1,8 @@
 import numpy as np
 import numba as nb
 from merger.clean.libraries.merger_library import COLOR_FILTERS
-from iminuit import Minuit
+from iminuit import Minuit, HesseFailedWarning
+import logging
 import pandas as pd
 from sklearn.utils.random import sample_without_replacement
 
@@ -451,14 +452,19 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	micro_error_labels = []
 
 	if hesse:
-		m_micro.hesse()
 		micro_error_labels = ["error_" + name for name in names]
-		micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
-		for key in COLOR_FILTERS.keys():
-			if key in ufilters:
-				micro_errors.append(m_micro.errors["magStar_" + key])
-			else:
-				micro_errors.append(np.nan)
+		micro_errors = [np.nan]*len(names)
+		try:
+			m_micro.hesse()
+		except HesseFailedWarning:
+			logging.warning("Hesse failed on star " + str(subdf.name))
+		else:
+			micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
+			for key in COLOR_FILTERS.keys():
+				if key in ufilters:
+					micro_errors.append(m_micro.errors["magStar_" + key])
+				else:
+					micro_errors.append(np.nan)
 	elif minos:
 		for name in names:
 			micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
