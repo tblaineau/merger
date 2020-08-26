@@ -9,6 +9,7 @@ if __name__ == '__main__':
         parser.add_argument('--correspondance-path', '-pC', type=str, default="/Users/tristanblaineau/")
         parser.add_argument('--output-directory', '-odir', type=str, default=merger_library.OUTPUT_DIR_PATH)
         parser.add_argument('--MACHO-field', '-fM', type=int)
+        parser.add_argument('--MACHO-bad-time-threshold', '-btt', type=float, default=0.1)
 
         args = parser.parse_args()
 
@@ -22,6 +23,7 @@ if __name__ == '__main__':
         MACHO_bad_times_directory = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
         correspondance_files_path = "/pbs/home/b/blaineau/data/correspondances"
         bad_times_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
+        MACHO_btt= args.MACHO_bad_time_threshold
         output_directory = args.output_directory
         verbose = True
 
@@ -62,13 +64,13 @@ if __name__ == '__main__':
                 dfb = pd.concat(dfb)
 
                 pms = list(zip(merged["time"].values, merged["red_amp"].values))
-                pdf = list(zip(dfr[dfr.ratio>0.1]["time"].values, dfr[dfr.ratio>0.1]["red_amp"].values))
+                pdf = list(zip(dfr[dfr.ratio>MACHO_btt]["time"].values, dfr[dfr.ratio>MACHO_btt]["red_amp"].values))
                 result = pd.Series(pms).isin(pdf)
                 merged[result].red_M = np.nan
                 merged[result].rederr_M = np.nan
 
                 pms = list(zip(merged["time"].values, merged["blue_amp"].values))
-                pdf = list(zip(dfr[dfr.ratio>0.1]["time"].values, dfr[dfr.ratio>0.1]["blue_amp"].values))
+                pdf = list(zip(dfr[dfr.ratio>MACHO_btt]["time"].values, dfr[dfr.ratio>MACHO_btt]["blue_amp"].values))
                 result = pd.Series(pms).isin(pdf)
                 merged[result].blue_M = np.nan
                 merged[result].blueerr_M = np.nan
