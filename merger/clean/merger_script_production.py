@@ -21,9 +21,9 @@ if __name__ == '__main__':
         merged_output_directory = "/sps/hep/eros/users/blaineau/prod2/merged"
         MACHO_bad_times_directory = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
         correspondance_files_path = "/pbs/home/b/blaineau/data/correspondances"
+        bad_times_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
         output_directory = args.output_directory
         verbose = True
-
 
         if verbose:
                 logging.basicConfig(level=logging.INFO)
@@ -41,4 +41,38 @@ if __name__ == '__main__':
         #         #merged = merger_library.merger_macho_first(merged_output_directory, MACHO_field, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True, t_indice=t)
 
         if fit:
+                #Remove bad times
+                dfr = []
+                dfb = []
+                for i in range(1, 83):
+                        print(i, end="\r")
+                        try:
+                                df = pd.DataFrame(np.load(os.path.join(bad_times_path, str(i) + "_red_M_ratios.npy")),
+                                                  columns=["red_amp", "time", "ratio"])
+                                df.loc[:, "field"] = i
+                                dfr.append(df)
+                                df = pd.DataFrame(np.load(os.path.join(bad_times_path, str(i) + "_blue_M_ratios.npy")),
+                                                  columns=["blue_amp", "time", "ratio"])
+                                df.loc[:, "field"] = i
+                                dfb.append(df)
+                        except FileNotFoundError:
+                                logging.warning("No ratio file found for field "+str(i)+".")
+                                continue
+                dfr = pd.concat(dfr)
+                dfb = pd.concat(dfb)
+
+                pms = list(zip(merged["time"].values, merged["red_amp"].values))
+                pdf = list(zip(dfr[dfr.ratio>0.1]["time"].values, dfr[dfr.ratio>0.1]["red_amp"].values))
+                result = pd.Series(pms).isin(pdf)
+                merged[result].red_M = np.nan
+                merged[result].rederr_M = np.nan
+
+                pms = list(zip(merged["time"].values, merged["blue_amp"].values))
+                pdf = list(zip(dfr[dfr.ratio>0.1]["time"].values, dfr[dfr.ratio>0.1]["blue_amp"].values))
+                result = pd.Series(pms).isin(pdf)
+                merged[result].blue_M = np.nan
+                merged[result].blueerr_M = np.nan
+
+                merged = merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
+
                 iminuit_fitter.fit_all(merged=merged, filename=str(MACHO_field) + "_" + str(t) + ".pkl", input_dir_path=output_directory, output_dir_path=output_directory)
