@@ -45,6 +45,7 @@ if __name__ == '__main__':
 
         if fit:
                 #Remove bad times
+                logging.info("Bad time removal.")
                 dfr = []
                 dfb = []
                 try:
@@ -76,6 +77,8 @@ if __name__ == '__main__':
 
                         merged = merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
 
+                logging.info("Done.")
+                logging.info("Starting fit")
                 iminuit_fitter.fit_all(merged=merged,
                                        filename=str(MACHO_field) + "_" + str(t) + ".pkl",
                                        input_dir_path=output_directory,
