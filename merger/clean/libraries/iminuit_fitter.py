@@ -128,7 +128,7 @@ def weighted_std_interpolated(time, mag, err):
 		v2 += 1/sigmaisq
 	if v1==0 or (v1**2 - v2) == 0:
 		return np.nan
-	return np.sqrt(s0*v1/(v1**2 - v2))
+	return np.sqrt(s0*v1**2/(v1**2 - v2))
 
 def fit_ml(subdf, cut5=False):
 	"""Fit on one star
@@ -408,7 +408,7 @@ def fit_ml(subdf, cut5=False):
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 
-def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH, time_mask=None):
+def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH, time_mask=None, **fit_parameters):
 	"""Fit all curves in filename
    
 	[description]
@@ -428,7 +428,7 @@ def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_
 	logging.info("FILES LOADED")
 	logging.info(f"{merged.id_E.nunique()}")
 	start = time.time()
-	res = merged.groupby("id_E").apply(fit_ml, cut5=True)
+	res = merged.groupby("id_E").apply(fit_ml, **fit_parameters)
 	end = time.time()
 	res.to_pickle(os.path.join(output_dir_path, 'res_'+filename))
 	logging.info(str(end-start)+" seconds elapsed.")
