@@ -60,6 +60,8 @@ if __name__ == '__main__':
                 except FileNotFoundError:
                         logging.warning("No ratio file found for field "+str(MACHO_field)+".")
                 else:
+                        merged.reset_index(drop=True, inplace=True)
+
                         dfr = pd.concat(dfr)
                         dfb = pd.concat(dfb)
 
@@ -70,7 +72,7 @@ if __name__ == '__main__':
                         merged[result].rederr_M = np.nan
 
                         pms = list(zip(merged["time"].values, merged["blue_amp"].values))
-                        pdf = list(zip(dfr[dfr.ratio>MACHO_btt]["time"].values, dfr[dfr.ratio>MACHO_btt]["blue_amp"].values))
+                        pdf = list(zip(dfb[dfb.ratio>MACHO_btt]["time"].values, dfb[dfb.ratio>MACHO_btt]["blue_amp"].values))
                         result = pd.Series(pms).isin(pdf)
                         merged[result].blue_M = np.nan
                         merged[result].blueerr_M = np.nan
