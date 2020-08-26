@@ -33,14 +33,14 @@ if __name__ == '__main__':
         print(fit)
 
         #Main
-        merged = merger_library.merger_macho_first(merged_output_directory, MACHO_field, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True, t_indice=t)
-        # print('LOADING MERGED LCs')
-        # try:
-        #         merged = pd.read_pickle(os.path.join(merged_output_directory, str(MACHO_field)+'_'+str(t)+'.bz2'), compression='bz2')
-        # except FileNotFoundError:
-        #         print("File not found : "+os.path.join(merged_output_directory, str(MACHO_field)+'_'+str(t)+'.bz2'))
-        #         #print('LOADING FROM EROS-MACHO')
-        #         #merged = merger_library.merger_macho_first(merged_output_directory, MACHO_field, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True, t_indice=t)
+        #merged = merger_library.merger_macho_first(merged_output_directory, MACHO_field, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True, t_indice=t)
+        logging.info('LOADING MERGED LCs')
+        try:
+                merged = pd.read_pickle(os.path.join(merged_output_directory, str(MACHO_field)+'_'+str(t)+'.bz2'), compression='bz2')
+        except FileNotFoundError:
+                logging.info("File not found : "+os.path.join(merged_output_directory, str(MACHO_field)+'_'+str(t)+'.bz2'))
+                logging.info('LOADING FROM EROS-MACHO')
+                merged = merger_library.merger_macho_first(merged_output_directory, MACHO_field, EROS_files_path, correspondance_files_path, MACHO_files_path, save=True, t_indice=t)
 
         if fit:
                 #Remove bad times
