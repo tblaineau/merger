@@ -254,6 +254,8 @@ def read_macho_lightcurve(filepath, filename, star_nb_start=0, star_nb_stop=-1):
 				temp.append(float(line[10]))
 				temp.append(float(line[24]))
 				temp.append(float(line[25]))
+				temp.append(float(line[19]))
+				temp.append(float(line[34]))
 				temp.append(line[1] + ":" + line[2] + ":" + line[3])
 				lc.append(tuple(temp))
 			f.close()
@@ -264,6 +266,8 @@ def read_macho_lightcurve(filepath, filename, star_nb_start=0, star_nb_stop=-1):
 							 ('rederr_M', 'f8'),
 							 ('blue_M', 'f8'),
 							 ('blueerr_M', 'f8'),
+							 ('red_amp', int),
+							 ('blue_amp', int),
 							 ('id_M', 'U13')])
 	return pd.DataFrame.from_records(lc)
 
