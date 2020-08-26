@@ -408,7 +408,7 @@ def fit_ml(subdf, cut5=False):
 WORKING_DIR_PATH = "/Volumes/DisqueSauvegarde/working_dir/"
 
 
-def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH, time_mask=None, **fit_parameters):
+def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_dir_path=WORKING_DIR_PATH, time_mask=None, fit_function=fit_ml, **fit_parameters):
 	"""Fit all curves in filename
    
 	[description]
@@ -428,7 +428,7 @@ def fit_all(merged=None, filename=None, input_dir_path=WORKING_DIR_PATH, output_
 	logging.info("FILES LOADED")
 	logging.info(f"{merged.id_E.nunique()}")
 	start = time.time()
-	res = merged.groupby("id_E").apply(fit_ml, **fit_parameters)
+	res = merged.groupby("id_E").apply(fit_function, **fit_parameters)
 	end = time.time()
 	res.to_pickle(os.path.join(output_dir_path, 'res_'+filename))
 	logging.info(str(end-start)+" seconds elapsed.")
