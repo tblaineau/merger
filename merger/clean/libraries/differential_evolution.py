@@ -352,11 +352,11 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 			errs[key] = subdf[mask[key]][COLOR_FILTERS[key]["err"]]  # errs
 			cut5[key] = np.abs((mags[key].rolling(5, center=True).median() - mags[key][2:-2])) / errs[key][2:-2] < 5
 
-		if not remove_extremities:
-			cut5[key][:2] = True
-			cut5[key][-2:] = True
+			if not remove_extremities:
+				cut5[key][:2] = True
+				cut5[key][-2:] = True
 
-		p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
+			p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
 
 	if do_cut5 and not p:
 		for key in ufilters:
