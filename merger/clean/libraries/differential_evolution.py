@@ -1,7 +1,7 @@
 import numpy as np
 import numba as nb
 from merger.clean.libraries.merger_library import COLOR_FILTERS
-from iminuit import Minuit, HesseFailedWarning
+from iminuit import Minuit, iminuit_warnings
 import logging
 import pandas as pd
 from sklearn.utils.random import sample_without_replacement
@@ -456,7 +456,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		micro_errors = [np.nan]*len(names)
 		try:
 			m_micro.hesse()
-		except HesseFailedWarning:
+		except iminuit_warnings.HesseFailedWarning:
 			logging.warning("Hesse failed on star " + str(subdf.name))
 		else:
 			micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
