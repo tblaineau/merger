@@ -288,7 +288,7 @@ def latin_hypercube_sampling(bounds, pop):
 GLOBAL_COUNTER = 0
 
 
-def fit_ml_de_simple(subdf, do_cut=False, hesse=False, minos=False):
+def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	"""Fit on one star
 
 	Color filter names must be stocked in a COLOR_FILTERS dictionnary
@@ -301,7 +301,7 @@ def fit_ml_de_simple(subdf, do_cut=False, hesse=False, minos=False):
 		Lightcurve data. Should have magnitudes stocked in "mag_*color*"  columns, magnitude errors in "magerr_*color*",
 		for each *color* name and timestamps in "time" column
 
-	do_cut : bool
+	do_cut5 : bool
 		If True, clean aberrant points using distance from median of 5 points (default: {False})
 
 	hesse : bool
@@ -357,7 +357,7 @@ def fit_ml_de_simple(subdf, do_cut=False, hesse=False, minos=False):
 
 		p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
 
-	if do_cut and not p:
+	if do_cut5 and not p:
 		for key in ufilters:
 			time[key] = subdf[mask[key] & cut5[key]].time.to_numpy()
 			errs[key] = errs[key][cut5[key]].to_numpy()
