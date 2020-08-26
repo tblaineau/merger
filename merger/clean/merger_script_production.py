@@ -20,7 +20,7 @@ if __name__ == '__main__':
         fit = True
         EROS_files_path = 'irods'
         MACHO_files_path = '/sps/hep/eros/data/macho/lightcurves/'
-        merged_output_directory = "/sps/hep/eros/users/blaineau/prod2/merged"
+        merged_output_directory = os.join.path("/sps/hep/eros/users/blaineau/prod2/merged", "F_"+str(MACHO_field))
         MACHO_bad_times_directory = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
         correspondance_files_path = "/pbs/home/b/blaineau/data/correspondances"
         bad_times_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
