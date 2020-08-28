@@ -324,7 +324,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	time = dict()
 
 	min_err = 0.0
-	remove_extremities = False
+	remove_extremities = True
 	tolerance_ratio = 0.9
 	p = True
 	ufilters = []
@@ -494,7 +494,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	for key in COLOR_FILTERS.keys():
 		if key in ufilters:
 			counts.append((~np.isnan(mags[key])).sum())
-			flat_chi2s.append(np.sum(((mags[key] - flat_params[0]) / errs[key]) ** 2))
+			flat_chi2s.append(np.sum(((mags[key] - m_flat.values["f_magStar_"+key]) / errs[key]) ** 2))
 			median_errors.append(np.median(errs[key]))
 		else:
 			counts.append(0)
