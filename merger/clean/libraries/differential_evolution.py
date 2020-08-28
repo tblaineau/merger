@@ -408,7 +408,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	flat_fval = m_flat.fval
 
 	alltimes = np.concatenate(list(time.values()))
-	bounds_simple = np.array([[-30, 30] for _ in ufilters] + [[0, 1], [alltimes.min(), alltimes.max()], [0, 3]])
+	bounds_simple = np.array([[-30, 30] for _ in ufilters] + [[0, 2], [alltimes.min(), alltimes.max()], [0, 3]])
 	try:
 		fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_nd, list(time.values()), list(mags.values()),
 									 list(errs.values()), bounds=bounds_simple, pop=70, recombination=0.3)
@@ -429,7 +429,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	start = pms[-3:-1] + [np.power(10, pms[-1])] + pms[:-3]
 	names = ["u0", "t0", "tE"] + ["magStar_" + key for key in ufilters]
 	errors = [0.1, 100, 10] + [2 for key in ufilters]
-	limits = [(0, 1), (alltimes.min(), alltimes.max()), (1, 1000)] + [(None, None) for _ in ufilters]
+	limits = [(0, 2), (alltimes.min(), alltimes.max()), (1, 1000)] + [(None, None) for _ in ufilters]
 	m_micro = Minuit.from_array_func(least_squares_microlens,
 									 start=start,
 									 error=errors,
