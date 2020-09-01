@@ -111,48 +111,49 @@ def metropolis_hastings(func, g, nb_samples, x0, *args):
 	return samples[100:]
 
 
-class Microlensing_generator:
+class MicrolensingGenerator:
 	"""
 	Class to generate microlensing paramters
 
 	Parameters
 	----------
-	xvt_file : str
-		File containing x - v_T pairs generated through the Hasting-Metropolis algorithm
+	xvt_file : str or int
+		If a str : Path to file containing x - v_T pairs generated through the Hasting-Metropolis algorithm
+		If int, number of xvt pairs to pool
 	seed : int
 		Seed used for numpy.seed
-	tmin : int
-		test
-	tmax : int
-		Defines the limits of t_0
+	tmin : (float, float) or np.array
+		lower and upper limit t_0 or array indiviudal lower and upper limits
+	max_blend : float
+		maximum authorized blend, if max_blend=0, no blending
 	"""
-	def __init__(self, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2., mass=30.,  max_blend=0.7, enable_blending=False):
+	def __init__(self, xvt_file=None, seed=None, trange = np.array([48928., 52697.]), u_max=2.,  max_blend=0., min_blend=0.):
 		self.seed = seed
 		self.xvt_file = xvt_file
-
-		self.tmin = tmin
-		self.tmax = tmax
+		self.trange = np.array(trange)
 		self.u_max = u_max
 		self.max_blend = max_blend
-		self.blending = enable_blending
+		self.min_blend = min_blend
+		self.blending = bool(max_blend)
 		self.blend_pdf = None
 		self.generate_mass = False
-		self.mass = mass
 
 		if self.seed:
 			np.random.seed(self.seed)
 
 		if self.xvt_file:
-			try:
-				self.xvts = np.load(self.xvt_file)
-			except FileNotFoundError:
-				logging.error(f"xvt file not found : {self.xvt_file}")
-		else:
-			logging.info("Generating 10.000.000 x-vt pairs... ")
-			self.xvts = np.array(metropolis_hastings(pdf_xvt, randomizer_gauss, 10000000, np.array([0.5, 100]), (10.)))
+			if isinstance(self.xvt_file, str):
+				try:
+					self.xvts = np.load(self.xvt_file)
+				except FileNotFoundError:
+					logging.error(f"xvt file not found : {self.xvt_file}")
+			elif isinstance(self.xvt_file, int):
+				logging.info(f"Generating {self.xvt_file} x-vt pairs... ")
+				self.xvts = np.array(metropolis_hastings(pdf_xvt, randomizer_gauss, self.xvt_file, np.array([0.5, 100]), (10.)))
+			else:
+				logging.error(f"xvts can't be loaded or generated, check variable : {self.xvt_file}")
 
-
-	def generate_parameters(self, seed):
+	def generate_parameters(self, mass=30., seed=None, nb_parameters=1):
 		"""
 		Generate a set of microlensing parameters, including parallax and blending using S-model and fixed mass
 
@@ -160,33 +161,35 @@ class Microlensing_generator:
 		----------
 		seed : str
 			Seed used for parameter generation (EROS id)
+		mass : float
+			mass for which generate paramters (\implies \delta_u, t_E)
+		nb_parameters : int
+			number of parameters set to generate, overridden by trange dimension
 		Returns
 		-------
 		dict
-			Dictionnary containing the parameters set
+			Dictionnary of lists containing the parameters set
 		"""
 		if seed:
 			seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
 			np.random.seed(seed)
+
+		if len(self.trange.shape)>1:
+			nb_parameters = self.trange.shape[0]
+
 		if self.generate_mass:
-			mass = np.random.uniform(0, 200)
+			mass = np.random.uniform(0, 200, size=nb_parameters)
 		else:
-			mass = self.mass
-		u0 = np.random.uniform(0, self.u_max)
-		x, vt = self.xvts[np.random.randint(0, self.xvts.shape[0])]
-		vt *= np.random.choice([-1., 1.])
+			mass = np.array([mass]*nb_parameters)
+
+		u0 = np.random.uniform(0, self.u_max, size=nb_parameters)
+		x, vt = self.xvts[np.random.randint(0, self.xvts.shape[0], size=nb_parameters)].T
+		vt *= np.random.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
-		t0 = np.random.uniform(self.tmin - tE / 2., self.tmax + tE / 2.)
-		blend_factors = {}
-		for key in COLOR_FILTERS.keys():
-			if self.blending:
-				blend_factors[key] = np.random.uniform(0, self.max_blend)
-			else:
-				blend_factors[key] = 0
-		theta = np.random.uniform(0, 2 * np.pi)
+		t0 = np.random.uniform(self.trange[0], self.trange[1])
+		theta = np.random.uniform(0, 2 * np.pi, size=nb_parameters)
 		params = {
-			'blend': blend_factors,
 			'u0': u0,
 			't0': t0,
 			'tE': tE,
@@ -196,6 +199,12 @@ class Microlensing_generator:
 			'x': x,
 			'vt': vt,
 		}
+
+		for key in COLOR_FILTERS.keys():
+			if self.blending:
+				params['blend_'+key] = np.random.uniform(self.min_blend, self.max_blend, size=nb_parameters)
+			else:
+				params['blend_'+key] = [0] * nb_parameters
 		return params
 
 
