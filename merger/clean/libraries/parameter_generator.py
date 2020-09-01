@@ -187,7 +187,7 @@ class MicrolensingGenerator:
 		vt *= np.random.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
-		t0 = np.random.uniform(self.trange[0], self.trange[1])
+		t0 = np.random.uniform(self.trange[:,0], self.trange[:,1])
 		theta = np.random.uniform(0, 2 * np.pi, size=nb_parameters)
 		params = {
 			'u0': u0,
