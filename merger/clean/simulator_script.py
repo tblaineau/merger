@@ -134,11 +134,13 @@ if __name__ == '__main__':
 	parser.add_argument('--path_to_merged', '-p', type=str, required=True, help="Path to the compressed merged file (ex : 34_78.bz2)")
 	parser.add_argument('--output_path', '-o', type=str, default=".", required=False)
 	parser.add_argument('--verbose', '-v', action='store_true', help='Debug logging level')
+	parser.add_argument('--bad_times_directory', '-btd', type=str, required=False)
 
 	args = parser.parse_args()
 	path_to_merged = args.path_to_merged
 	output_path = args.output_path
 	verbose = args.verbose
+	MACHO_bad_times_directory = args.bad_times_directory
 
 	fraction = 0.25
 
@@ -188,7 +190,7 @@ if __name__ == '__main__':
 	dfr = []
 	dfb = []
 	MACHO_field = path_to_merged.split("/")[-1].split("_")[0]
-	MACHO_bad_times_directory = "/Users/tristanblaineau/tmp2"
+	#MACHO_bad_times_directory = "/Users/tristanblaineau/tmp2"
 	MACHO_btt = 0.1
 
 	try:
