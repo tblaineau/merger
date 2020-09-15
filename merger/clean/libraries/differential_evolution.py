@@ -218,6 +218,18 @@ def nb_truncated_intrinsic_dispersion(time, mag, err, fraction=0.05):
 
 
 @nb.njit
+def nb_truncated_sigint(time, mag, fraction=0.05):
+	s0 = []
+	for i in range(0, len(time)-2):
+		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
+		s0.append((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2)
+	maxind = int(len(time)*fraction)+1
+	s0 = np.array(s0)
+	s0 = s0[s0.argsort()[:-maxind]].sum()
+	return np.sqrt(s0/(len(time)-2-maxind))
+
+
+@nb.njit
 def to_minimize_simple_nd(params, t, tx, errx):
 	"params : mags_1...mags_n, u0, t0, tE"
 	u0 = params[-3]
@@ -281,7 +293,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 
 	Color filter names must be stocked in a COLOR_FILTERS dictionnary
 	for example : COLOR_FILTERS = {"r":{"mag":"mag_r", "err":"magerr_r"},
-                 				   "g":{"mag":"mag_g", "err":"magerr_g"}}
+								   "g":{"mag":"mag_g", "err":"magerr_g"}}
 
 	Parameters
 	----------
@@ -358,14 +370,16 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 
 	# Normalize errors
 	intrinsic_dispersion = dict()
+	median_errors = dict()
 	for key in COLOR_FILTERS.keys():
 		intrinsic_dispersion[key] = np.nan
+		median_errors[key] = np.nan
 	for key in ufilters:
+		median_errors[key] = np.median(errs[key])
 		if len(mags[key]) <= 3:
 			intrinsic_dispersion[key] = 1.
 		else:
-			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key],
-																		  fraction=0.05)
+			intrinsic_dispersion[key] = nb_truncated_sigint(time[key], mags[key], fraction=0.05) / median_errors[key] #nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key],fraction=0.05)
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
@@ -490,16 +504,13 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 
 	counts = []
 	flat_chi2s = []
-	median_errors = []
 	for key in COLOR_FILTERS.keys():
 		if key in ufilters:
 			counts.append((~np.isnan(mags[key])).sum())
 			flat_chi2s.append(np.sum(((mags[key] - m_flat.values["f_magStar_"+key]) / errs[key]) ** 2))
-			median_errors.append(np.median(errs[key]))
 		else:
 			counts.append(0)
 			flat_chi2s.append(np.nan)
-			median_errors.append(np.nan)
 
 	return pd.Series(
 		micro_values + [micro_fmin, micro_fval] + micro_errors
@@ -507,7 +518,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		+ counts
 		+ lsqs
 		+ flat_chi2s
-		+ median_errors
+		+ list(median_errors.values())
 		+ list(intrinsic_dispersion.values())
 
 		,
