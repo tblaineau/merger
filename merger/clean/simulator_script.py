@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
 	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values
 	merged = merged.sort_values(["id_E", "id_M"])
-	mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2)
+	mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	params = mg.generate_parameters(mass=30)
 	cnt = merged.groupby(["id_E", "id_M"]).size().values
 
@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
 	for key in COLOR_FILTERS.keys():
 		merged["mag_median_" + key] = merged[["id_E", "id_M", COLOR_FILTERS[key]["mag"]]].groupby(["id_E", "id_M"]).transform("median")
-		mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, 0, merged.u0.values,
+		mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values,
 										 merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
 		norm[key] = sh.vectorized_get_sigma(key, merged["mag_median_" + key].values) / sh.vectorized_get_sigma(key, mag_th[key])
 		merged["new_" + COLOR_FILTERS[key]["err"]] = merged[COLOR_FILTERS[key]["err"]] / norm[key]
