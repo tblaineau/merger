@@ -226,7 +226,7 @@ if __name__ == '__main__':
 
 	logging.info("Done.")
 	logging.info("Starting fit")
-	t = 0
+	t = path_to_merged.split("/")[-1].split("_")[1].split(".")[0]
 	iminuit_fitter.fit_all(merged=merged,
 						   filename=str(MACHO_field) + "_" + str(t) + ".pkl",
 						   input_dir_path=output_path,
