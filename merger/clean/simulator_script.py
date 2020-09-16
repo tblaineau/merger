@@ -147,6 +147,8 @@ if __name__ == '__main__':
 	if verbose:
 		logging.basicConfig(level=logging.INFO)
 
+	MACHO_field = path_to_merged.split("/")[-1].split("_")[0]
+	t = path_to_merged.split("/")[-1].split("_")[1].split(".")[0]
 
 	merged = pd.read_pickle(path_to_merged, compression='bz2')
 	print(len(merged))
@@ -166,6 +168,10 @@ if __name__ == '__main__':
 	mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	params = mg.generate_parameters(mass=30)
 	cnt = merged.groupby(["id_E", "id_M"]).size().values
+
+	#Save true_parameters
+	true_parameters = pd.concat([pd.DataFrame(params), merged[["id_E", "id_M"]].drop_duplicates(ignore_index=True)], axis=1)
+	true_parameters.to_pickle(os.path.join(output_path, "truth_"+str(MACHO_field) + "_" + str(t) + ".pkl"))
 
 	for key in params.keys():
 		merged[key] = np.repeat(params[key], cnt)
@@ -189,7 +195,6 @@ if __name__ == '__main__':
 	logging.info("Bad time removal.")
 	dfr = []
 	dfb = []
-	MACHO_field = path_to_merged.split("/")[-1].split("_")[0]
 	#MACHO_bad_times_directory = "/Users/tristanblaineau/tmp2"
 	MACHO_btt = 0.1
 
@@ -226,7 +231,6 @@ if __name__ == '__main__':
 
 	logging.info("Done.")
 	logging.info("Starting fit")
-	t = path_to_merged.split("/")[-1].split("_")[1].split(".")[0]
 	iminuit_fitter.fit_all(merged=merged,
 						   filename=str(MACHO_field) + "_" + str(t) + ".pkl",
 						   input_dir_path=output_path,
