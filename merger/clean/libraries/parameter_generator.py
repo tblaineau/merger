@@ -200,9 +200,10 @@ class MicrolensingGenerator:
 			'vt': vt,
 		}
 
+		blend = np.random.uniform(self.min_blend, self.max_blend, size=nb_parameters)
 		for key in COLOR_FILTERS.keys():
 			if self.blending:
-				params['blend_'+key] = np.random.uniform(self.min_blend, self.max_blend, size=nb_parameters)
+				params['blend_'+key] = blend
 			else:
 				params['blend_'+key] = [0] * nb_parameters
 		return params
