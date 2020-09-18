@@ -359,7 +359,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 
 	if do_cut5 and not p:
 		for key in ufilters:
-			time[key] = subdf[mask[key] & cut5[key]].time.to_numpy()
+			time[key] = subdf[mask[key]][cut5[key]].time.to_numpy()
 			errs[key] = errs[key][cut5[key]].to_numpy()
 			mags[key] = mags[key][cut5[key]].to_numpy()
 	else:
