@@ -10,6 +10,8 @@ from merger.clean.libraries.parameter_generator import MicrolensingGenerator, mi
 from merger.clean.libraries.differential_evolution import fit_ml_de_simple
 import matplotlib.pyplot as plt
 
+import scipy.interpolate
+
 
 def clean_lightcurves(df):
 	"""Clean dataframe from bad errors."""
@@ -228,6 +230,20 @@ if __name__ == '__main__':
 		merged[result].blueerr_M = np.nan
 
 		merged = merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
+
+	ndf = merged.merge(merged.groupby(["id_E", "id_M"]).median(), on=["id_E", "id_M"], suffixes=("", "_median"))
+
+	#ndf = ndf.dropna(subset=["red_E", "rederr_E"])
+	for key in COLOR_FILTERS.keys():
+		_, bins = pd.qcut(ndf[COLOR_FILTERS[key]["mag"]], 30, retbins=True)
+		ndf.loc[:, "dist"] = (ndf[COLOR_FILTERS[key]["mag"]] - ndf[COLOR_FILTERS[key]["mag"]+"_median"]) / ndf[COLOR_FILTERS[key]["err"]]
+		fs = []
+		for i in zip(bins[:-1], bins[1:]):
+			t = ndf[ndf.red_E.between(*i)]
+			fs.append(np.std(t.dist[np.abs(t.dist) < 10].values - t.dist.median()))
+		interpolation = scipy.interpolate.interp1d((bins[:-1] + bins[1:])[:] / 2, fs[:], fill_value=(fs[0], fs[-1]), bounds_error=False)
+		df.rederr_E = df.rederr_E * interpolation(df.red_E)
+	#ndf = ndf[(ndf.red_E < 23) & (ndf.red_E > 14)]
 
 	logging.info("Done.")
 	logging.info("Starting fit")
