@@ -223,9 +223,9 @@ def nb_truncated_sigint(time, mag, fraction=0.05):
 	for i in range(0, len(time)-2):
 		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
 		s0.append((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/(2*ri**2-2*ri+2))
-	maxind = int(len(time)*fraction)+1
+	maxind = int(len(s0) * fraction)
 	s0 = np.array(s0)
-	s0 = s0[s0.argsort()[:-maxind]].sum()
+	s0 = s0[s0.argsort()[:len(s0)-maxind]].sum()
 	return np.sqrt(s0/(len(time)-2-maxind))
 
 
