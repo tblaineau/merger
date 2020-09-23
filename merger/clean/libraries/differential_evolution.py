@@ -384,7 +384,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
-				print("null intrinsic dispersion for "+subdf.name)
+				print(f"null intrinsic dispersion for {subdf.name}")
 
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
 	# 	return pd.Series(None)
