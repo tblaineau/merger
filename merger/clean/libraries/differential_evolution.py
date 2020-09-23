@@ -379,7 +379,8 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		if len(mags[key]) <= 3:
 			intrinsic_dispersion[key] = 1.
 		else:
-			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key], fraction=0.0)
+			tmsk = mags[key]<0.5
+			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], mags[key][tmsk], errs[key][tmsk], fraction=0.0)
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
