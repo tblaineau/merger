@@ -211,9 +211,9 @@ def nb_truncated_intrinsic_dispersion(time, mag, err, fraction=0.05):
 		ri = (time[i+1]-time[i])/(time[i+2]-time[i])
 		sigmaisq = err[i+1]**2 + (1-ri)**2 * err[i]**2 + ri**2 * err[i+2]**2
 		s0.append(((mag[i+1] - mag[i] - ri*(mag[i+2]-mag[i]))**2/sigmaisq))
-	maxind = int(len(time)*fraction)+1
+	maxind = int(len(s0) * fraction)
 	s0 = np.array(s0)
-	s0 = s0[s0.argsort()[:-maxind]].sum()
+	s0 = s0[s0.argsort()[:len(s0)-maxind]].sum()
 	return np.sqrt(s0/(len(time)-2-maxind))
 
 
@@ -379,7 +379,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		if len(mags[key]) <= 3:
 			intrinsic_dispersion[key] = 1.
 		else:
-			intrinsic_dispersion[key] = nb_truncated_sigint(time[key], mags[key], fraction=0.05) / median_errors[key] #nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key],fraction=0.05)
+			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key], mags[key], errs[key], fraction=0.0)
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
