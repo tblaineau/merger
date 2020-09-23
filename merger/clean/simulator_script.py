@@ -137,14 +137,17 @@ if __name__ == '__main__':
 	parser.add_argument('--output_path', '-o', type=str, default=".", required=False)
 	parser.add_argument('--verbose', '-v', action='store_true', help='Debug logging level')
 	parser.add_argument('--bad_times_directory', '-btd', type=str, required=False)
+	parser.add_argument('--seed', type=int, required=False, default=1234)
 
 	args = parser.parse_args()
 	path_to_merged = args.path_to_merged
 	output_path = args.output_path
 	verbose = args.verbose
 	MACHO_bad_times_directory = args.bad_times_directory
+	seed = args.seed
 
-	fraction = 0.25
+	fraction = 0.05
+	np.random.seed(seed)
 
 	if verbose:
 		logging.basicConfig(level=logging.INFO)
