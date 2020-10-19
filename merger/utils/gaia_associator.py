@@ -62,18 +62,6 @@ def transform(ra, dec, ra0, dec0, r, a, alpha, theta):
 	return np.array([ra_p, dec_p]).T
 
 
-def to_minimize(x, f1, cat):
-	ra0, dec0, scale, theta = x
-	if isinstance(x, u.Quantity):
-		ra0, dec0, scale, theta = x.value
-	temp = transform(f1.ra.rad, f1.dec.rad, ra0, dec0, scale, theta)
-	temp = SkyCoord(temp[:, 0], temp[:, 1], unit=u.rad)
-	# tidx = np.random.choice(np.arange(len(cat)), replace=False, size=50000)
-	i1, i2, d2d = temp.match_to_catalog_sky(cat)
-	# print(d2d.mean(), ra0, dec0, scale, theta)
-	return d2d.mean()
-
-
 @nb.njit
 def to_cartesian(o):
 	s=[]
@@ -107,12 +95,7 @@ center = SkyCoord(np.median(macho_coord.ra), np.median(macho_coord.dec))
 distance = center.separation(macho_coord).max()
 sep = center.separation(gaia_coord)
 temp_gaia = gaia_coord[sep<distance]
-#
-# i1, i2, d2d, _ = macho_coord.search_around_sky(temp_gaia, seplimit=2*u.arcsec)
-# dra, ddec = macho_coord[i2].spherical_offsets_to(temp_gaia[i1])
-# plt.hist2d(dra.arcsec, ddec.arcsec, bins=100)
-# plt.axis("equal")
-# plt.show()
+
 
 corrected = []
 factors = []
@@ -124,12 +107,6 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[39:40]:
 	print(p)
 	c_macho = macho_rad[(macho[:, 2] == p[0]) & (macho[:, 3] == p[1])]
 	c_macho_coord = SkyCoord(c_macho[:, 0], c_macho[:, 1], unit=u.rad)
-	# res = scipy.optimize.minimize(to_minimize, [c_macho[:,0].mean(), c_macho[:,1].mean(), 1., 0.], args=(c_macho_coord, temp_gaia),
-	#                              method="CG")
-	# if isinstance(res.x, u.Quantity):
-	#    res = res.x.value
-	# else:
-	#    res = res.x
 	temp_corrected = None
 	temp_factors = None
 	offra = (c_macho[:, 0].max() - c_macho[:, 0].min())
@@ -159,7 +136,6 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[39:40]:
 
 	bounds = [(c_macho[:, 0].min() - 1 * offra, c_macho[:, 0].max() + 1 * offra),
 			  (c_macho[:, 1].min() - 1 * offdec, c_macho[:, 1].max() + 1 * offdec),
-			  # (-offra/100., offra/100.), (-offdec/100., offdec/100.),
 			  (0.9, 1.1), (0.9, 1.1), (0, 2 * np.pi), (-5 * np.pi / 180., 5 * np.pi / 180.)]
 	i = 0
 	pop = 10
