@@ -102,7 +102,7 @@ temp_gaia = gaia_coord[sep<distance]
 corrected = []
 factors = []
 
-for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[56:57]:
+for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 	c_macho_bool = (macho[:, 2] == p[0]) & (macho[:, 3] == p[1])
 	print(p[1])
 	if int(p[1])==255:
