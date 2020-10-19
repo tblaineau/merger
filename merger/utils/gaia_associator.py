@@ -125,10 +125,8 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[56:57]:
 	print(len(c_temp_gaia))
 	print(len(temp_gaia))
 	print(len(c_macho))
-	if len(temp_gaia)>10000:
+	if len(c_temp_gaia)>10000:
 		c_temp_gaia = c_temp_gaia[np.random.choice(len(c_temp_gaia), replace=False, size=10000)]
-	else:
-		c_temp_gaia = temp_gaia
 
 	s2 = np.array(to_cartesian(np.array([c_temp_gaia.ra.rad, c_temp_gaia.dec.rad]).T))
 	k = KDTree(s2, metric="euclidean", leaf_size=30)
