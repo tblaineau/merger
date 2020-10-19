@@ -371,20 +371,23 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	# Normalize errors
 	intrinsic_dispersion = dict()
 	median_errors = dict()
+	scount = dict()
 	for key in COLOR_FILTERS.keys():
 		intrinsic_dispersion[key] = np.nan
 		median_errors[key] = np.nan
+		scount[key] = 0
 	for key in ufilters:
 		median_errors[key] = np.median(errs[key])
 		if len(mags[key]) <= 3:
 			intrinsic_dispersion[key] = 1.
 		else:
-			tmsk = mags[key]<0.5
+			tmsk = errs[key]<0.6
+			scount[key] = tmsk.sum()
 			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], mags[key][tmsk], errs[key][tmsk], fraction=0.0)
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
-				print("null intrinsic dispersion for "+subdf.name)
+				print(f"null intrinsic dispersion for {subdf.name}")	
 
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
 	# 	return pd.Series(None)
@@ -423,7 +426,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	flat_fval = m_flat.fval
 
 	alltimes = np.concatenate(list(time.values()))
-	bounds_simple = np.array([[-30, 30] for _ in ufilters] + [[0, 2], [alltimes.min(), alltimes.max()], [0, 3]])
+	bounds_simple = np.array([[-30, 30] for _ in ufilters] + [[0, 3], [alltimes.min()-100, alltimes.max()+100], [0, 3]])
 	try:
 		fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_nd, list(time.values()), list(mags.values()),
 									 list(errs.values()), bounds=bounds_simple, pop=70, recombination=0.3)
@@ -444,7 +447,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	start = pms[-3:-1] + [np.power(10, pms[-1])] + pms[:-3]
 	names = ["u0", "t0", "tE"] + ["magStar_" + key for key in ufilters]
 	errors = [0.1, 100, 10] + [2 for key in ufilters]
-	limits = [(0, 2), (alltimes.min(), alltimes.max()), (1, 1000)] + [(None, None) for _ in ufilters]
+	limits = [(0, 3), (alltimes.min()-100, alltimes.max()+100), (1, 1000)] + [(None, None) for _ in ufilters]
 	m_micro = Minuit.from_array_func(least_squares_microlens,
 									 start=start,
 									 error=errors,
@@ -517,6 +520,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		micro_values + [micro_fmin, micro_fval] + micro_errors
 		+ flat_values + [flat_fmin, flat_fval]
 		+ counts
+		+ list(scount.values())
 		+ lsqs
 		+ flat_chi2s
 		+ list(median_errors.values())
@@ -527,6 +531,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		index=micro_keys + ['micro_fmin', 'micro_fval'] + micro_error_labels
 			  + flat_keys + ['flat_fmin', 'flat_fval']
 			  + ["counts_" + key for key in COLOR_FILTERS.keys()]  # ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
+			  + ["scounts_"+key for key in COLOR_FILTERS.keys()]
 			  + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
 			  + ["flat_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
 			  + ["magerr_" + key + "_median" for key, cf in COLOR_FILTERS.items()]  # ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
