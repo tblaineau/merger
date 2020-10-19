@@ -69,7 +69,7 @@ def to_cartesian(o):
 field =  sys.argv[1]
 MACHO_path = "/pbs/home/b/blaineau/data/MACHO"
 #MACHO_path = "/Volumes/DisqueSauvegarde/MACHO/star_coordinates"
-MACHO = os.path.join(MACHO_path, "/DumpStar_"+str(field)+".txt")
+MACHO = os.path.join(MACHO_path, "DumpStar_"+str(field)+".txt")
 
 macho = []
 with open(MACHO) as f:
