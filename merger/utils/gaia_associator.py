@@ -23,7 +23,7 @@ def declination_to_radians(dec):
 	return 2.*np.pi/360.*(abs(float(dec[0])) + (float(dec[1]) + float(dec[2])/60.)/60.) * np.sign(float(dec[0]))
 
 
-@nb.jit
+#@nb.jit
 def rotation_sphere(ra, dec, ra0, dec0, theta):
 	cosra = np.cos(ra0)
 	sinra = np.sin(ra0)
@@ -48,7 +48,7 @@ def rotation_sphere(ra, dec, ra0, dec0, theta):
 	return np.array([ra, dec]).T
 
 
-@nb.jit
+#@nb.jit
 def transform(ra, dec, ra0, dec0, r, a, alpha, theta):
 	out = rotation_sphere(ra, dec, ra0, dec0, theta)
 	ra1, dec1 = out[:, 0], out[:, 1]
@@ -75,7 +75,7 @@ macho = []
 with open(MACHO) as f:
 	for l in f.readlines():
 		l  =l.split(";")
-		macho.append((l[3], l[4], l[6], l[7], l[8]))
+		macho.append([l[3], l[4], l[6], l[7], l[8], ";".join(l[0:3])])
 macho = np.array(macho)
 
 macho_rad = []
@@ -100,12 +100,15 @@ temp_gaia = gaia_coord[sep<distance]
 corrected = []
 factors = []
 
-for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[39:40]:
-	if p[1]==255.:
+for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[2:3]:
+	c_macho_bool = (macho[:, 2] == p[0]) & (macho[:, 3] == p[1])
+	print(p[1])
+	if int(p[1])==255:
+		corrected.append(np.append(macho[c_macho_bool,-1][:,None], macho_rad[c_macho_bool], axis=1))
 		factors.append([0.]*6)
-		pass
+		continue
 	print(p)
-	c_macho = macho_rad[(macho[:, 2] == p[0]) & (macho[:, 3] == p[1])]
+	c_macho = macho_rad[c_macho_bool]
 	c_macho_coord = SkyCoord(c_macho[:, 0], c_macho[:, 1], unit=u.rad)
 	temp_corrected = None
 	temp_factors = None
@@ -158,15 +161,19 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[39:40]:
 			temp_factors = res
 			pop = 10
 		if (d2d.arcsec < 0.5).sum() / (d2d.arcsec < 2).sum() > 0.5:
-			corrected.append(out)
+			corrected.append(np.append(macho[c_macho_bool, 0][:, None], out, axis=1))
 			factors.append(res)
 			break
 		i += 1
 	if not (temp_corrected is None) and i == imax:
-		corrected.append(temp_corrected)
+		corrected.append(np.append(macho[c_macho_bool, -1][:, None], temp_corrected, axis=1))
 		factors.append(temp_factors)
 	if i == imax:
+		corrected.append(np.append(macho[c_macho_bool, -1][:, None], macho_rad[c_macho_bool], axis=1))
+		factors.append([0.] * 6)
 		print("Failed")
 	print("MACHO loaded")
 
-np.concatenate(corrected)
+np.savetxt("macho_15_corrected.csv", np.concatenate(corrected), delimiter=" ", fmt='%s')
+print(factors)
+print("Done")
