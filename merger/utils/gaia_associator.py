@@ -6,9 +6,7 @@ import astropy.units as u
 import pandas as pd
 import scipy.optimize
 from sklearn.neighbors import KDTree
-
-MACHO = "/Volumes/DisqueSauvegarde/MACHO/star_coordinates/DumpStar_15.txt"
-
+import os
 
 def right_ascension_to_radians(ra):
 	if isinstance(ra, str):
@@ -68,6 +66,10 @@ def to_cartesian(o):
 		s.append([cos_dec*np.cos(o[i,0]), cos_dec*np.sin(o[i,0]), np.sin(o[i,1])])
 	return s
 
+field =  sys.argv[1]
+MACHO_path = "/pbs/home/b/blaineau/data/MACHO"
+#MACHO_path = "/Volumes/DisqueSauvegarde/MACHO/star_coordinates"
+MACHO = os.path.join(MACHO_path, "/DumpStar_"+str(field)+".txt")
 
 macho = []
 with open(MACHO) as f:
@@ -172,6 +174,6 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[56:57]:
 		print("Failed")
 	print("MACHO loaded")
 
-np.savetxt("macho_15_corrected.csv", np.concatenate(corrected), delimiter=" ", fmt='%s')
+np.savetxt("macho_"+str(field)+"_corrected.csv", np.concatenate(corrected), delimiter=" ", fmt='%s')
 print(factors)
 print("Done")
