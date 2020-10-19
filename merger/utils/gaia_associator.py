@@ -3,8 +3,6 @@ import numba as nb
 import sys
 from astropy.coordinates import SkyCoord
 import astropy.units as u
-sys.path.append("/Users/tristanblaineau/Documents/Work/Python")
-import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.optimize
 from sklearn.neighbors import KDTree
@@ -23,7 +21,7 @@ def declination_to_radians(dec):
 	return 2.*np.pi/360.*(abs(float(dec[0])) + (float(dec[1]) + float(dec[2])/60.)/60.) * np.sign(float(dec[0]))
 
 
-#@nb.jit
+@nb.jit
 def rotation_sphere(ra, dec, ra0, dec0, theta):
 	cosra = np.cos(ra0)
 	sinra = np.sin(ra0)
@@ -48,7 +46,7 @@ def rotation_sphere(ra, dec, ra0, dec0, theta):
 	return np.array([ra, dec]).T
 
 
-#@nb.jit
+@nb.jit
 def transform(ra, dec, ra0, dec0, r, a, alpha, theta):
 	out = rotation_sphere(ra, dec, ra0, dec0, theta)
 	ra1, dec1 = out[:, 0], out[:, 1]
@@ -100,7 +98,7 @@ temp_gaia = gaia_coord[sep<distance]
 corrected = []
 factors = []
 
-for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[2:3]:
+for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[56:57]:
 	c_macho_bool = (macho[:, 2] == p[0]) & (macho[:, 3] == p[1])
 	print(p[1])
 	if int(p[1])==255:
