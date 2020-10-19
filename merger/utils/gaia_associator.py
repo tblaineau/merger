@@ -164,7 +164,7 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 			temp_factors = res
 			pop = 10
 		if (d2d.arcsec < 0.5).sum() / (d2d.arcsec < 2).sum() > 0.5:
-			corrected.append(np.append(macho[c_macho_bool, 0][:, None], out, axis=1))
+			corrected.append(np.append(macho[c_macho_bool, -1][:, None], out, axis=1))
 			factors.append(res)
 			break
 		i += 1
