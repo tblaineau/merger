@@ -4,11 +4,10 @@ import sys
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 sys.path.append("/Users/tristanblaineau/Documents/Work/Python")
-from lib_perso import *
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.optimize
-from iminuit import Minuit
+from sklearn.neighbors import KDTree
 
 MACHO = "/Volumes/DisqueSauvegarde/MACHO/star_coordinates/DumpStar_15.txt"
 
@@ -50,11 +49,16 @@ def rotation_sphere(ra, dec, ra0, dec0, theta):
 
 
 @nb.jit
-def transform(ra, dec, ra0, dec0, s, theta):
+def transform(ra, dec, ra0, dec0, r, a, alpha, theta):
 	out = rotation_sphere(ra, dec, ra0, dec0, theta)
 	ra1, dec1 = out[:, 0], out[:, 1]
-	dec_p = dec0 + s * (dec1 - dec0)
-	ra_p = ra0 + s * (ra1 - ra0)
+	sina = np.sin(alpha)
+	cosa = np.cos(alpha)
+	a1 = r * (1 + (a - 1)*cosa**2)
+	a2 = r * (a - 1) * cosa * sina
+	b2 = r * (1 + (a - 1)*sina**2)
+	ra_p = ra0 + a1 * (ra1 - ra0) + a2 * (dec1 - dec0) #+ offra
+	dec_p = dec0 + a2 * (ra1 - ra0) + b2 * (dec1 - dec0) #+ offdec
 	return np.array([ra_p, dec_p]).T
 
 
@@ -68,6 +72,15 @@ def to_minimize(x, f1, cat):
 	i1, i2, d2d = temp.match_to_catalog_sky(cat)
 	# print(d2d.mean(), ra0, dec0, scale, theta)
 	return d2d.mean()
+
+
+@nb.njit
+def to_cartesian(o):
+	s=[]
+	for i in range(len(o)):
+		cos_dec = np.cos(o[i,1])
+		s.append([cos_dec*np.cos(o[i,0]), cos_dec*np.sin(o[i,0]), np.sin(o[i,1])])
+	return s
 
 
 macho = []
@@ -95,50 +108,89 @@ distance = center.separation(macho_coord).max()
 sep = center.separation(gaia_coord)
 temp_gaia = gaia_coord[sep<distance]
 #
-i1, i2, d2d, _ = macho_coord.search_around_sky(temp_gaia, seplimit=2*u.arcsec)
-dra, ddec = macho_coord[i2].spherical_offsets_to(temp_gaia[i1])
-plt.hist2d(dra.arcsec, ddec.arcsec, bins=100)
-plt.axis("equal")
-plt.show()
+# i1, i2, d2d, _ = macho_coord.search_around_sky(temp_gaia, seplimit=2*u.arcsec)
+# dra, ddec = macho_coord[i2].spherical_offsets_to(temp_gaia[i1])
+# plt.hist2d(dra.arcsec, ddec.arcsec, bins=100)
+# plt.axis("equal")
+# plt.show()
 
 corrected = []
-for p in np.unique(macho[:,[2, 3]], axis=0, return_counts=False)[6:8]:
+factors = []
+
+for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False)[39:40]:
+	if p[1]==255.:
+		factors.append([0.]*6)
+		pass
 	print(p)
-	c_macho = macho_rad[(macho[:,2] == p[0]) & (macho[:,3] == p[1])]
-	c_macho_coord = SkyCoord(c_macho[:,0], c_macho[:,1], unit=u.rad)
-	res = scipy.optimize.minimize(to_minimize, [c_macho[0,0], c_macho[0,1], 1., 0.], args=(c_macho_coord, temp_gaia),
-								  method="CG")
-	out = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, *res.x)
+	c_macho = macho_rad[(macho[:, 2] == p[0]) & (macho[:, 3] == p[1])]
+	c_macho_coord = SkyCoord(c_macho[:, 0], c_macho[:, 1], unit=u.rad)
+	# res = scipy.optimize.minimize(to_minimize, [c_macho[:,0].mean(), c_macho[:,1].mean(), 1., 0.], args=(c_macho_coord, temp_gaia),
+	#                              method="CG")
+	# if isinstance(res.x, u.Quantity):
+	#    res = res.x.value
+	# else:
+	#    res = res.x
+	temp_corrected = None
+	temp_factors = None
+	offra = (c_macho[:, 0].max() - c_macho[:, 0].min())
+	offdec = (c_macho[:, 1].max() - c_macho[:, 1].min())
 
-	"""def minuit(ra0, dec0, scale, theta):
-		temp = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, ra0, dec0, scale, theta)
-		temp = SkyCoord(temp[:, 0], temp[:, 1], unit=u.rad)
-		# tidx = np.random.choice(np.arange(len(cat)), replace=False, size=50000)
-		i1, i2, d2d = temp.match_to_catalog_sky(temp_gaia)
-		# print(d2d.mean(), ra0, dec0, scale, theta)
-		return d2d.mean()
+	c_temp_gaia = temp_gaia[(temp_gaia.ra.rad < c_macho[:, 0].max() + 1 * offra) &
+							(temp_gaia.ra.rad > c_macho[:, 0].min() - 1 * offra) &
+							(temp_gaia.dec.rad < c_macho[:, 1].max() + 1 * offdec) &
+							(temp_gaia.dec.rad > c_macho[:, 1].min() - 1 * offdec)
+							]
+	print(len(c_temp_gaia))
+	print(len(temp_gaia))
+	print(len(c_macho))
+	c_temp_gaia = c_temp_gaia[np.random.choice(len(c_temp_gaia), replace=False, size=10000)]
 
-	m = Minuit(minuit, ra0=c_macho[0,0], dec0=c_macho[0,1], scale=1., theta=0., error_ra0=0.001, error_dec0=0.001,
-			   error_scale=0.001, error_theta=0.001)
-	m.migrad()
-	res = m.np_values()
-	print(res)"""
+	s2 = np.array(to_cartesian(np.array([c_temp_gaia.ra.rad, c_temp_gaia.dec.rad]).T))
+	k = KDTree(s2, metric="euclidean", leaf_size=30)
 
-	#out = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, *res)
 
-	corrected.append(out)
-	i1, i2, d2d, _ = c_macho_coord.search_around_sky(temp_gaia, seplimit=2 * u.arcsec)
-	dra, ddec = c_macho_coord[i2].spherical_offsets_to(temp_gaia[i1])
-	plt.hist2d(dra.arcsec, ddec.arcsec, bins=100)
-	plt.axis("equal")
-	plt.figure()
+	def minuit(x):
+		ra0, dec0, r, a, alpha, theta = x
+		temp = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, ra0, dec0, r, a, alpha, theta)
+		temp = np.array(to_cartesian(temp))
+		d3d = k.query(temp)[0].flatten()
+		return 1 / np.sum(1 / (d3d * 180 / np.pi * 3600 + 0.1))  # np.sum(d3d[c])/c.sum()
 
-	correct_macho = SkyCoord(out[:,0], out[:,1], unit=u.rad)
-	i1, i2, d2d, _ = correct_macho.search_around_sky(temp_gaia, seplimit=2 * u.arcsec)
-	dra, ddec = correct_macho[i2].spherical_offsets_to(temp_gaia[i1])
-	plt.hist2d(dra.arcsec, ddec.arcsec, bins=100)
-	plt.axis("equal")
-	plt.show()
+
+	bounds = [(c_macho[:, 0].min() - 1 * offra, c_macho[:, 0].max() + 1 * offra),
+			  (c_macho[:, 1].min() - 1 * offdec, c_macho[:, 1].max() + 1 * offdec),
+			  # (-offra/100., offra/100.), (-offdec/100., offdec/100.),
+			  (0.9, 1.1), (0.9, 1.1), (0, 2 * np.pi), (-5 * np.pi / 180., 5 * np.pi / 180.)]
+	i = 0
+	pop = 10
+	imax = 3
+	while i < imax:
+		print(i)
+		res = scipy.optimize.differential_evolution(minuit, bounds=bounds, popsize=pop, recombination=0.9,
+													mutation=(0.3, 0.7), strategy="rand1bin",
+													disp=True, maxiter=70)
+		print(res)
+		res = res.x
+		out = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, *res)
+
+		correct_macho = SkyCoord(out[:, 0], out[:, 1], unit=u.rad)
+		i1, i2, d2d, _ = correct_macho.search_around_sky(c_temp_gaia, seplimit=2 * u.arcsec)
+		dra, ddec = correct_macho[i2].spherical_offsets_to(c_temp_gaia[i1])
+
+		if (d2d.arcsec < 1.).sum() / (d2d.arcsec < 2).sum() > 0.4:
+			temp_corrected = out
+			temp_factors = res
+			pop = 10
+		if (d2d.arcsec < 0.5).sum() / (d2d.arcsec < 2).sum() > 0.5:
+			corrected.append(out)
+			factors.append(res)
+			break
+		i += 1
+	if not (temp_corrected is None) and i == imax:
+		corrected.append(temp_corrected)
+		factors.append(temp_factors)
+	if i == imax:
+		print("Failed")
 	print("MACHO loaded")
 
 np.concatenate(corrected)
