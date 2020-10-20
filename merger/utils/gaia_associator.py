@@ -85,7 +85,7 @@ macho_rad = np.array(macho_rad)
 macho_coord = SkyCoord(macho_rad[:,0], macho_rad[:,1], unit=u.rad)
 
 print("Loading Gaia")
-gaia_path = ""
+gaia_path = "/pbs/home/b/blaineau/work/association"
 #gaia_path = "/Users/tristanblaineau/Documents/Work/Jupyter/quad_merge"
 gaia = pd.read_feather(os.path.join(gaia_path, "lmcgaiafull.feather"))
 print("Done")
