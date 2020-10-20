@@ -140,11 +140,11 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 		return 1 / np.sum(1 / (d3d * 180 / np.pi * 3600 + 0.1))  # np.sum(d3d[c])/c.sum()
 
 
-	bounds = [(c_macho[:, 0].min() - 1 * offra, c_macho[:, 0].max() + 1 * offra),
-			  (c_macho[:, 1].min() - 1 * offdec, c_macho[:, 1].max() + 1 * offdec),
+	bounds = [(c_macho[:, 0].min() - 2 * offra, c_macho[:, 0].max() + 2 * offra),
+			  (c_macho[:, 1].min() - 2 * offdec, c_macho[:, 1].max() + 2 * offdec),
 			  (0.9, 1.1), (0.9, 1.1), (0, 2 * np.pi), (-5 * np.pi / 180., 5 * np.pi / 180.)]
 	i = 0
-	pop = 10
+	pop = 30
 	imax = 3
 	while i < imax:
 		print(i)
