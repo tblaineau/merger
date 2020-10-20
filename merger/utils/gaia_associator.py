@@ -177,6 +177,7 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 		print("Failed")
 	print("MACHO loaded")
 
-np.savetxt("macho_"+str(field)+"_corrected.csv", np.concatenate(corrected), delimiter=" ", fmt='%s')
+out_path = sys.argv[2]
+np.savetxt(os.path.join(out_path, "macho_"+str(field)+"_corrected.csv"), np.concatenate(corrected), delimiter=" ", fmt='%s')
 print(factors)
 print("Done")
