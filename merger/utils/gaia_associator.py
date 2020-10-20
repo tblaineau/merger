@@ -75,7 +75,7 @@ macho = []
 with open(MACHO) as f:
 	for l in f.readlines():
 		l  =l.split(";")
-		macho.append([l[3], l[4], l[6], l[7], l[8], ";".join(l[0:3])])
+		macho.append([l[3], l[4], l[6], l[7], l[8], ":".join(l[0:3])])
 macho = np.array(macho)
 
 macho_rad = []
