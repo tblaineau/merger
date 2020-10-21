@@ -150,7 +150,7 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 		print(i)
 		res = scipy.optimize.differential_evolution(minuit, bounds=bounds, popsize=pop, recombination=0.9,
 													mutation=(0.1, 0.3), strategy="randtobest1bin",
-													disp=True, maxiter=20)
+													disp=True, maxiter=40)
 		print(res)
 		res = res.x
 		out = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, *res)
