@@ -144,13 +144,13 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 			  (c_macho[:, 1].min() - 2 * offdec, c_macho[:, 1].max() + 2 * offdec),
 			  (0.9, 1.1), (0.9, 1.1), (0, 2 * np.pi), (-5 * np.pi / 180., 5 * np.pi / 180.)]
 	i = 0
-	pop = 30
+	pop = 70
 	imax = 3
 	while i < imax:
 		print(i)
 		res = scipy.optimize.differential_evolution(minuit, bounds=bounds, popsize=pop, recombination=0.9,
-													mutation=(0.3, 0.7), strategy="rand1bin",
-													disp=True, maxiter=70)
+													mutation=(0.1, 0.3), strategy="randtobest1bin",
+													disp=True, maxiter=20)
 		print(res)
 		res = res.x
 		out = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, *res)
@@ -166,6 +166,7 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 		if (d2d.arcsec < 0.5).sum() / (d2d.arcsec < 2).sum() > 0.5:
 			corrected.append(np.append(macho[c_macho_bool, -1][:, None], out, axis=1))
 			factors.append(res)
+			i=100
 			break
 		i += 1
 	if not (temp_corrected is None) and i == imax:
