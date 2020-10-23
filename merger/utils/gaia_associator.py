@@ -169,13 +169,14 @@ for p in np.unique(macho[:, [2, 3]], axis=0, return_counts=False):
 			i=100
 			break
 		i += 1
-	if not (temp_corrected is None) and i == imax:
-		corrected.append(np.append(macho[c_macho_bool, -1][:, None], temp_corrected, axis=1))
-		factors.append(temp_factors)
 	if i == imax:
-		corrected.append(np.append(macho[c_macho_bool, -1][:, None], macho_rad[c_macho_bool], axis=1))
-		factors.append([0.] * 6)
-		print("Failed")
+		if not (temp_corrected is None):
+			corrected.append(np.append(macho[c_macho_bool, -1][:, None], temp_corrected, axis=1))
+			factors.append(temp_factors)
+		else:
+			corrected.append(np.append(macho[c_macho_bool, -1][:, None], macho_rad[c_macho_bool], axis=1))
+			factors.append([0.] * 6)
+			print("Failed")
 	print("MACHO loaded")
 
 out_path = sys.argv[2]
