@@ -32,10 +32,12 @@ def mulens_simple(t, mag, u0, t0, tE):
 
 
 class UniformGenerator:
-	def __init__(self, u0_range=[0, 1], tE_range=[10, 500], seed=1234):
+	def __init__(self, u0_range=[0, 1], tE_range=[10, 500], blend_range=None, seed=1234):
 		self.u0_range = np.array(u0_range)
 		self.tE_range = np.log10(tE_range)
 		self.rdm = np.random.RandomState(seed)
+		if blend_range:
+			self.blend_range = np.array(blend_range)
 
 	def generate_parameters(self, t0_range):
 		if len(np.array(t0_range).shape) == 1:
@@ -46,6 +48,10 @@ class UniformGenerator:
 		params["u0"] = self.rdm.uniform(*self.u0_range, size=size)
 		params["tE"] = np.power(10, self.rdm.uniform(*self.tE_range, size=size))
 		params["t0"] = self.rdm.uniform(t0_range[0], t0_range[1])
+		if hasattr(self, "blend_range"):
+			b = self.rdm.uniform(self.blend_range, size=None)
+			for key in COLOR_FILTERS.keys():
+				params["blend_"+key] = b
 		return params
 
 
