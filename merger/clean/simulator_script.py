@@ -49,7 +49,7 @@ class UniformGenerator:
 		params["tE"] = np.power(10, self.rdm.uniform(*self.tE_range, size=size))
 		params["t0"] = self.rdm.uniform(t0_range[0], t0_range[1])
 		if hasattr(self, "blend_range"):
-			b = self.rdm.uniform(self.blend_range, size=size)
+			b = self.rdm.uniform(*self.blend_range, size=size)
 			for key in COLOR_FILTERS.keys():
 				params["blend_"+key] = b
 		return params
@@ -174,7 +174,7 @@ if __name__ == '__main__':
 	merged = clean_lightcurves(merged).reset_index(drop=True)
 	sh = ErrorMagnitudeRelation(merged, list(COLOR_FILTERS.keys()), bin_number=20)
 
-	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values
+	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values.T
 	merged = merged.sort_values(["id_E", "id_M"])
 	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1])
@@ -194,8 +194,7 @@ if __name__ == '__main__':
 		merged["mag_median_" + key] = merged[["id_E", "id_M", COLOR_FILTERS[key]["mag"]]].groupby(["id_E", "id_M"]).transform("median")
 		#mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values,
 		#								 merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
-		mag_th[key] = microlens_simple(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values,
-										 merged.t0.values, merged.tE.values)
+		mag_th[key] = microlens_simple(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values, 0, 0)
 		norm[key] = sh.vectorized_get_sigma(key, merged["mag_median_" + key].values) / sh.vectorized_get_sigma(key, mag_th[key])
 		merged["new_" + COLOR_FILTERS[key]["err"]] = merged[COLOR_FILTERS[key]["err"]] / norm[key]
 		merged["new_" + COLOR_FILTERS[key]["mag"]] = mag_th[key] + (merged[COLOR_FILTERS[key]["mag"]] - merged["mag_median_" + key]) / norm[key]
