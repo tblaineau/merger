@@ -49,7 +49,7 @@ class UniformGenerator:
 		params["tE"] = np.power(10, self.rdm.uniform(*self.tE_range, size=size))
 		params["t0"] = self.rdm.uniform(t0_range[0], t0_range[1])
 		if hasattr(self, "blend_range"):
-			b = self.rdm.uniform(self.blend_range, size=None)
+			b = self.rdm.uniform(self.blend_range, size=size)
 			for key in COLOR_FILTERS.keys():
 				params["blend_"+key] = b
 		return params
