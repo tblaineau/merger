@@ -264,5 +264,5 @@ if __name__ == '__main__':
 						   input_dir_path=output_path,
 						   output_dir_path=output_path,
 						   fit_function=fit_ml_de_simple,
-						   do_cut5=False,
+						   do_cut5=True,
 						   hesse=True)
