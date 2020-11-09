@@ -715,7 +715,7 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 
 	start = pms[-3:-1] + [np.power(10, pms[-1])] + pms[:-3]
 	names = ["u0", "t0", "tE"] + ["magStar_" + key for key in ufilters] + ["blend_" + key for key in ufilters]
-	errors = [0.1, 100, 10] + [2 for _ in ufilters] + [0.05 for _ in ufilters]
+	errors = [0.1, 10, 1] + [1 for _ in ufilters] + [0.05 for _ in ufilters]
 	limits = [(0, 3), (alltimes.min()-100, alltimes.max()+100), (1, 1000)] + [(None, None) for _ in ufilters] + [(0, 1) for _ in ufilters]
 	m_micro = Minuit.from_array_func(least_squares_microlens,
 									 start=start,
@@ -765,20 +765,21 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 
 	lsqs = []
 	max_nb_mags = len(COLOR_FILTERS)
-	micro_values = np.empty(3 + max_nb_mags*2)
-	micro_values[:] = np.nan
-	micro_values[0] = micro_params['u0']
-	micro_values[1] = micro_params['t0']
-	micro_values[2] = micro_params['tE']
-	for idx, key in enumerate(COLOR_FILTERS.keys()):
+	micro_values = dict()
+	micro_values["u0"] = micro_params['u0']
+	micro_values["t0"] = micro_params['t0']
+	micro_values["tE"] = micro_params['tE']
+	for key in COLOR_FILTERS.keys():
 		if key in ufilters:
 			lsqs.append(np.sum(((mags[key] - microlens_simple(time[key], micro_params["magStar_" + key], micro_params["blend_" + key], micro_params['u0'], micro_params['t0'], micro_params['tE'])) / errs[key]) ** 2))
-			micro_values[2 + idx] = m_micro.values["magStar_" + key]
-			micro_values[2 + idx + max_nb_mags] = m_micro.values["magStar_" + key]
+			micro_values["magStar_" + key] = m_micro.values["magStar_" + key]
+			micro_values["blend_" + key] = m_micro.values["blend_" + key]
 		else:
 			lsqs.append(np.nan)
-			micro_values[2 + idx] = np.nan
-			micro_values[2 + idx + max_nb_mags] = np.nan
+			micro_values["magStar_" + key] = np.nan
+			micro_values["blend_" + key] = np.nan
+	micro_keys = list(micro_values.keys())
+	micro_values = list(micro_values.values())
 	micro_fval = m_micro.fval
 	micro_fmin = m_micro.get_fmin()
 
@@ -794,7 +795,7 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 			flat_chi2s.append(np.nan)
 
 	return pd.Series(
-		micro_values + [micro_fmin, micro_fval] + micro_errors
+		list(micro_values) + [micro_fmin, micro_fval] + micro_errors
 		+ flat_values + [flat_fmin, flat_fval]
 		+ counts
 		+ list(scount.values())
