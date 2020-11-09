@@ -707,10 +707,11 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 
 	pms = list(pms)
 
+	nb_mags = len(ufilters)
 	def least_squares_microlens(x):
 		lsq = 0
 		for idx, key in enumerate(ufilters):
-			lsq += np.sum(((mags[key] - microlens_simple(time[key], x[idx + 3], 0., x[0], x[1], x[2])) / errs[key]) ** 2)
+			lsq += np.sum(((mags[key] - microlens_simple(time[key], x[idx + 3], x[nb_mags+3+idx], x[0], x[1], x[2])) / errs[key]) ** 2)
 		return lsq
 
 	start = pms[-3:-1] + [np.power(10, pms[-1])] + pms[:-3]
@@ -732,16 +733,14 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 	micro_error_labels = []
 
 	if hesse:
-		micro_error_labels = ["error_" + name for name in micro_keys]
-		micro_errors = [np.nan]*len(micro_keys)
-		m_micro.hesse()
-		micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
-		for key in COLOR_FILTERS.keys():
-			if key in ufilters:
-				micro_errors.append(m_micro.errors["magStar_" + key])
+		micro_errors = dict()
+		for name in micro_keys:
+			if name in m_micro.errors:
+				micro_errors[name] = m_micro.errors[name]
 			else:
-				micro_errors.append(np.nan)
+				micro_errors[name] = np.nan
 	elif minos:
+		print("Not yet implemented")
 		for name in micro_keys:
 			micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
 		micro_errors = [np.nan]*(3+len(COLOR_FILTERS))*4
@@ -759,7 +758,7 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 			for key in COLOR_FILTERS.keys():
 				if key in ufilters:
 					micro_errors += [merrors["magStar_" + key].lower, merrors["magStar_" + key].upper,
-										 merrors["magStar_" + key].lower_valid, merrors["magStar_" + key].upper_valid]
+									 merrors["magStar_" + key].lower_valid, merrors["magStar_" + key].upper_valid]
 				else:
 					micro_errors+=[np.nan]*4
 
