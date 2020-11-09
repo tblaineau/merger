@@ -735,33 +735,13 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 		micro_errors = dict()
 		for name in micro_keys:
 			if name in m_micro.errors:
-				micro_errors[name] = m_micro.errors[name]
+				micro_errors["error_" + name] = m_micro.errors[name]
 			else:
-				micro_errors[name] = np.nan
+				micro_errors["error_" + name] = np.nan
 		micro_error_labels = list(micro_errors.keys())
 		micro_errors = list(micro_errors.values())
 	elif minos:
 		print("Not yet implemented")
-		for name in micro_keys:
-			micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
-		micro_errors = [np.nan]*(3+len(COLOR_FILTERS))*4
-		merrors=False
-		try:
-			merrors = m_micro.minos()
-		except RuntimeError:
-			print("Migrad did not converge properly on star " + str(subdf.name))
-		if merrors:
-			micro_errors = [merrors["u0"].lower, merrors["u0"].upper, merrors["u0"].lower_valid, merrors["u0"].upper_valid,
-							merrors["t0"].lower, merrors["t0"].upper, merrors["t0"].lower_valid,
-							merrors["t0"].upper_valid,
-							merrors["tE"].lower, merrors["tE"].upper, merrors["tE"].lower_valid,
-							merrors["tE"].upper_valid]
-			for key in COLOR_FILTERS.keys():
-				if key in ufilters:
-					micro_errors += [merrors["magStar_" + key].lower, merrors["magStar_" + key].upper,
-									 merrors["magStar_" + key].lower_valid, merrors["magStar_" + key].upper_valid]
-				else:
-					micro_errors+=[np.nan]*4
 
 	lsqs = []
 	max_nb_mags = len(COLOR_FILTERS)
