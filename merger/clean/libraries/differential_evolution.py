@@ -286,21 +286,20 @@ def diff_ev_lhs(func, times, data, errors, bounds, pop, recombination=0.7, tol=0
 
 
 def latin_hypercube_sampling(bounds, pop):
-	"""Latin Hypercube sampling to generate more uniformly distributed differential evolution initial parameters values.
+    """Latin Hypercube sampling to generate more uniformly distributed differential evolution initial parameters values.
 
-	Parameters
-	----------
-	bounds : np.array
-		Bounds to generate parameters within, should be of shape (nb of parameters, 2)
-	pop : int
-		Number of sets of inital parameters to generate
-	"""
-	ranges = np.linspace(bounds[:, 0], bounds[:, 1], pop + 1).T
-	ranges = np.array([ranges[:,:-1], ranges[:,1:]]).T
-	cs = np.random.uniform(low=ranges[:,:,0], high=ranges[:,:,1])
-	a = sample_without_replacement(pop ** len(bounds), pop)
-	a = np.array(np.unravel_index(a, [pop] * len(bounds)))
-	return np.array([cs[a[i], i] for i in range(len(bounds))]).T
+    Parameters
+    ----------
+    bounds : np.array
+        Bounds to generate parameters within, should be of shape (nb of parameters, 2)
+    pop : int
+        Number of sets of inital parameters to generate
+    """
+    ranges = np.linspace(bounds[:, 0], bounds[:, 1], pop + 1).T
+    ranges = np.array([ranges[:,:-1], ranges[:,1:]]).T
+    cs = np.random.uniform(low=ranges[:,:,0], high=ranges[:,:,1])
+    a = np.random.sample(cs.T.shape).argsort()
+    return np.array([cs[a[i], i] for i in range(len(a))]).T
 
 
 GLOBAL_COUNTER = 0
@@ -727,7 +726,6 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 									 print_level=0)
 
 	m_micro.migrad()
-	micro_fmin = m_micro.get_fmin()
 	micro_params = m_micro.values
 
 	micro_errors = []
@@ -780,6 +778,8 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 			micro_values[2 + idx] = np.nan
 			micro_values[2 + idx + max_nb_mags] = np.nan
 	micro_fval = m_micro.fval
+	micro_fmin = m_micro.get_fmin()
+
 
 	counts = []
 	flat_chi2s = []
