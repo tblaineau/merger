@@ -179,7 +179,7 @@ if __name__ == '__main__':
 	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1])
 	params = mg.generate_parameters(t0_range=t0_ranges) #mass=30)
-	cnt = merged.groupby(["id_E", "id_M"]).size().values
+	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values
 
 	#Save true_parameters
 	true_parameters = pd.concat([pd.DataFrame(params), merged[["id_E", "id_M"]].drop_duplicates(ignore_index=True)], axis=1)
