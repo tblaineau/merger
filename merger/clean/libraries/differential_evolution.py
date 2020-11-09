@@ -738,6 +738,8 @@ def fit_ml_de_blend(subdf, do_cut5=False, hesse=False, minos=False):
 				micro_errors[name] = m_micro.errors[name]
 			else:
 				micro_errors[name] = np.nan
+		micro_error_labels = list(micro_errors.keys())
+		micro_errors = list(micro_errors.values())
 	elif minos:
 		print("Not yet implemented")
 		for name in micro_keys:
