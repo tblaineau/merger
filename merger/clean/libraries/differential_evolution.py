@@ -286,20 +286,20 @@ def diff_ev_lhs(func, times, data, errors, bounds, pop, recombination=0.7, tol=0
 
 
 def latin_hypercube_sampling(bounds, pop):
-    """Latin Hypercube sampling to generate more uniformly distributed differential evolution initial parameters values.
+	"""Latin Hypercube sampling to generate more uniformly distributed differential evolution initial parameters values.
 
-    Parameters
-    ----------
-    bounds : np.array
-        Bounds to generate parameters within, should be of shape (nb of parameters, 2)
-    pop : int
-        Number of sets of inital parameters to generate
-    """
-    ranges = np.linspace(bounds[:, 0], bounds[:, 1], pop + 1).T
-    ranges = np.array([ranges[:,:-1], ranges[:,1:]]).T
-    cs = np.random.uniform(low=ranges[:,:,0], high=ranges[:,:,1])
-    a = np.random.sample(cs.T.shape).argsort()
-    return np.array([cs[a[i], i] for i in range(len(a))]).T
+	Parameters
+	----------
+	bounds : np.array
+		Bounds to generate parameters within, should be of shape (nb of parameters, 2)
+	pop : int
+		Number of sets of inital parameters to generate
+	"""
+	ranges = np.linspace(bounds[:, 0], bounds[:, 1], pop + 1).T
+	ranges = np.array([ranges[:,:-1], ranges[:,1:]]).T
+	cs = np.random.uniform(low=ranges[:,:,0], high=ranges[:,:,1])
+	a = np.random.sample(cs.T.shape).argsort()
+	return np.array([cs[a[i], i] for i in range(len(a))]).T
 
 
 GLOBAL_COUNTER = 0
@@ -404,7 +404,7 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
-				print(f"null intrinsic dispersion for {subdf.name}")	
+				print(f"null intrinsic dispersion for {subdf.name}")
 
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
 	# 	return pd.Series(None)
