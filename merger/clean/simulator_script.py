@@ -207,8 +207,8 @@ if __name__ == '__main__':
 	merged.loc[:, "amp"] = amp(merged.time.values, merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values)
 	merged.loc[:, "sup2"] = merged.amp > amp(0, 0, 2, 0, 1)
 	merged.loc[:, "sup1"] = merged.amp > amp(0, 0, 1, 0, 1)
-	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup1"].agg(sum), left_on=["id_M", "id_E"], right_index=True)
-	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup2"].agg(sum), left_on=["id_M", "id_E"], right_index=True)
+	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup1"].agg(sum), left_on=["id_E", "id_M"], right_index=True)
+	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup2"].agg(sum), left_on=["id_E", "id_M"], right_index=True)
 	true_parameters.to_pickle(os.path.join(output_path, "truth_" + str(MACHO_field) + "_" + str(t) + ".pkl"))
 
 	logging.info("Bad time removal.")
