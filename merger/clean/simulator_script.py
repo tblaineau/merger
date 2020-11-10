@@ -9,7 +9,7 @@ from merger.clean.libraries.merger_library import COLOR_FILTERS
 from merger.clean.libraries.parameter_generator import MicrolensingGenerator, microlens_parallax, microlens_simple
 from merger.clean.libraries.differential_evolution import fit_ml_de_simple
 import matplotlib.pyplot as plt
-
+import numba as nb
 import scipy.interpolate
 
 
@@ -25,10 +25,10 @@ def clean_lightcurves(df):
 	return df
 
 
-def mulens_simple(t, mag, u0, t0, tE):
+@nb.njit
+def amp(t, b, u0, t0, tE):
 	u = np.sqrt(u0 * u0 + ((t - t0) ** 2) / tE / tE)
-	amp = (u ** 2 + 2) / (u * np.sqrt(u ** 2 + 4))
-	return - 2.5 * np.log10(amp) + mag
+	return (u ** 2 + 2) / (u * np.sqrt(u ** 2 + 4)) * (1-b) + b
 
 
 class UniformGenerator:
@@ -183,7 +183,6 @@ if __name__ == '__main__':
 
 	#Save true_parameters
 	true_parameters = pd.concat([pd.DataFrame(params), merged[["id_E", "id_M"]].drop_duplicates(ignore_index=True)], axis=1)
-	true_parameters.to_pickle(os.path.join(output_path, "truth_"+str(MACHO_field) + "_" + str(t) + ".pkl"))
 
 	for key in params.keys():
 		merged[key] = np.repeat(params[key], cnt)
@@ -204,6 +203,13 @@ if __name__ == '__main__':
 										COLOR_FILTERS[key]["err"]: "old_" + COLOR_FILTERS[key]["err"],
 										"new_" + COLOR_FILTERS[key]["mag"]: COLOR_FILTERS[key]["mag"],
 										"new_" + COLOR_FILTERS[key]["err"]: COLOR_FILTERS[key]["err"]})
+
+	merged.loc[:, "amp"] = amp(merged.time.values, merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values)
+	merged.loc[:, "sup2"] = merged.amp > amp(0, 0, 2, 0, 1)
+	merged.loc[:, "sup1"] = merged.amp > amp(0, 0, 1, 0, 1)
+	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup1"].agg(sum), left_on=["id_M", "id_E"], right_index=True)
+	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup2"].agg(sum), left_on=["id_M", "id_E"], right_index=True)
+	true_parameters.to_pickle(os.path.join(output_path, "truth_" + str(MACHO_field) + "_" + str(t) + ".pkl"))
 
 	logging.info("Bad time removal.")
 	dfr = []
