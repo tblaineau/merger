@@ -23,7 +23,6 @@ if __name__ == '__main__':
         merged_output_directory = os.path.join("/sps/hep/eros/users/blaineau/prod2/merged", "F_"+str(MACHO_field))
         MACHO_bad_times_directory = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
         correspondance_files_path = "/pbs/home/b/blaineau/data/correspondances"
-        bad_times_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
         MACHO_btt= args.MACHO_bad_time_threshold
         output_directory = args.output_directory
         verbose = True
@@ -49,11 +48,11 @@ if __name__ == '__main__':
                 dfr = []
                 dfb = []
                 try:
-                        df = pd.DataFrame(np.load(os.path.join(bad_times_path, str(MACHO_field) + "_red_M_ratios.npy")),
+                        df = pd.DataFrame(np.load(os.path.join(MACHO_bad_times_directory, str(MACHO_field) + "_red_M_ratios.npy")),
                                           columns=["red_amp", "time", "ratio"])
                         df.loc[:, "field"] = MACHO_field
                         dfr.append(df)
-                        df = pd.DataFrame(np.load(os.path.join(bad_times_path, str(MACHO_field) + "_blue_M_ratios.npy")),
+                        df = pd.DataFrame(np.load(os.path.join(MACHO_bad_times_directory, str(MACHO_field) + "_blue_M_ratios.npy")),
                                           columns=["blue_amp", "time", "ratio"])
                         df.loc[:, "field"] = MACHO_field
                         dfb.append(df)
@@ -86,5 +85,5 @@ if __name__ == '__main__':
                                        input_dir_path=output_directory,
                                        output_dir_path=output_directory,
                                        fit_function=fit_ml_de_simple,
-                                       do_cut5=False,
+                                       do_cut5=True,
                                        hesse=True)
