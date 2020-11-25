@@ -400,7 +400,10 @@ def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 		else:
 			tmsk = errs[key]<0.6
 			scount[key] = tmsk.sum()
-			intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], mags[key][tmsk], errs[key][tmsk], fraction=0.0)
+			try :
+				intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], mags[key][tmsk], errs[key][tmsk], fraction=0.0)
+			except ZeroDivisionError:
+				print("invalid intr_dispersion")
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
