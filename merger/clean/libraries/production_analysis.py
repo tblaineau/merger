@@ -390,11 +390,12 @@ def visualize_curve_norm(fit_params, subdf, blind=True, figsize=(30, 15), nstat=
 						  ecolor=colors[key], elinewidth=0.5, color=colors[key], label=key, markersize=markersize)
 
 	fitr = -2.5 * np.log10(microlensing_amplification(times, fit_params.u0, fit_params.t0, fit_params.tE))
-	fittruth = -fit_params["magStar_" + key] + microlens_simple(times, fit_params["magStar_" + key],
-																fit_params["blend_" + key], fit_params.u0_true,
-																fit_params.t0_true, fit_params.tE_true)
 	if not blind:
 		ax[0, 0].plot(times / 365.25, fitr, color='grey', lw=1.5)
+		if "u0_true" in fit_params.index.values:
+		fittruth = -fit_params["magStar_" + key] + microlens_simple(times, fit_params["magStar_" + key],
+																	fit_params["blend_" + key], fit_params.u0_true,
+																	fit_params.t0_true, fit_params.tE_true)
 		ax[0, 0].plot(times / 365.25, fittruth, color='grey', ls="--", lw=1.5)
 
 	allv = np.concatenate([mags[key] - fit_params["magStar_" + key] for key in ufilters])
