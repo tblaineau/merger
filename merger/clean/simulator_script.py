@@ -6,7 +6,6 @@ import time
 import os
 from merger.clean.libraries import iminuit_fitter
 from merger.clean.libraries.merger_library import COLOR_FILTERS
-from merger.clean.libraries.parameter_generator import MicrolensingGenerator, microlens_parallax, microlens_simple
 from merger.clean.libraries.differential_evolution import fit_ml_de_simple
 import matplotlib.pyplot as plt
 import numba as nb
