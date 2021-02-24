@@ -144,6 +144,8 @@ class RealisticGenerator:
 
 	Parameters
 	----------
+	id_E_list : list
+		List of EROS index to compute density
 	xvt_file : str or int
 		If a str : Path to file containing x - v_T pairs generated through the Hasting-Metropolis algorithm
 		If int, number of xvt pairs to pool
@@ -156,7 +158,7 @@ class RealisticGenerator:
 	max_blend : float
 		maximum authorized blend, if max_blend=0, no blending
 	"""
-	def __init__(self, id_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0., blend_directory=None):
+	def __init__(self, id_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0., blend_directory=None, densities_path=""):
 		self.seed = seed
 		self.xvt_file = xvt_file
 
@@ -167,6 +169,16 @@ class RealisticGenerator:
 		self.blending = bool(blend_directory)
 		self.blend_pdf = None
 		self.generate_mass = False
+		try:
+			self.densities = pd.DataFrame(np.loadtxt(densities_path), columns=["field", "ccd", "density"])
+		except OSError:
+			print("Density file not found :", densities_path)
+
+		id_E_list = pd.Series(id_E_list)
+		#lm0FFCQI..I
+		fields=id_E_list.str[2:5].astype(int)
+		ccds = id_E_list.str[5].astype(int)
+		self.densities = self.densities.loc[np.array([fields, ccds]).T].values
 
 		if self.seed:
 			np.random.seed(self.seed)
