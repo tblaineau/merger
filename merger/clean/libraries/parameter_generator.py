@@ -168,7 +168,7 @@ class MicrolensingGenerator:
 
 
 #parallax parameters.
-PERIOD_EARTH = 365.2422
+PERIOD_EARTH = 365.25
 alphaS = 80.8941667*np.pi/180.
 deltaS = -69.7561111*np.pi/180.
 epsilon = (90. - 66.56070833)*np.pi/180.		#source in LMC
