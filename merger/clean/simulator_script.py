@@ -106,7 +106,7 @@ class RealisticGenerator:
 			else:
 				logging.error(f"xvts can't be loaded or generated, check variable : {self.xvt_file}")
 
-	def generate_parameters(self, mass=30., nb_parameters=1):
+	def generate_parameters(self, mass=30., nb_parameters=1, t0_ranges=None):
 		"""
 		Generate a set of microlensing parameters, including parallax and blending using S-model and fixed mass
 
@@ -124,7 +124,7 @@ class RealisticGenerator:
 			Dictionnary of lists containing the parameters set
 		"""
 		if self.generate_mass:
-			mass = self.rdm.uniform(0, 200, size=nb_parameters)
+			mass = self.rdm.uniform(1, 1000, size=nb_parameters)
 		else:
 			mass = np.array([mass]*nb_parameters)
 		u0 = self.rdm.uniform(0, self.u_max, size=nb_parameters)
@@ -132,7 +132,10 @@ class RealisticGenerator:
 		vt *= self.rdm.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
-		t0 = self.rdm.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
+		if not t0_ranges is None:
+			t0 = self.rdm.uniform(np.array(t0_ranges[0])-2*tE, np.array(t0_ranges[1])+2*tE, size=nb_parameters)
+		else:
+			t0 = self.rdm.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
 		theta = self.rdm.uniform(0, 2 * np.pi, size=nb_parameters)
 		params = {
 			'u0': u0,
@@ -151,7 +154,6 @@ class RealisticGenerator:
 			else:
 				params['blend_'+key] = [0] * nb_parameters
 		return params
-
 
 class UniformGenerator:
 	def __init__(self, u0_range=[0, 1], tE_range=[10, 500], blend_range=None, seed=1234):
