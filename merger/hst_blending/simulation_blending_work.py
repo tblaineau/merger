@@ -162,10 +162,10 @@ class RealisticGenerator:
 	max_blend : float
 		maximum authorized blend, if max_blend=0, no blending
 	"""
-	def __init__(self, id_E_list, blue_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0.001, blend_directory=None, densities_path="./densities.txt"):
+	def __init__(self, id_E_list, blue_E_list, xvt_file=None, seed=1234, tmin=48928., tmax=52697., u_max=2.,  max_blend=0.001, blend_directory=None, densities_path="./densities.txt"):
 		self.seed = seed
 		self.xvt_file = xvt_file
-
+		self.rdm = np.random.RandomState(seed)
 		self.tmin = tmin
 		self.tmax = tmax
 		self.u_max = u_max
@@ -190,7 +190,7 @@ class RealisticGenerator:
 			eidx = density1_catalogue.index[idx].values
 			iero_to_loc = {v: k for k, v in dict(self.density1.drop_duplicates("index_eros").index_eros).items()}
 			eloc = np.array([iero_to_loc[i] for i in eidx])
-			hstloc = np.random.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
+			hstloc = self.rdm.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
 			self.blends = self.density1.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]]
 
 
@@ -199,9 +199,6 @@ class RealisticGenerator:
 		fields=id_E_list.str[2:5].astype(int).values
 		ccds = id_E_list.str[5].astype(int).values
 		self.densities = self.densities.set_index(["field", "ccd"]).loc[list(zip(fields, ccds))].values
-
-		if self.seed:
-			np.random.seed(self.seed)
 
 		if self.xvt_file:
 			if isinstance(self.xvt_file, str):
@@ -233,16 +230,16 @@ class RealisticGenerator:
 			Dictionnary of lists containing the parameters set
 		"""
 		if self.generate_mass:
-			mass = np.random.uniform(0, 200, size=nb_parameters)
+			mass = self.rdm.uniform(0, 200, size=nb_parameters)
 		else:
 			mass = np.array([mass]*nb_parameters)
-		u0 = np.random.uniform(0, self.u_max, size=nb_parameters)
-		x, vt = self.xvts[np.random.randint(0, self.xvts.shape[0], size=nb_parameters)].T
-		vt *= np.random.choice([-1., 1.], size=nb_parameters, replace=True)
+		u0 = self.rdm.uniform(0, self.u_max, size=nb_parameters)
+		x, vt = self.xvts[self.rdm.randint(0, self.xvts.shape[0], size=nb_parameters)].T
+		vt *= self.rdm.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
-		t0 = np.random.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
-		theta = np.random.uniform(0, 2 * np.pi, size=nb_parameters)
+		t0 = self.rdm.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
+		theta = self.rdm.uniform(0, 2 * np.pi, size=nb_parameters)
 		params = {
 			'u0': u0,
 			't0': t0,
