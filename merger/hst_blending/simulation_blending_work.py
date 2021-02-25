@@ -1,16 +1,20 @@
-from merger.clean.libraries.simulator_script import *
-import argparse
 import logging
 import pandas as pd
 import numpy as np
-import time
 import os
-from merger.clean.libraries import iminuit_fitter
+import glob
 from merger.clean.libraries.merger_library import COLOR_FILTERS
-from merger.clean.libraries.differential_evolution import fit_ml_de_simple
 import matplotlib.pyplot as plt
 import numba as nb
-import scipy.interpolate
+from merger.clean.libraries.parameter_generator import metropolis_hastings, pdf_xvt, randomizer_gauss, delta_u_from_x, tE_from_xvt
+
+
+@nb.njit
+def find_nearest(array, values):
+    o = []
+    for i in range(len(values)):
+        o.append((np.abs(array - values[i])).argmin())
+    return o
 
 
 def clean_lightcurves(df):
@@ -158,7 +162,7 @@ class RealisticGenerator:
 	max_blend : float
 		maximum authorized blend, if max_blend=0, no blending
 	"""
-	def __init__(self, id_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0., blend_directory=None, densities_path=""):
+	def __init__(self, id_E_list, blue_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0.001, blend_directory=None, densities_path=""):
 		self.seed = seed
 		self.xvt_file = xvt_file
 
@@ -172,7 +176,22 @@ class RealisticGenerator:
 		try:
 			self.densities = pd.DataFrame(np.loadtxt(densities_path), columns=["field", "ccd", "density"])
 		except OSError:
-			print("Density file not found :", densities_path)
+			logging.error("Density file not found :", densities_path)
+
+		if not os.path.exists(blend_directory):
+			logging.error("Invalid blend factors directory")
+		else:
+			#HARDCODED for now
+			self.density1 = pd.read_csv(os.path.join(blend_directory, "sparse57.csv"))
+			self.density1 = self.density1[self.density1.frac_red_E.values>self.max_blend].reset_index(drop=True)
+			density1_catalogue = self.groupby("index_eros").blue_E.agg([max, "size"])
+			idx = find_nearest(density1_catalogue["max"].values, blue_E_list)
+			eidx = blue_E_list.index[idx].values
+			iero_to_loc = {v: k for k, v in dict(density1_catalogue.drop_duplicates("index_eros").index_eros).items()}
+			eloc = np.array([iero_to_loc[i] for i in eidx])
+			hstloc = np.random.randint(0, blue_E_list.loc[blue_E_list.index[idx]]["size"].values)
+			self.blends = density1_catalogue.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]]
+
 
 		id_E_list = pd.Series(id_E_list)
 		#lm0FFCQI..I
@@ -212,9 +231,6 @@ class RealisticGenerator:
 		dict
 			Dictionnary of lists containing the parameters set
 		"""
-		if seed:
-			seed = int(seed.replace('lm0', '').replace('k', '0').replace('l', '1').replace('m', '2').replace('n', '3'))
-			np.random.seed(seed)
 		if self.generate_mass:
 			mass = np.random.uniform(0, 200, size=nb_parameters)
 		else:
@@ -238,10 +254,10 @@ class RealisticGenerator:
 		}
 
 
-
+		self.density1.blue_E
 		for key in COLOR_FILTERS.keys():
 			if self.blending:
-				params['blend_'+key] = np.random.uniform(self.min_blend, self.max_blend, size=nb_parameters)
+				params['blend_'+key] = self.blends["frac_"+key].values
 			else:
 				params['blend_'+key] = [0] * nb_parameters
 		return params
