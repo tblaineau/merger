@@ -2,7 +2,6 @@ import logging
 import pandas as pd
 import numpy as np
 import os
-import glob
 from merger.clean.libraries.merger_library import COLOR_FILTERS
 import matplotlib.pyplot as plt
 import numba as nb
