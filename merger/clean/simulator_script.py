@@ -7,9 +7,18 @@ import os
 from merger.clean.libraries import iminuit_fitter
 from merger.clean.libraries.merger_library import COLOR_FILTERS
 from merger.clean.libraries.differential_evolution import fit_ml_de_simple
+from merger.clean.libraries.parameter_generator import microlens_parallax, microlens_simple, delta_u_from_x, tE_from_xvt
 import matplotlib.pyplot as plt
 import numba as nb
 import scipy.interpolate
+
+
+@nb.njit
+def find_nearest(array, values):
+    o = []
+    for i in range(len(values)):
+        o.append((np.abs(array - values[i])).argmin())
+    return o
 
 
 def clean_lightcurves(df):
@@ -28,6 +37,123 @@ def clean_lightcurves(df):
 def amp(t, b, u0, t0, tE):
 	u = np.sqrt(u0 * u0 + ((t - t0) ** 2) / tE / tE)
 	return (u ** 2 + 2) / (u * np.sqrt(u ** 2 + 4)) * (1-b) + b
+
+
+class RealisticGenerator:
+	"""
+	Class to generate microlensing paramters
+
+	Parameters
+	----------
+	id_E_list : list
+		List of EROS index to compute density
+	xvt_file : str or int
+		If a str : Path to file containing x - v_T pairs generated through the Hasting-Metropolis algorithm
+		If int, number of xvt pairs to pool
+	seed : int
+		Seed used for numpy.seed
+	tmin : float
+		lower limit of t_0
+	tmax : float
+		upper limits of t_0
+	max_blend : float
+		maximum authorized blend, if max_blend=0, no blending
+	"""
+	def __init__(self, id_E_list, blue_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0.001, blend_directory=None, densities_path="./densities.txt"):
+		self.seed = seed
+		self.xvt_file = xvt_file
+
+		self.tmin = tmin
+		self.tmax = tmax
+		self.u_max = u_max
+		self.max_blend = max_blend
+		self.blending = bool(blend_directory)
+		self.blend_pdf = None
+		self.generate_mass = False
+
+		try:
+			self.densities = pd.DataFrame(np.loadtxt(densities_path), columns=["field", "ccd", "density"])
+		except OSError:
+			logging.error("Density file not found :", densities_path)
+
+		if not os.path.exists(blend_directory):
+			logging.error("Invalid blend factors directory")
+		else:
+			#HARDCODED for now
+			self.density1 = pd.read_csv(os.path.join(blend_directory, "sparse_57.csv"))
+			self.density1 = self.density1[self.density1.frac_red_E.values>self.max_blend].reset_index(drop=True)
+			density1_catalogue = self.density1.groupby("index_eros").blue_E.agg([max, "size"])
+			idx = find_nearest(density1_catalogue["max"].values, blue_E_list)
+			eidx = density1_catalogue.index[idx].values
+			iero_to_loc = {v: k for k, v in dict(self.density1.drop_duplicates("index_eros").index_eros).items()}
+			eloc = np.array([iero_to_loc[i] for i in eidx])
+			hstloc = np.random.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
+			self.blends = self.density1.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]]
+
+
+		id_E_list = pd.Series(id_E_list)
+		#lm0FFCQI..I
+		fields=id_E_list.str[2:5].astype(int).values
+		ccds = id_E_list.str[5].astype(int).values
+		self.densities = self.densities.set_index(["field", "ccd"]).loc[list(zip(fields, ccds))].values
+
+		if self.seed:
+			np.random.seed(self.seed)
+
+		if self.xvt_file:
+			if isinstance(self.xvt_file, str):
+				try:
+					self.xvts = np.load(self.xvt_file)
+				except FileNotFoundError:
+					logging.error(f"xvt file not found : {self.xvt_file}")
+			else:
+				logging.error(f"xvts can't be loaded or generated, check variable : {self.xvt_file}")
+
+	def generate_parameters(self, mass=30., nb_parameters=1):
+		"""
+		Generate a set of microlensing parameters, including parallax and blending using S-model and fixed mass
+
+		Parameters
+		----------
+		seed : str
+			Seed used for parameter generation (EROS id)
+		mass : float
+			mass for which generate paramters (\implies \delta_u, t_E)
+		nb_parameters : int
+			number of parameters set to generate
+		Returns
+		-------
+		dict
+			Dictionnary of lists containing the parameters set
+		"""
+		if self.generate_mass:
+			mass = np.random.uniform(0, 200, size=nb_parameters)
+		else:
+			mass = np.array([mass]*nb_parameters)
+		u0 = np.random.uniform(0, self.u_max, size=nb_parameters)
+		x, vt = self.xvts[np.random.randint(0, self.xvts.shape[0], size=nb_parameters)].T
+		vt *= np.random.choice([-1., 1.], size=nb_parameters, replace=True)
+		delta_u = delta_u_from_x(x, mass=mass)
+		tE = tE_from_xvt(x, vt, mass=mass)
+		t0 = np.random.uniform(self.tmin, self.tmax, size=nb_parameters)
+		theta = np.random.uniform(0, 2 * np.pi, size=nb_parameters)
+		params = {
+			'u0': u0,
+			't0': t0,
+			'tE': tE,
+			'delta_u': delta_u,
+			'theta': theta,
+			'mass': mass,
+			'x': x,
+			'vt': vt,
+		}
+
+		for key in COLOR_FILTERS.keys():
+			if self.blending:
+				params['blend_'+key] = self.blends["frac_"+key].values
+			else:
+				params['blend_'+key] = [0] * nb_parameters
+		return params
 
 
 class UniformGenerator:
