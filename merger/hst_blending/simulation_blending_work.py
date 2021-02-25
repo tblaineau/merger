@@ -162,7 +162,7 @@ class RealisticGenerator:
 	max_blend : float
 		maximum authorized blend, if max_blend=0, no blending
 	"""
-	def __init__(self, id_E_list, blue_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0.001, blend_directory=None, densities_path=""):
+	def __init__(self, id_E_list, blue_E_list, xvt_file=None, seed=None, tmin=48928., tmax=52697., u_max=2.,  max_blend=0.001, blend_directory=None, densities_path="./densities.txt"):
 		self.seed = seed
 		self.xvt_file = xvt_file
 
@@ -173,6 +173,7 @@ class RealisticGenerator:
 		self.blending = bool(blend_directory)
 		self.blend_pdf = None
 		self.generate_mass = False
+
 		try:
 			self.densities = pd.DataFrame(np.loadtxt(densities_path), columns=["field", "ccd", "density"])
 		except OSError:
@@ -182,7 +183,7 @@ class RealisticGenerator:
 			logging.error("Invalid blend factors directory")
 		else:
 			#HARDCODED for now
-			self.density1 = pd.read_csv(os.path.join(blend_directory, "sparse57.csv"))
+			self.density1 = pd.read_csv(os.path.join(blend_directory, "sparse_57.csv"))
 			self.density1 = self.density1[self.density1.frac_red_E.values>self.max_blend].reset_index(drop=True)
 			density1_catalogue = self.groupby("index_eros").blue_E.agg([max, "size"])
 			idx = find_nearest(density1_catalogue["max"].values, blue_E_list)
