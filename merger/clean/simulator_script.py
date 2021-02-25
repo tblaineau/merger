@@ -163,15 +163,15 @@ class UniformGenerator:
 		if blend_range:
 			self.blend_range = np.array(blend_range)
 
-	def generate_parameters(self, t0_range):
-		if len(np.array(t0_range).shape) == 1:
+	def generate_parameters(self, t0_ranges):
+		if len(np.array(t0_ranges).shape) == 1:
 			size = None
 		else:
-			size = len(t0_range[0])
+			size = len(t0_ranges[0])
 		params = {}
 		params["u0"] = self.rdm.uniform(*self.u0_range, size=size)
 		params["tE"] = np.power(10, self.rdm.uniform(*self.tE_range, size=size))
-		params["t0"] = self.rdm.uniform(t0_range[0], t0_range[1])
+		params["t0"] = self.rdm.uniform(t0_ranges[0], t0_ranges[1])
 		if hasattr(self, "blend_range"):
 			b = self.rdm.uniform(*self.blend_range, size=size)
 			for key in COLOR_FILTERS.keys():
@@ -307,7 +307,7 @@ if __name__ == '__main__':
 								blend_directory="/pbs/home/b/blaineau/work/simulation_prod",
 								xvt_file="/pbs/home/b/blaineau/work/simulation_prod/xvt_clean.npy")
 
-	params = mg.generate_parameters(t0_range=t0_ranges) #mass=30)
+	params = mg.generate_parameters(t0_ranges=t0_ranges) #mass=30)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
 
 	#Save true_parameters
