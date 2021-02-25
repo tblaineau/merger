@@ -3,6 +3,7 @@ import astropy.units as units
 import astropy.constants as constants
 import numba as nb
 import logging
+from parallax_simulator_pipeline.metropolis_hastings import metropolis_hastings
 
 COLOR_FILTERS = {
 	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
@@ -66,49 +67,6 @@ def pdf_xvt(x, mass):
 @nb.njit
 def randomizer_gauss(x):
 	return np.array([np.random.normal(loc=x[0], scale=0.1), np.random.normal(loc=x[1], scale=300)])
-
-@nb.njit
-def metropolis_hastings(func, g, nb_samples, x0, *args):
-	"""
-	Metropolis-Hasting algorithm to pick random value following the joint probability distribution func
-
-	Parameters
-	----------
-	func : function
-		 Joint probability distribution
-	g : function
-		Randomizer. Choose it wisely to converge quickly and have a smooth distribution
-	nb_samples : int
-		Number of points to return. Need to be large so that the output distribution is smooth
-	x0 : array-like
-		Initial point
-	kwargs :
-		arguments to pass to *func*
-
-
-	Returns
-	-------
-	np.array
-		Array containing all the points
-	"""
-	samples = []
-	current_x = x0
-	accepted=0
-	rds = np.random.uniform(0., 1., nb_samples+100)
-	for idx in range(nb_samples+100):
-		proposed_x = g(current_x)
-		tmp = func(current_x, *args)
-		if tmp!=0:
-			threshold = min(1., func(proposed_x, *args) / tmp)
-		else:
-			threshold = 1
-		if rds[idx] < threshold:
-			current_x = proposed_x
-			accepted+=1
-		samples.append(current_x)
-	print(accepted, accepted/nb_samples)
-	#We crop the hundred first to avoid outliers from x0
-	return samples[100:]
 
 
 class MicrolensingGenerator:
