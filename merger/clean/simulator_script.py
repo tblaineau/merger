@@ -304,8 +304,10 @@ if __name__ == '__main__':
 	#mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
 	infos = merged.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg("median")
 	mg = RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, u_max=1.5, seed=seed,
-								blend_directory="/pbs/home/b/blaineau/work/simulation_prod",
-								xvt_file="/pbs/home/b/blaineau/work/simulation_prod/xvt_clean.npy")
+							blend_directory="/pbs/home/b/blaineau/work/simulation_prod/useful_files",
+							xvt_file="/pbs/home/b/blaineau/work/simulation_prod/useful_files/xvt_clean.npy",
+							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files/densities.txt"
+							)
 
 	params = mg.generate_parameters(t0_ranges=t0_ranges) #mass=30)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
