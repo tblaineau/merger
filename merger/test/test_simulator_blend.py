@@ -14,7 +14,7 @@ er = sbw.ErrorMagnitudeRelation(df, list(COLOR_FILTERS.keys()), bin_number=20)
 print("generator")
 infos = df.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg("median")
 print()
-rg = sbw.RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, blend_directory="/Users/tristanblaineau/Documents/Work/Jupyter/blend/HST/HST_FINAL", xvt_file="xvt_samples.npy")
+rg = sbw.RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, blend_directory="/Users/tristanblaineau/Documents/Work/Jupyter/blend/HST/HST_FINAL", xvt_file="xvt_samples.npy", densities_path="../clean/useful_files/densities.txt")
 
 pms = rg.generate_parameters(nb_parameters=len(infos))
 print(pms)

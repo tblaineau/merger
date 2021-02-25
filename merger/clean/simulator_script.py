@@ -135,7 +135,7 @@ class RealisticGenerator:
 		vt *= np.random.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
-		t0 = np.random.uniform(self.tmin, self.tmax, size=nb_parameters)
+		t0 = np.random.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
 		theta = np.random.uniform(0, 2 * np.pi, size=nb_parameters)
 		params = {
 			'u0': u0,
@@ -302,7 +302,12 @@ if __name__ == '__main__':
 	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values.T
 	merged = merged.sort_values(["id_E", "id_M"])
 	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
-	mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
+	#mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
+	infos = merged.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg("median")
+	mg = RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, u_max=1.5,
+								blend_directory="/pbs/home/b/blaineau/work/simulation_prod",
+								xvt_file="/pbs/home/b/blaineau/work/simulation_prod/xvt_clean.npy")
+
 	params = mg.generate_parameters(t0_range=t0_ranges) #mass=30)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
 
@@ -318,7 +323,7 @@ if __name__ == '__main__':
 		merged["mag_median_" + key] = merged[["id_E", "id_M", COLOR_FILTERS[key]["mag"]]].groupby(["id_E", "id_M"]).transform("median")
 		#mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values,
 		#								 merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
-		mag_th[key] = microlens_simple(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values, 0, 0)
+		mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
 		norm[key] = sh.vectorized_get_sigma(key, merged["mag_median_" + key].values) / sh.vectorized_get_sigma(key, mag_th[key])
 		merged["new_" + COLOR_FILTERS[key]["err"]] = merged[COLOR_FILTERS[key]["err"]] / norm[key]
 		merged["new_" + COLOR_FILTERS[key]["mag"]] = mag_th[key] + (merged[COLOR_FILTERS[key]["mag"]] - merged["mag_median_" + key]) / norm[key]
