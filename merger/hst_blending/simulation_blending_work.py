@@ -241,7 +241,7 @@ class RealisticGenerator:
 		vt *= np.random.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
-		t0 = np.random.uniform(self.tmin, self.tmax, size=nb_parameters)
+		t0 = np.random.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
 		theta = np.random.uniform(0, 2 * np.pi, size=nb_parameters)
 		params = {
 			'u0': u0,
