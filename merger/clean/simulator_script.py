@@ -301,7 +301,7 @@ if __name__ == '__main__':
 	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	#mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
 	infos = merged.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg("median")
-	mg = RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, u_max=1.5,
+	mg = RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, u_max=1.5, seed=seed,
 								blend_directory="/pbs/home/b/blaineau/work/simulation_prod",
 								xvt_file="/pbs/home/b/blaineau/work/simulation_prod/xvt_clean.npy")
 
