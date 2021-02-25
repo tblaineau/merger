@@ -15,7 +15,7 @@ print("generator")
 infos = df.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg("median")
 t0_ranges = df.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values.T
 print()
-rg = sbw.RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, blend_directory="/Users/tristanblaineau/Documents/Work/Jupyter/blend/HST/HST_FINAL", xvt_file="xvt_samples.npy", densities_path="../clean/useful_files/densities.txt")
+rg = sbw.RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, blend_directory="/Users/tristanblaineau/Documents/Work/Jupyter/blend/HST/HST_FINAL", xvt_file="xvts_clean.npy", densities_path="../clean/useful_files/densities.txt")
 
 pms = rg.generate_parameters(nb_parameters=len(infos), t0_ranges=t0_ranges)
 print(pms)

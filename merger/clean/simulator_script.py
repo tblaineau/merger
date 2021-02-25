@@ -128,7 +128,7 @@ class RealisticGenerator:
 		else:
 			mass = np.array([mass]*nb_parameters)
 		u0 = self.rdm.uniform(0, self.u_max, size=nb_parameters)
-		x, vt = self.xvts[self.rdm.randint(0, self.xvts.shape[0], size=nb_parameters)].T
+		x, vt, theta = (self.xvts.T[self.rdm.randint(0, self.xvts.shape[1], size=nb_parameters)]).T
 		vt *= self.rdm.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
@@ -136,7 +136,6 @@ class RealisticGenerator:
 			t0 = self.rdm.uniform(np.array(t0_ranges[0])-2*tE, np.array(t0_ranges[1])+2*tE, size=nb_parameters)
 		else:
 			t0 = self.rdm.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
-		theta = self.rdm.uniform(0, 2 * np.pi, size=nb_parameters)
 		params = {
 			'u0': u0,
 			't0': t0,
@@ -154,6 +153,7 @@ class RealisticGenerator:
 			else:
 				params['blend_'+key] = [0] * nb_parameters
 		return params
+
 
 class UniformGenerator:
 	def __init__(self, u0_range=[0, 1], tE_range=[10, 500], blend_range=None, seed=1234):
