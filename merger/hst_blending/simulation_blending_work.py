@@ -185,20 +185,20 @@ class RealisticGenerator:
 			#HARDCODED for now
 			self.density1 = pd.read_csv(os.path.join(blend_directory, "sparse_57.csv"))
 			self.density1 = self.density1[self.density1.frac_red_E.values>self.max_blend].reset_index(drop=True)
-			density1_catalogue = self.groupby("index_eros").blue_E.agg([max, "size"])
+			density1_catalogue = self.density1.groupby("index_eros").blue_E.agg([max, "size"])
 			idx = find_nearest(density1_catalogue["max"].values, blue_E_list)
-			eidx = blue_E_list.index[idx].values
-			iero_to_loc = {v: k for k, v in dict(density1_catalogue.drop_duplicates("index_eros").index_eros).items()}
+			eidx = density1_catalogue.index[idx].values
+			iero_to_loc = {v: k for k, v in dict(self.density1.drop_duplicates("index_eros").index_eros).items()}
 			eloc = np.array([iero_to_loc[i] for i in eidx])
-			hstloc = np.random.randint(0, blue_E_list.loc[blue_E_list.index[idx]]["size"].values)
-			self.blends = density1_catalogue.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]]
+			hstloc = np.random.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
+			self.blends = self.density1.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]]
 
 
 		id_E_list = pd.Series(id_E_list)
 		#lm0FFCQI..I
-		fields=id_E_list.str[2:5].astype(int)
-		ccds = id_E_list.str[5].astype(int)
-		self.densities = self.densities.loc[np.array([fields, ccds]).T].values
+		fields=id_E_list.str[2:5].astype(int).values
+		ccds = id_E_list.str[5].astype(int).values
+		self.densities = self.densities.set_index(["field", "ccd"]).loc[list(zip(fields, ccds))].values
 
 		if self.seed:
 			np.random.seed(self.seed)
@@ -211,7 +211,7 @@ class RealisticGenerator:
 					logging.error(f"xvt file not found : {self.xvt_file}")
 			elif isinstance(self.xvt_file, int):
 				logging.info(f"Generating {self.xvt_file} x-vt pairs using halo model... ")
-				self.xvts = np.array(metropolis_hastings(pdf_xvt, randomizer_gauss, self.xvt_file, np.array([0.5, 100]), (10.)))
+				self.xvts = np.array(metropolis_hastings(pdf_xvt, randomizer_gauss, self.xvt_file, np.array([0.5, 100.]), (10.)))
 			else:
 				logging.error(f"xvts can't be loaded or generated, check variable : {self.xvt_file}")
 
@@ -254,8 +254,6 @@ class RealisticGenerator:
 			'vt': vt,
 		}
 
-
-		self.density1.blue_E
 		for key in COLOR_FILTERS.keys():
 			if self.blending:
 				params['blend_'+key] = self.blends["frac_"+key].values
