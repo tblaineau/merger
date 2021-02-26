@@ -133,7 +133,7 @@ class RealisticGenerator:
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
 		if not t0_ranges is None:
-			t0 = self.rdm.uniform(np.array(t0_ranges[0])-2*tE, np.array(t0_ranges[1])+2*tE, size=nb_parameters)
+			t0 = self.rdm.uniform(np.array(t0_ranges[0])-2*abs(tE), np.array(t0_ranges[1])+2*abs(tE), size=nb_parameters)
 		else:
 			t0 = self.rdm.uniform(self.tmin-2*abs(tE), self.tmax+2*abs(tE), size=nb_parameters)
 		params = {
@@ -298,7 +298,7 @@ if __name__ == '__main__':
 	merged = clean_lightcurves(merged).reset_index(drop=True)
 	sh = ErrorMagnitudeRelation(merged, list(COLOR_FILTERS.keys()), bin_number=20)
 
-	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values.T
+	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values
 	merged = merged.sort_values(["id_E", "id_M"])
 	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	#mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
