@@ -324,7 +324,7 @@ if __name__ == '__main__':
 		merged["mag_median_" + key] = merged[["id_E", "id_M", COLOR_FILTERS[key]["mag"]]].groupby(["id_E", "id_M"]).transform("median")
 		#mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values,
 		#								 merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
-		mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
+		mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, 1-merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
 		norm[key] = sh.vectorized_get_sigma(key, merged["mag_median_" + key].values) / sh.vectorized_get_sigma(key, mag_th[key])
 		merged["new_" + COLOR_FILTERS[key]["err"]] = merged[COLOR_FILTERS[key]["err"]] / norm[key]
 		merged["new_" + COLOR_FILTERS[key]["mag"]] = mag_th[key] + (merged[COLOR_FILTERS[key]["mag"]] - merged["mag_median_" + key]) / norm[key]
