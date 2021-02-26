@@ -298,7 +298,7 @@ if __name__ == '__main__':
 	merged = clean_lightcurves(merged).reset_index(drop=True)
 	sh = ErrorMagnitudeRelation(merged, list(COLOR_FILTERS.keys()), bin_number=20)
 
-	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values
+	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["max", "min"]).values.T
 	merged = merged.sort_values(["id_E", "id_M"])
 	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	#mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
@@ -309,7 +309,7 @@ if __name__ == '__main__':
 							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files/densities.txt"
 							)
 
-	params = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=len(t0_ranges), mass=100)
+	params = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=t0_ranges.shape[1], mass=100)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
 
 	#Save true_parameters
