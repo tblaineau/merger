@@ -135,7 +135,7 @@ class RealisticGenerator:
 		if not t0_ranges is None:
 			t0 = self.rdm.uniform(np.array(t0_ranges[0])-2*tE, np.array(t0_ranges[1])+2*tE, size=nb_parameters)
 		else:
-			t0 = self.rdm.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
+			t0 = self.rdm.uniform(self.tmin-2*abs(tE), self.tmax+2*abs(tE), size=nb_parameters)
 		params = {
 			'u0': u0,
 			't0': t0,
@@ -309,7 +309,7 @@ if __name__ == '__main__':
 							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files/densities.txt"
 							)
 
-	params = mg.generate_parameters(t0_ranges=t0_ranges) #mass=30)
+	params = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=len(t0_ranges), mass=100)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
 
 	#Save true_parameters
