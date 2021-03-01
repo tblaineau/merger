@@ -275,6 +275,7 @@ if __name__ == '__main__':
 	parser.add_argument('--verbose', '-v', action='store_true', help='Debug logging level')
 	parser.add_argument('--bad_times_directory', '-btd', type=str, required=False)
 	parser.add_argument('--seed', type=int, required=False, default=1234)
+	parser.add_argument('--fraction', '-f', type=float, required=False, default=0.05, help="Fraction of lightcurves used for simulation")
 
 	args = parser.parse_args()
 	path_to_merged = args.path_to_merged
@@ -282,8 +283,8 @@ if __name__ == '__main__':
 	verbose = args.verbose
 	MACHO_bad_times_directory = args.bad_times_directory
 	seed = args.seed
+	fraction = args.fraction
 
-	fraction = 0.05
 	np.random.seed(seed)
 
 	if verbose:
