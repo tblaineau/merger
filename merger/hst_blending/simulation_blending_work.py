@@ -244,7 +244,7 @@ class RealisticGenerator:
 		if not t0_ranges is None:
 			t0 = self.rdm.uniform(np.array(t0_ranges[0])-2*abs(tE), np.array(t0_ranges[1])+2*abs(tE), size=nb_parameters)
 		else:
-			t0 = self.rdm.uniform(self.tmin-2*tE, self.tmax+2*tE, size=nb_parameters)
+			t0 = self.rdm.uniform(self.tmin-2*abs(tE), self.tmax+2*abs(tE), size=nb_parameters)
 		params = {
 			'u0': u0,
 			't0': t0,
