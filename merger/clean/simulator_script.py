@@ -75,27 +75,34 @@ class RealisticGenerator:
 			self.densities = pd.DataFrame(np.loadtxt(densities_path), columns=["field", "ccd", "density"])
 		except OSError:
 			logging.error("Density file not found :", densities_path)
-
-		if not os.path.exists(blend_directory):
-			logging.error("Invalid blend factors directory")
-		else:
-			#HARDCODED for now
-			self.density1 = pd.read_csv(os.path.join(blend_directory, "sparse_57.csv"))
-			self.density1 = self.density1[self.density1.frac_red_E.values>self.max_blend].reset_index(drop=True)
-			density1_catalogue = self.density1.groupby("index_eros").blue_E.agg([max, "size"])
-			idx = find_nearest(density1_catalogue["max"].values, blue_E_list)
-			eidx = density1_catalogue.index[idx].values
-			iero_to_loc = {v: k for k, v in dict(self.density1.drop_duplicates("index_eros").index_eros).items()}
-			eloc = np.array([iero_to_loc[i] for i in eidx])
-			hstloc = self.rdm.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
-			self.blends = self.density1.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]]
-
-
 		id_E_list = pd.Series(id_E_list)
 		#lm0FFCQI..I
 		fields=id_E_list.str[2:5].astype(int).values
 		ccds = id_E_list.str[5].astype(int).values
 		self.densities = self.densities.set_index(["field", "ccd"]).loc[list(zip(fields, ccds))].values
+
+		if not os.path.exists(blend_directory):
+			logging.error("Invalid blend factors directory")
+		else:
+			#HARDCODED for now
+			self.fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_57.csv")), pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
+
+			self.blends = []
+			for fcat in self.fracs_catalogues:
+				fcat = fcat[fcat.frac_red_E.values>self.max_blend].reset_index(drop=True)
+				density1_catalogue = fcat.groupby("index_eros").blue_E.agg([max, "size"])
+				idx = find_nearest(density1_catalogue["max"].values, blue_E_list)
+				eidx = density1_catalogue.index[idx].values
+				iero_to_loc = {v: k for k, v in dict(fcat.drop_duplicates("index_eros").index_eros).items()}
+				eloc = np.array([iero_to_loc[i] for i in eidx])
+				hstloc = self.rdm.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
+				self.blends.append(fcat.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]])
+
+			index_densities = (self.densities>67).astype(int)
+			print(index_densities.sum())
+			self.blends = np.choose(index_densities, self.blends)
+			self.blends = pd.DataFrame(self.blends, columns=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"])
+
 
 		if self.xvt_file:
 			if isinstance(self.xvt_file, str):
