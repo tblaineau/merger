@@ -343,7 +343,7 @@ if __name__ == '__main__':
 	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
 	#mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
 	infos = merged.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg("median")
-	mg = RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, u_max=1.5, seed=seed,
+	mg = RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, u_max=1.5, seed=seed, max_blend=0.01,
 							blend_directory="/pbs/home/b/blaineau/work/simulation_prod/useful_files",
 							xvt_file="/pbs/home/b/blaineau/work/simulation_prod/useful_files/xvt_clean.npy",
 							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files/densities.txt"
@@ -351,13 +351,14 @@ if __name__ == '__main__':
 
 	params, w = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=t0_ranges.shape[1], mass=100)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
-	merged = merged.iloc[np.concatenate(np.repeat([np.arange(i) for i in cnt], self.w))]
-
+	cm = np.cumsum(cnt)-cnt
+	merged = merged.iloc[np.concatenate(np.repeat([cm[i]+np.arange(cnt[i]) for i in range(len(cnt))], w))]
+	merged.loc[:,"id_E"] = merged.id_E.str.cat(np.repeat(np.arange(len(params["u0"])), np.repeat(cnt, w)).astype(str), sep="_")
 	#Save true_parameters
 	true_parameters = pd.concat([pd.DataFrame(params), merged[["id_E", "id_M"]].drop_duplicates(ignore_index=True)], axis=1)
-
+	
 	for key in params.keys():
-		merged[key] = np.repeat(params[key], cnt)
+		merged[key] = np.repeat(params[key], np.repeat(cnt, w))
 		mag_th = dict()
 		norm = dict()
 
