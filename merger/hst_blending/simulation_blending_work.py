@@ -190,6 +190,7 @@ class RealisticGenerator:
 			self.fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_57.csv")), pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
 
 			self.blends = []
+			self.weights = []
 			for fcat in self.fracs_catalogues:
 				fcat = fcat[fcat.frac_red_E.values>self.max_blend].reset_index(drop=True)
 				density1_catalogue = fcat.groupby("index_eros").blue_E.agg([max, "size"])
@@ -199,10 +200,12 @@ class RealisticGenerator:
 				eloc = np.array([iero_to_loc[i] for i in eidx])
 				hstloc = self.rdm.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
 				self.blends.append(fcat.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]])
+				self.weights.append(density1_catalogue.loc[eidx]["size"].values)
 
 			index_densities = (self.densities>67).astype(int)
 			print(index_densities.sum())
 			self.blends = np.choose(index_densities, self.blends)
+			self.weights = np.choose(index_densities, self.weigths)
 			self.blends = pd.DataFrame(self.blends, columns=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"])
 
 
@@ -261,6 +264,8 @@ class RealisticGenerator:
 		for key in COLOR_FILTERS.keys():
 			if self.blending:
 				params['blend_'+key] = self.blends["frac_"+key].values
+				params['weight'] = self.weights
 			else:
 				params['blend_'+key] = [0] * nb_parameters
+				params["weight"] = [0] * nb_parameters
 		return params
