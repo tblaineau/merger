@@ -293,4 +293,4 @@ class RealisticGenerator:
 			else:
 				params['blend_'+key] = [1] * nb_parameters
 				params["weight"] = [1] * nb_parameters
-		return params
+		return params, self.w
