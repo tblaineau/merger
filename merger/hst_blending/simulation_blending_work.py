@@ -200,14 +200,12 @@ class RealisticGenerator:
 				eloc = np.array([iero_to_loc[i] for i in eidx])
 				hstloc = self.rdm.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
 				self.blends.append(fcat.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]])
-				self.weights.append(density1_catalogue.loc[eidx]["size"].values)
+				self.weights.append(density1_catalogue.loc[eidx]["size"])
 
 			index_densities = (self.densities>67).astype(int)
-			print(index_densities.sum())
 			self.blends = np.choose(index_densities, self.blends)
-			self.weights = np.choose(index_densities, self.weights)
+			self.weights = np.choose(index_densities.flatten(), self.weights)
 			self.blends = pd.DataFrame(self.blends, columns=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"])
-
 
 		if self.xvt_file:
 			if isinstance(self.xvt_file, str):
