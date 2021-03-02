@@ -254,6 +254,8 @@ class RealisticGenerator:
 			'mass': mass,
 			'x': x,
 			'vt': vt,
+			'tmin' : np.array(t0_ranges[0]),
+			'tmax' : np.array(t0_ranges[1]),
 		}
 
 		for key in COLOR_FILTERS.keys():
