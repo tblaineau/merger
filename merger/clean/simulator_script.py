@@ -89,7 +89,8 @@ class RealisticGenerator:
 			self.blends = []
 			self.weights = []
 			self.fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_57.csv")), pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
-			density1_catalogues = [self.fracs_catalogues[0].groupby("index_eros").blue_E.agg([max, "size"]),self.fracs_catalogues[1].groupby("index_eros").blue_E.agg([max, "size"])]
+			self.fracs_catalogues = [fcat[fcat.frac_red_E.values>self.max_blend].reset_index(drop=True) for fcat in self.fracs_catalogues]
+			density1_catalogues = [fcat.groupby("index_eros").blue_E.agg([max, "size"]) for fcat in self.fracs_catalogues]
 			index_eross = [fcat.drop_duplicates("index_eros").index_eros for fcat in self.fracs_catalogues]
 
 			for i in range(id_E_list.size):
