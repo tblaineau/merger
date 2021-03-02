@@ -183,12 +183,39 @@ class RealisticGenerator:
 		ccds = id_E_list.str[5].astype(int).values
 		self.densities = self.densities.set_index(["field", "ccd"]).loc[list(zip(fields, ccds))].values
 
-		if not os.path.exists(blend_directory):
+		if not self.blending or not os.path.exists(blend_directory):
 			logging.error("Invalid blend factors directory")
 		else:
 			#HARDCODED for now
+			self.w  =[]
+			self.blends = []
+			self.weights = []
 			self.fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_57.csv")), pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
+			density1_catalogues = [self.fracs_catalogues[0].groupby("index_eros").blue_E.agg([max, "size"]),self.fracs_catalogues[1].groupby("index_eros").blue_E.agg([max, "size"])]
+			index_eross = [fcat.drop_duplicates("index_eros").index_eros for fcat in self.fracs_catalogues]
 
+			for i in range(id_E_list.size):
+				if self.densities[i]>67:
+					fcat = self.fracs_catalogues[1]
+					density1_catalogue = density1_catalogues[1]
+					index_eros = index_eross[1]
+				else:
+					fcat = self.fracs_catalogues[0]
+					density1_catalogue = density1_catalogues[0]
+					index_eros = index_eross[0]
+
+				idx = find_nearest(density1_catalogue["max"].values, [blue_E_list[i]])
+				eidx = density1_catalogue.index[idx].values
+				iero_to_loc = {v: k for k, v in dict(index_eros).items()}
+				eloc = np.array([iero_to_loc[i] for i in eidx])
+				w = density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values[0]
+				for j in range(w):
+					self.blends.append(fcat.iloc[eloc + j][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]])
+					self.weights.append(1/w)
+				self.w.append(w)
+			self.blends = pd.concat(self.blends)
+
+			"""			
 			self.blends = []
 			self.weights = []
 			for fcat in self.fracs_catalogues:
@@ -205,7 +232,7 @@ class RealisticGenerator:
 			index_densities = (self.densities>67).astype(int)
 			self.blends = np.choose(index_densities, self.blends)
 			self.weights = np.choose(index_densities.flatten(), self.weights)
-			self.blends = pd.DataFrame(self.blends, columns=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"])
+			self.blends = pd.DataFrame(self.blends, columns=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"])"""
 
 		if self.xvt_file:
 			if isinstance(self.xvt_file, str):
@@ -247,16 +274,16 @@ class RealisticGenerator:
 		else:
 			t0 = self.rdm.uniform(self.tmin-2*abs(tE), self.tmax+2*abs(tE), size=nb_parameters)
 		params = {
-			'u0': u0,
-			't0': t0,
-			'tE': tE,
-			'delta_u': delta_u,
-			'theta': theta,
-			'mass': mass,
-			'x': x,
-			'vt': vt,
-			'tmin' : np.array(t0_ranges[0]),
-			'tmax' : np.array(t0_ranges[1]),
+			'u0': np.repeat(u0, self.w),
+			't0': np.repeat(t0, self.w),
+			'tE': np.repeat(tE, self.w),
+			'delta_u': np.repeat(delta_u, self.w),
+			'theta': np.repeat(theta, self.w),
+			'mass': np.repeat(mass, self.w),
+			'x': np.repeat(x, self.w),
+			'vt': np.repeat(vt, self.w),
+			'tmin' : np.repeat(np.array(t0_ranges[0]), self.w),
+			'tmax' : np.repeat(np.array(t0_ranges[1]), self.w),
 		}
 
 		for key in COLOR_FILTERS.keys():
@@ -264,6 +291,6 @@ class RealisticGenerator:
 				params['blend_'+key] = self.blends["frac_"+key].values
 				params['weight'] = self.weights
 			else:
-				params['blend_'+key] = [0] * nb_parameters
-				params["weight"] = [0] * nb_parameters
+				params['blend_'+key] = [1] * nb_parameters
+				params["weight"] = [1] * nb_parameters
 		return params

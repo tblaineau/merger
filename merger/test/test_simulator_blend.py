@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 df = pd.read_pickle("42_1.bz2", compression='bz2')
-fraction=0.5
+fraction=0.05
 df = df.groupby(["id_E", "id_M"]).filter(lambda x: np.random.random()<fraction)
 
 print("error-magnitude")
@@ -20,6 +20,7 @@ rg = sbw.RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E
 
 pms = rg.generate_parameters(nb_parameters=len(infos), t0_ranges=t0_ranges)
 print(pms)
+print(np.sum(pms["weight"]))
 
 plt.hist(t0_ranges.flatten(), bins=100)
 plt.hist(pms["t0"], bins=100)
