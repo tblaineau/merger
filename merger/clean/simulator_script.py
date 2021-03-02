@@ -349,8 +349,9 @@ if __name__ == '__main__':
 							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files/densities.txt"
 							)
 
-	params = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=t0_ranges.shape[1], mass=100)
+	params, w = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=t0_ranges.shape[1], mass=100)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
+	merged = merged.iloc[np.concatenate(np.repeat([np.arange(i) for i in cnt], self.w))]
 
 	#Save true_parameters
 	true_parameters = pd.concat([pd.DataFrame(params), merged[["id_E", "id_M"]].drop_duplicates(ignore_index=True)], axis=1)
