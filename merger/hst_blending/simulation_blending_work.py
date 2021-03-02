@@ -205,7 +205,7 @@ class RealisticGenerator:
 			index_densities = (self.densities>67).astype(int)
 			print(index_densities.sum())
 			self.blends = np.choose(index_densities, self.blends)
-			self.weights = np.choose(index_densities, self.weigths)
+			self.weights = np.choose(index_densities, self.weights)
 			self.blends = pd.DataFrame(self.blends, columns=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"])
 
 
