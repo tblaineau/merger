@@ -205,7 +205,7 @@ def merger_eros_first(output_dir_path, start, end,
 	# save merged dataframe
 	if save:
 		logging.info("Saving")
-		merged.to_pickle(os.path.join(output_dir_path, str(start)+"_"+str(end)+".pkl"), compression='bz2')
+		merged.to_parquet(os.path.join(output_dir_path, str(start)+"_"+str(end)+".parquet"), index=False)
 
 	logging.info("Total merging time : ", str(time.time()-st1))
 	return merged
