@@ -51,7 +51,8 @@ def merger_eros_first(output_dir_path, start, end,
 					  eros_files_path = "/sps/eros/users/blaineau/eros_fast_read/",
 					  eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning",
 					  macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho",
-					  save=True):
+					  save=True,
+					  verbose=False):
 	"""
 	Merge EROS and MACHO lightcurves, using EROS as starter
 
@@ -75,6 +76,8 @@ def merger_eros_first(output_dir_path, start, end,
 		Path to MACHO ratios files
 	save : bool
 		Either to save or not the resulting merged file (saved in outputdir path)
+	verbose : bool
+		logging level info
 
 	Raises
 	------
@@ -85,6 +88,9 @@ def merger_eros_first(output_dir_path, start, end,
 	-------
 	pd.DataFrame
 	"""
+
+	if verbose:
+		logging.basicConfig(level=logging.INFO)
 
 	st1 = time.time()
 	# Load combined ids
