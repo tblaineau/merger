@@ -153,7 +153,7 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 
 	# Cleaning MACHO lcs.
 	max_macho_fraction=0.05
-	logging.info("Cleaing MACHO light curves")
+	logging.info("Cleaning MACHO light curves")
 	macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
 	fields = keep_M.id_M.str.split(":")[0].unique()
 	for field in fields:
