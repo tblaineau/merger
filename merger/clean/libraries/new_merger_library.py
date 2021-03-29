@@ -94,6 +94,7 @@ def merger_eros_first(output_dir_path, start, end,
 
 	st1 = time.time()
 	# Load combined ids
+	logging.info("Reading correspondace file.")
 	ids = pd.read_parquet(correspondance_file_path, columns=["id_M", "id_E"]).iloc[start:end]
 	id_Es = ids.id_E
 
@@ -175,7 +176,7 @@ def merger_eros_first(output_dir_path, start, end,
 	# Cleaning MACHO lcs.
 	max_macho_fraction=0.05
 	logging.info("Cleaning MACHO light curves")
-	fields = keep_M.id_M.str.split(":")[0].unique()
+	fields = keep_M.id_M.str.split(":").str[0].unique()
 	for field in fields:
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field)+"_blue_M_ratios.npy")),
 								  columns=["red_amp", "time", "ratio"])
