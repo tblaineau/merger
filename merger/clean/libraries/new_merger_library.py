@@ -1,4 +1,3 @@
-import time
 import pandas as pd
 import numpy as np
 import os, ssl, logging, glob
@@ -6,6 +5,8 @@ from irods.session import iRODSSession
 from irods.exception import CollectionDoesNotExist, DataObjectDoesNotExist
 import tarfile
 from io import StringIO
+import time
+
 
 def load_irods_eros_lightcurves(irods_filepath="", idE_list=[]):
 	#irods_filepath = '/eros/data/eros2/lightcurves/lm/lm041/lm0412/lm0412k-lc.tar.gz'
@@ -44,7 +45,13 @@ def load_irods_eros_lightcurves(irods_filepath="", idE_list=[]):
 
 
 
-def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MACHO_files_path, save=True):
+def merger_eros_first(output_dir_path, start, end,
+					  correspondance_file_path = "/pbs/home/b/blaineau/work/notebooks/combined.parquet",
+					  macho_files_path="/sps/eros/data/macho/lightcurves/F_",
+					  eros_files_path = "/sps/eros/users/blaineau/eros_fast_read/",
+					  eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning",
+					  macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho",
+					  save=True):
 	"""
 	Merge EROS and MACHO lightcurves, using EROS as starter
 
@@ -56,10 +63,18 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 		Start line in association file
 	end : int
 		End line in association line
-	correspondance_files_path : str
+	correspondance_file_path : str
 		Path to association files
-	MACHO_files_path : str
+	eros_files_path : str
+		Path to EROS parquet files
+	macho_files_path : str
 		Path to MACHO files
+	eros_ratio_path : str
+		Path to EROS ratios files
+	macho_ratio_path : str
+		Path to MACHO ratios files
+	save : bool
+		Either to save or not the resulting merged file (saved in outputdir path)
 
 	Raises
 	------
@@ -70,9 +85,10 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 	-------
 	pd.DataFrame
 	"""
+
 	st1 = time.time()
 	# Load combined ids
-	ids = pd.read_parquet(correspondance_files_path, columns=["id_M", "id_E"]).iloc[start:end]
+	ids = pd.read_parquet(correspondance_file_path, columns=["id_M", "id_E"]).iloc[start:end]
 	id_Es = ids.id_E
 
 	# l o a d   E R O S
@@ -82,7 +98,7 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 	for quart in quarts:
 		logging.info(quart)
 		try:
-			path = os.path.join("/sps/eros/users/blaineau/eros_fast_read/", quart[:5], quart + ".parquet")
+			path = os.path.join(eros_files_path, quart[:5], quart + ".parquet")
 		except TypeError:
 			continue
 		d = pd.read_parquet(path)
@@ -93,7 +109,6 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 
 	#Clean EROS
 	logging.info("Cleaning EROS light curves")
-	eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning"
 	ccds = keep_E.id_E.str[:6]
 	for ccd in ccds.unique():
 		if ccd is None:
@@ -135,7 +150,7 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 			# path = os.path.join("/sps/eros/users/blaineau/macho_fast_read/",
 			#                    "F_"+tile.split("_")[0], "F_"+tile+".parquet",
 			#                   )
-			path = os.path.join("/sps/eros/data/macho/lightcurves/F_" + tile.split("_")[0],
+			path = os.path.join(macho_files_path + tile.split("_")[0],
 								"F_" + tile.replace("_", ".") + ".gz")
 		except TypeError:
 			continue
@@ -147,14 +162,13 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 		d.loc[:, "id_M"] = d.field.astype(str).str.cat([d.tile.astype(str), d.starid.astype(str)], sep=":")
 		d = d.drop(["field", "tile", "starid"], axis=1)
 		# d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
-		keep_M.append(d[d.id_M.isin(cb.id_M)])
+		keep_M.append(d[d.id_M.isin(ids.id_M)])
 	del d
 	keep_M = pd.concat(keep_M)
 
 	# Cleaning MACHO lcs.
 	max_macho_fraction=0.05
 	logging.info("Cleaning MACHO light curves")
-	macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
 	fields = keep_M.id_M.str.split(":")[0].unique()
 	for field in fields:
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field)+"_blue_M_ratios.npy")),
@@ -186,6 +200,7 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 	# save merged dataframe
 	if save:
 		logging.info("Saving")
-		merged.to_pickle(os.path.join(output_dir_path, str(MACHO_field)+"_"+str(eros_ccd)+quart+".pkl"), compression='bz2')
+		merged.to_pickle(os.path.join(output_dir_path, str(start)+"_"+str(end)+".pkl"), compression='bz2')
 
+	logging.info("Total merging time : ", str(time.time()-st1))
 	return merged
