@@ -42,9 +42,9 @@ def load_irods_eros_lightcurves(irods_filepath="", idE_list=[]):
 			pds = pd.concat(pds)
 	return pds
 
+from memory_profiler import profile
 
-
-
+@profile
 def merger_eros_first(output_dir_path, start, end,
 					  correspondance_file_path = "/pbs/home/b/blaineau/work/notebooks/combined.parquet",
 					  macho_files_path="/sps/eros/data/macho/lightcurves/F_",
