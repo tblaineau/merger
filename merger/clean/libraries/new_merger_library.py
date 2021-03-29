@@ -183,16 +183,16 @@ def merger_eros_first(output_dir_path, start, end,
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
 		pdf = list(zip(dfb[dfb.ratio > 0.05]["time"].values, dfb[dfb.ratio > 0.05]["blue_amp"].values))
 		result = pd.Series(pms).isin(pdf)
-		keep_M[result].red_M = np.nan
-		keep_M[result].rederr_M = np.nan
+		keep_M.loc[result].red_M = np.nan
+		keep_M.loc[result].rederr_M = np.nan
 
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")),
 						   columns=["red_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
 		pdf = list(zip(dfr[dfr.ratio > 0.05]["time"].values, dfr[dfr.ratio > 0.05]["red_amp"].values))
 		result = pd.Series(pms).isin(pdf)
-		keep_M[result].red_M = np.nan
-		keep_M[result].rederr_M = np.nan
+		keep_M.loc[result].red_M = np.nan
+		keep_M.loc[result].rederr_M = np.nan
 
 	keep_M = pd.merge(keep_M, ids, on="id_M", how="left", validate="m:1")
 
@@ -207,5 +207,5 @@ def merger_eros_first(output_dir_path, start, end,
 		logging.info("Saving")
 		merged.to_parquet(os.path.join(output_dir_path, str(start)+"_"+str(end)+".parquet"), index=False)
 
-	logging.info("Total merging time : ", str(time.time()-st1))
+	logging.info("Total merging time : "+str(time.time()-st1))
 	return merged
