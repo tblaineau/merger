@@ -157,15 +157,23 @@ def merger_eros_first(output_dir_path, start, end, correspondance_files_path, MA
 	macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho"
 	fields = keep_M.id_M.str.split(":")[0].unique()
 	for field in fields:
-		ratio_blue = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field)+"_blue_M_ratios.npy")),
+		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field)+"_blue_M_ratios.npy")),
 								  columns=["red_amp", "time", "ratio"])
-		bad_times = ratio_blue.groupby("red_M").agg(lambda x: (x>max_macho_fraction).sum()/len(x))
-		pd.DataFrame()
+		dfb = dfb.groupby("red_M").agg(lambda x: (x>max_macho_fraction).sum()/len(x))
+		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
+		pdf = list(zip(dfb[dfb.ratio > 0.05]["time"].values, dfb[dfb.ratio > 0.05]["red_amp"].values))
+		result = pd.Series(pms).isin(pdf)
+		keep_M[result].red_M = np.nan
+		keep_M[result].rederr_M = np.nan
 
-	for ratio_file in glob.glob(os.path.join(macho_ratio_path, "*_blue_M_ratios.npy")):
-		ratio.append(pd.DataFrame(np.load(os.path.join(macho_ratio_path, ratio_file)),
-								  columns=["red_amp", "time", "ratio"]))
-		ratio = pd.concat(ratio)
+		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")),
+						   columns=["red_amp", "time", "ratio"])
+		dfr = dfr.groupby("red_M").agg(lambda x: (x > max_macho_fraction).sum() / len(x))
+		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
+		pdf = list(zip(dfr[dfr.ratio > 0.05]["time"].values, dfr[dfr.ratio > 0.05]["red_amp"].values))
+		result = pd.Series(pms).isin(pdf)
+		keep_M[result].red_M = np.nan
+		keep_M[result].rederr_M = np.nan
 
 	keep_M = pd.merge(keep_M, ids, on="id_M", how="left", validate="m:1")
 
