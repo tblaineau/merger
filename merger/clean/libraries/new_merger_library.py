@@ -180,7 +180,6 @@ def merger_eros_first(output_dir_path, start, end,
 	for field in fields:
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field)+"_blue_M_ratios.npy")),
 								  columns=["blue_amp", "time", "ratio"])
-		dfb = dfb.groupby("blue_amp").agg(lambda x: (x>max_macho_fraction).sum()/len(x))
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
 		pdf = list(zip(dfb[dfb.ratio > 0.05]["time"].values, dfb[dfb.ratio > 0.05]["blue_amp"].values))
 		result = pd.Series(pms).isin(pdf)
@@ -189,7 +188,6 @@ def merger_eros_first(output_dir_path, start, end,
 
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")),
 						   columns=["red_amp", "time", "ratio"])
-		dfr = dfr.groupby("red_amp").agg(lambda x: (x > max_macho_fraction).sum() / len(x))
 		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
 		pdf = list(zip(dfr[dfr.ratio > 0.05]["time"].values, dfr[dfr.ratio > 0.05]["red_amp"].values))
 		result = pd.Series(pms).isin(pdf)
