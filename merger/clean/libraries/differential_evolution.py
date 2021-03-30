@@ -44,6 +44,13 @@ def microlens_simple(t, mag, blend, u0, t0, tE, delta_u=0, theta=0):
 
 
 @nb.njit(fastmath=fastmath)
+def microlens_simple_flux(t, flux, blend, u0, t0, tE, delta_u=0, theta=0):
+	u = np.sqrt(u0*u0 + ((t-t0)**2)/tE/tE)
+	amp = (u**2+2)/(u*np.sqrt(u**2+4))
+	return flux * ((1 - blend) * amp + blend)
+
+
+@nb.njit(fastmath=fastmath)
 def inner_loop(x, a, b, c, dim, recombination, bounds):
 	y = []
 	for i in range(dim):
@@ -245,6 +252,20 @@ def to_minimize_simple_nd(params, t, tx, errx):
 
 
 @nb.njit
+def to_minimize_simple_flux(params, t, tx, errx):
+	"params : mags_1...mags_n, u0, t0, tE"
+	u0 = params[-3]
+	t0 = params[-2]
+	tE = np.power(10, params[-1])
+	s=0
+	for j in range(len(params)-3):
+		flux = params[j]
+		#s+=loop4d_simple(mag, u0, t0, tE, t[j], tx[j], errx[j])
+		for i in range(len(t[j])):
+			s += (tx[j][i] - microlens_simple_flux(t[j][i], flux, 0, u0, t0, tE))**2 / errx[j][i]**2
+	return s
+
+@nb.njit
 def to_minimize_blended_nd(params, t, tx, errx):
 	"params : mags_1...mags_n, u0, t0, tE"
 	u0 = params[-3]
@@ -303,6 +324,265 @@ def latin_hypercube_sampling(bounds, pop):
 
 
 GLOBAL_COUNTER = 0
+
+def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
+	"""Fit on one star
+
+	Color filter names must be stocked in a COLOR_FILTERS dictionnary
+	for example : COLOR_FILTERS = {"r":{"mag":"mag_r", "err":"magerr_r"},
+								   "g":{"mag":"mag_g", "err":"magerr_g"}}
+
+	Parameters
+	----------
+	subdf : pd.DataFrame
+		Lightcurve data. Should have magnitudes stocked in "mag_*color*"  columns, magnitude errors in "magerr_*color*",
+		for each *color* name and timestamps in "time" column
+
+	do_cut5 : bool
+		If True, clean aberrant points using distance from median of 5 points (default: {False})
+
+	hesse : bool
+		Use HESSE to compute paraoblic errors (not really valid as the chi2 profile is not parabolic, for tE)
+
+	minos : bool
+		Use MINOS to compute asymetric errors (slow the function, ~x1.5)
+
+	Returns
+	-------
+	pd.Series
+		Contains parameters for the microlensing and flat curve fits, their chi2, informations on the fitter (fmin) and dof :
+
+		mulens Fit results parameters : mag_1, ... mag_n, u0, t0, tE
+		mulens Minuit fit output informations
+		mulens Fit final Chi^2
+		flat Fit results parameters : mag_1, ... mag_n
+		flat Minuit fit output informations
+		flat Fit final Chi^2
+		Number of points used in each color filter
+		Individual final mulens fit chi^2 value for each filter
+		Individual final flat fit chi^2 value for each filter
+		Intrinsic dispersion for each color filter
+	"""
+
+	# print(subdf.name)
+
+	mask = dict()
+	errs = dict()
+	flux = dict()
+	cut5 = dict()
+	time = dict()
+
+	min_err = 0.0
+	remove_extremities = True
+	tolerance_ratio = 0.9
+	p = True
+	ufilters = []
+
+	for key in COLOR_FILTERS.keys():
+		mask[key] = (subdf[COLOR_FILTERS[key]["flux"]].notnull() &
+					 subdf[COLOR_FILTERS[key]["fluxerr"]].notnull() &
+					 subdf[COLOR_FILTERS[key]["err"]].between(min_err, 9.999, inclusive=False))  # No nan and limits on errors
+
+		if mask[key].sum()>2:		#Check if there are more than 3 valid points in the current color
+			ufilters.append(key)
+			flux[key] = subdf[mask[key]][COLOR_FILTERS[key]["flux"]]  # mags
+			errs[key] = subdf[mask[key]][COLOR_FILTERS[key]["fluxerr"]]  # errs
+			cut5[key] = np.abs((flux[key].rolling(5, center=True).median() - flux[key][2:-2])) / errs[key][2:-2] < 5
+
+			if not remove_extremities:
+				cut5[key][:2] = True
+				cut5[key][-2:] = True
+
+			p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
+
+	if do_cut5 and not p:
+		for key in ufilters:
+			time[key] = subdf[mask[key]][cut5[key]].time.values
+			errs[key] = errs[key][cut5[key]].values
+			flux[key] = flux[key][cut5[key]].values
+	else:
+		for key in ufilters:
+			time[key] = subdf[mask[key]].time.values
+			errs[key] = errs[key].values
+			flux[key] = flux[key].values
+
+	# Normalize errors
+	intrinsic_dispersion = dict()
+	median_errors = dict()
+	scount = dict()
+	for key in COLOR_FILTERS.keys():
+		intrinsic_dispersion[key] = np.nan
+		median_errors[key] = np.nan
+		scount[key] = 0
+	for key in ufilters:
+		median_errors[key] = np.median(errs[key])
+		if len(flux[key]) <= 3:
+			intrinsic_dispersion[key] = 1.
+		else:
+			tmsk = errs[key]<0.6
+			scount[key] = tmsk.sum()
+			try :
+				intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], flux[key][tmsk], errs[key][tmsk], fraction=0.01)
+			except ZeroDivisionError:
+				print("invalid intr_dispersion")
+			if intrinsic_dispersion[key] > 0:
+				errs[key] = errs[key] * intrinsic_dispersion[key]
+			else:
+				print(f"null intrinsic dispersion for {subdf.name}")
+
+	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
+	# 	return pd.Series(None)
+
+	# flat fit
+	def least_squares_flat(x):
+		s = 0
+		for idx, key in enumerate(ufilters):
+			s += np.sum(((flux[key] - x[idx]) / errs[key]) ** 2)
+		return s
+
+	start = [np.median(flux[key]) for key in ufilters]
+	error = [1. for _ in ufilters]
+	name = ["f_fluxStar_" + key for key in ufilters]
+	m_flat = Minuit.from_array_func(least_squares_flat,
+									start=start,
+									error=error,
+									name=name,
+									errordef=1,
+									print_level=0)
+	m_flat.migrad()
+	global GLOBAL_COUNTER
+	GLOBAL_COUNTER += 1
+	# print(str(GLOBAL_COUNTER) + " : " + subdf.name)
+	flat_params = m_flat.values
+
+	# init for output
+	flat_keys = ["f_fluxStar_" + key for key in COLOR_FILTERS.keys()]
+	flat_values = []
+	for key in COLOR_FILTERS.keys():
+		if key in ufilters:
+			flat_values.append(m_flat.values["f_fluxStar_" + key])
+		else:
+			flat_values.append(np.nan)
+	flat_fmin = m_flat.get_fmin()
+	flat_fval = m_flat.fval
+
+	alltimes = np.concatenate(list(time.values()))
+	tmin = alltimes.min()
+	tmax = alltimes.min()
+	bounds_simple = np.array([[0, np.max(flux[key])] for key in ufilters] + [[0, 3], [tmin-600, tmax+600], [0, 3.7]])
+	try:
+		fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_flux, list(time.values()), list(flux.values()),
+									 list(errs.values()), bounds=bounds_simple, pop=70, recombination=0.3)
+	except ZeroDivisionError:
+		logging.error("Divison by zero in diffev. Current star: "+str(subdf.name))
+
+	names = ["u0", "t0", "tE"] + ["fluxStar_" + key for key in COLOR_FILTERS.keys()]
+	micro_keys = names
+
+	pms = list(pms)
+
+	def least_squares_microlens(x):
+		lsq = 0
+		for idx, key in enumerate(ufilters):
+			lsq += np.sum(((flux[key] - microlens_simple_flux(time[key], x[idx + 3], 0., x[0], x[1], x[2])) / errs[key]) ** 2)
+		return lsq
+
+	start = pms[-3:-1] + [np.power(10, pms[-1])] + pms[:-3]
+	names = ["u0", "t0", "tE"] + ["fluxStar_" + key for key in ufilters]
+	errors = [0.1, 100, 10] + [0.1*pms[i] for i in range(len(ufilters))]
+	limits = [(0, 3), (tmin - 1000, tmax + 1000), (1, 5000)] + [(None, None) for _ in ufilters]
+	m_micro = Minuit.from_array_func(least_squares_microlens,
+									 start=start,
+									 error=errors,
+									 limit=limits,
+									 name=names,
+									 errordef=1,
+									 print_level=0)
+
+	m_micro.migrad()
+	micro_params = m_micro.values
+
+	micro_errors = []
+	micro_error_labels = []
+
+	if hesse:
+		micro_error_labels = ["error_" + name for name in micro_keys]
+		micro_errors = [np.nan]*len(micro_keys)
+		m_micro.hesse()
+		micro_errors = [m_micro.errors["u0"], m_micro.errors["t0"], m_micro.errors["tE"]]
+		for key in COLOR_FILTERS.keys():
+			if key in ufilters:
+				micro_errors.append(m_micro.errors["fluxStar_" + key])
+			else:
+				micro_errors.append(np.nan)
+	elif minos:
+		for name in micro_keys:
+			micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
+		micro_errors = [np.nan]*(3+len(COLOR_FILTERS))*4
+		merrors=False
+		try:
+			merrors = m_micro.minos()
+		except RuntimeError:
+			print("Migrad did not converge properly on star " + str(subdf.name))
+		if merrors:
+			micro_errors = [merrors["u0"].lower, merrors["u0"].upper, merrors["u0"].lower_valid, merrors["u0"].upper_valid,
+							merrors["t0"].lower, merrors["t0"].upper, merrors["t0"].lower_valid,
+							merrors["t0"].upper_valid,
+							merrors["tE"].lower, merrors["tE"].upper, merrors["tE"].lower_valid,
+							merrors["tE"].upper_valid]
+			for key in COLOR_FILTERS.keys():
+				if key in ufilters:
+					micro_errors += [merrors["fluxStar_" + key].lower, merrors["fluxStar_" + key].upper,
+										 merrors["fluxStar_" + key].lower_valid, merrors["fluxStar_" + key].upper_valid]
+				else:
+					micro_errors+=[np.nan]*4
+
+	lsqs = []
+	micro_values = [micro_params['u0'], micro_params['t0'], micro_params['tE']]
+	for key in COLOR_FILTERS.keys():
+		if key in ufilters:
+			lsqs.append(np.sum(((flux[key] - microlens_simple_flux(time[key], micro_params["fluxStar_" + key], 0, micro_params['u0'], micro_params['t0'], micro_params['tE'])) / errs[key]) ** 2))
+			micro_values.append(m_micro.values["fluxStar_" + key])
+		else:
+			lsqs.append(np.nan)
+			micro_values.append(np.nan)
+	micro_fmin = m_micro.get_fmin()
+	micro_fval = m_micro.fval
+
+	counts = []
+	flat_chi2s = []
+	for key in COLOR_FILTERS.keys():
+		if key in ufilters:
+			counts.append((~np.isnan(flux[key])).sum())
+			flat_chi2s.append(np.sum(((flux[key] - m_flat.values["f_fluxStar_"+key]) / errs[key]) ** 2))
+		else:
+			counts.append(0)
+			flat_chi2s.append(np.nan)
+
+	return pd.Series(
+		micro_values + [micro_fmin, micro_fval] + micro_errors
+		+ flat_values + [flat_fmin, flat_fval]
+		+ counts
+		+ list(scount.values())
+		+ lsqs
+		+ flat_chi2s
+		+ list(median_errors.values())
+		+ list(intrinsic_dispersion.values())
+		+ [tmin, tmax]
+
+		,
+
+		index = micro_keys + ['micro_fmin', 'micro_fval'] + micro_error_labels
+			  + flat_keys + ['flat_fmin', 'flat_fval']
+			  + ["counts_" + key for key in COLOR_FILTERS.keys()]  # ["counts_RE", "counts_BE", "counts_RM", "counts_BM"]
+			  + ["scounts_"+key for key in COLOR_FILTERS.keys()]
+			  + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['micro_chi2_RE', 'micro_chi2_BE', 'micro_chi2_RM', 'micro_chi2_BM']
+			  + ["flat_chi2_" + key for key in COLOR_FILTERS.keys()]  # ['flat_chi2_RE', 'flat_chi2_RM', 'flat_chi2_BE', 'flat_chi2_BM']
+			  + ["magerr_" + key + "_median" for key, cf in COLOR_FILTERS.items()]  # ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
+			  + ["intr_disp_" + key for key in intrinsic_dispersion.keys()]
+			  + ["tmin", "tmax"]
+	)
+
 
 
 def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):

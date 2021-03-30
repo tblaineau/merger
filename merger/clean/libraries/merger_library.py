@@ -18,10 +18,10 @@ from dask.distributed import Client
 import pkg_resources
 
 COLOR_FILTERS = {
-	'red_E':{'mag':'red_E', 'err': 'rederr_E'},
-	'red_M':{'mag':'red_M', 'err': 'rederr_M'},
-	'blue_E':{'mag':'blue_E', 'err': 'blueerr_E'},
-	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M'}
+	'red_E':{'mag':'red_E', 'err': 'rederr_E', "flux":"flux_red_E", "fluxerr":"fluxerr_red_E"},
+	'red_M':{'mag':'red_M', 'err': 'rederr_M', "flux":"flux_blue_E", "fluxerr":"fluxerr_blue_E"},
+	'blue_E':{'mag':'blue_E', 'err': 'blueerr_E', "flux":"flux_red_M", "fluxerr":"fluxerr_red_M"},
+	'blue_M':{'mag':'blue_M', 'err': 'blueerr_M', "flux":"flux_blue_M", "fluxerr":"fluxerr_blue_M"}
 }
 
 STAR_COUNT_PATH = pkg_resources.resource_filename('merger', 'utils/MACHOstarcounts')
