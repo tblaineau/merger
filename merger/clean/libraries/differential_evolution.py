@@ -584,7 +584,6 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 	)
 
 
-
 def fit_ml_de_simple(subdf, do_cut5=False, hesse=False, minos=False):
 	"""Fit on one star
 
