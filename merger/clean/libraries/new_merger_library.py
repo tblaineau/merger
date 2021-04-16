@@ -42,6 +42,12 @@ def load_irods_eros_lightcurves(irods_filepath="", idE_list=[]):
 			pds = pd.concat(pds)
 	return pds
 
+def h(xi, xj, xm, p):
+	if xi==xj:
+		return np.sign(p-i-j-1)
+	else:
+		return ((xi - xm) - (xm - xj))/(xi - xj)
+
 from memory_profiler import profile
 
 @profile
@@ -117,30 +123,41 @@ def merger_eros_first(output_dir_path, start, end,
 	#Clean EROS
 	logging.info("Cleaning EROS light curves")
 	ccds = keep_E.id_E.str[:6]
+	#r=0, b=1
+	blue_eros_max_ratio = 0.015
+	red_eros_max_ratio = 0.017
 	for ccd in ccds.unique():
 		if ccd is None:
 			continue
 		ratios = pd.read_parquet(os.path.join(eros_ratio_path, "ratios_" + ccd + ".parquet"))
+		for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"], ["rederr_E", "blueerr_E"]):
+			g = ratios[color_ratio][ratios[color_ratio] > 0]
+			x = g.values
+			a, xm, b = np.quantile(x, q=[0.25, 0.5, 0.75])
+			p = len(x[x <= xm])
+			hs = []
+			for xj in x[x <= xm]:
+				for xi in x[x > xm]:
+					hs.append(h(xi, xj, xm, p))
+			mc = np.median(hs)
+			if mc < 0:
+				# mc=0
+				w3 = b + 1.5 * np.exp(4 * mc) * (b - a)
+			else:
+				w3 = b + 1.5 * np.exp(3 * mc) * (b - a)
 
-		# RED
-		g = ratios["high_distance_r10"][ratios["high_distance_r10"] > 0]
-		a, b = np.quantile(g, q=[0.25, 0.75])
-		r = g[g > b + 1.5 * (b - a)].sort_values(ascending=False)
-		one_percent = int(np.round(0.01 * len(g)))
-		if len(r) > one_percent:
-			logging.info("Too much images with bad points :", len(r), "/", one_percent)
-			r = r.iloc[:one_percent]
-		keep_E.loc[keep_E["time"].isin(r.index), ["red_E", "rederr_E"]] = np.nan
+			r = g[(g>w3) | (g>red_eros_max_ratio)].sort_values(ascending=False)
+			one_percent = int(np.round(0.01 * len(g)))
+			if len(r) > one_percent:
+				g = g.iloc[:one_percent]
+			keep_E.loc[keep_E["time"].isin(r.index), [color, color_err]] = np.nan
 
-		# BLUE
-		g = ratios["high_distance_b10"][ratios["high_distance_b10"] > 0]
-		a, b = np.quantile(g, q=[0.25, 0.75])
-		r = g[g > b + 1.5 * (b - a)].sort_values(ascending=False)
-		one_percent = int(np.round(0.01 * len(g)))
-		if len(r) > one_percent:
-			logging.info("Too much images with bad points : " + str(len(r)) + "/" + str(one_percent))
-			r = r.iloc[:one_percent]
-		keep_E.loc[keep_E["time"].isin(r.index), ["blue_E", "blueerr_E"]] = np.nan
+	# Load and remove JBM times
+	discard = pd.read_csv("discard.txt", sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
+	discard["n_time"] = discard["name"].str[10:-5]
+	times_translation = pd.read_csv("datesall/all.csv", usecols=[0, 1], names=["n_time", "hjd"])
+	discard = pd.merge(discard, times_translation, on="n_time")
+
 	#droping empty lines
 	keep_E.dropna(subset=["red_E", "blue_E"], how="all", inplace=True)
 	keep_E = pd.merge(keep_E, ids, on="id_E", how="left")
