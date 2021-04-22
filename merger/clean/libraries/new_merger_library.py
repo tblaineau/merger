@@ -55,7 +55,7 @@ def merger_eros_first(output_dir_path, start, end,
 					  correspondance_file_path = "/pbs/home/b/blaineau/work/notebooks/combined.parquet",
 					  macho_files_path="/sps/eros/data/macho/lightcurves/F_",
 					  eros_files_path = "/sps/eros/users/blaineau/eros_fast_read/",
-					  eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning",
+					  eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/ratios",
 					  macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho",
 					  save=True,
 					  verbose=False):
@@ -133,7 +133,7 @@ def merger_eros_first(output_dir_path, start, end,
 		for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"], ["rederr_E", "blueerr_E"]):
 			g = ratios[color_ratio][ratios[color_ratio] > 0]
 			x = g.values
-			a, xm, b = np.quantile(x, q=[0.25, 0.5, 0.75])
+			a, xm, b = np.nanquantile(x, q=[0.25, 0.5, 0.75])
 			p = len(x[x <= xm])
 			hs = []
 			for xj in x[x <= xm]:
@@ -153,10 +153,10 @@ def merger_eros_first(output_dir_path, start, end,
 			keep_E.loc[keep_E["time"].isin(r.index), [color, color_err]] = np.nan
 
 	# Load and remove JBM times
-	discard = pd.read_csv("discard.txt", sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
+	"""discard = pd.read_csv("/pbs/home/b/blaineau/work/notebooks/eros_cleaning/discard.txt", sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
 	discard["n_time"] = discard["name"].str[10:-5]
 	times_translation = pd.read_csv("datesall/all.csv", usecols=[0, 1], names=["n_time", "hjd"])
-	discard = pd.merge(discard, times_translation, on="n_time")
+	discard = pd.merge(discard, times_translation, on="n_time")"""
 
 	#droping empty lines
 	keep_E.dropna(subset=["red_E", "blue_E"], how="all", inplace=True)
@@ -200,10 +200,10 @@ def merger_eros_first(output_dir_path, start, end,
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
 		pdf = list(zip(dfb[dfb.ratio > 0.05]["time"].values, dfb[dfb.ratio > 0.05]["blue_amp"].values))
 		result = pd.Series(pms).isin(pdf)
-		keep_M.loc[result].red_M = np.nan
-		keep_M.loc[result].rederr_M = np.nan
+		keep_M.loc[result].blue_M = np.nan
+		keep_M.loc[result].blueerr_M = np.nan
 
-		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")),
+		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")),
 						   columns=["red_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
 		pdf = list(zip(dfr[dfr.ratio > 0.05]["time"].values, dfr[dfr.ratio > 0.05]["red_amp"].values))
