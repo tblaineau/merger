@@ -72,17 +72,7 @@ def merger_small_sample(output_dir_path, start, end,
 
 	logging.info("Loading EROS light curves")
 	quarts = id_Es.str[:7].unique()
-	keep_E = []
-	for quart in quarts:
-		logging.info(quart)
-		try:
-			path = os.path.join(eros_files_path, quart[:5], quart + ".parquet")
-		except TypeError:
-			continue
-		d = pd.read_parquet(path)
-		keep_E.append(d[d.id_E.isin(id_Es)])
-	del d
-	keep_E = pd.concat(keep_E)
+	keep_E = pd.read_parquet(eros_files_path)
 	keep_E.time += 49999.5
 
 	# Clean EROS
@@ -127,34 +117,11 @@ def merger_small_sample(output_dir_path, start, end,
 	# droping empty lines
 	keep_E.dropna(subset=["red_E", "blue_E"], how="all", inplace=True)
 	keep_E = pd.merge(keep_E, ids, on="id_E", how="left")
-
+	
+	
 	# LOADING MACHO
 	logging.info("Loading MACHO light curves.")
-	splitted = ids.id_M.str.split(":", expand=True)
-	tiles = splitted[0].str.cat(splitted[1], "_").unique()
-	del splitted
-	keep_M = []
-	for tile in tiles:
-		logging.info("   loading tile : " + str(tile))
-		try:
-			# path = os.path.join("/sps/eros/users/blaineau/macho_fast_read/",
-			#                    "F_"+tile.split("_")[0], "F_"+tile+".parquet",
-			#                   )
-			path = os.path.join(macho_files_path + tile.split("_")[0],
-								"F_" + tile.replace("_", ".") + ".gz")
-		except TypeError:
-			continue
-		d = pd.read_csv(path,
-						sep=";", usecols=[1, 2, 3, 4, 9, 10, 17, 24, 25, 32],
-						names=["field", "tile", "starid", "time", "red_M", "rederr_M", "red_amp", "blue_M", "blueerr_M",
-							   "blue_amp"]
-						)
-		d.loc[:, "id_M"] = d.field.astype(str).str.cat([d.tile.astype(str), d.starid.astype(str)], sep=":")
-		d = d.drop(["field", "tile", "starid"], axis=1)
-		# d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
-		keep_M.append(d[d.id_M.isin(ids.id_M)])
-	del d
-	keep_M = pd.concat(keep_M)
+	keep_M = pd.read_parquet(macho_files_path).reset_index(drop=True)
 
 	# Cleaning MACHO lcs.
 	max_macho_fraction = 0.05
@@ -166,18 +133,18 @@ def merger_small_sample(output_dir_path, start, end,
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
 		pdf = list(zip(dfb[dfb.ratio > 0.05]["time"].values, dfb[dfb.ratio > 0.05]["blue_amp"].values))
 		result = pd.Series(pms).isin(pdf)
-		keep_M.loc[result].blue_M = np.nan
-		keep_M.loc[result].blueerr_M = np.nan
+		keep_M.loc[result, "blue_M"] = np.nan
+		keep_M.loc[result, "blueerr_M"] = np.nan
 
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")),
 						   columns=["red_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
 		pdf = list(zip(dfr[dfr.ratio > 0.05]["time"].values, dfr[dfr.ratio > 0.05]["red_amp"].values))
 		result = pd.Series(pms).isin(pdf)
-		keep_M.loc[result].red_M = np.nan
-		keep_M.loc[result].rederr_M = np.nan
+		keep_M.loc[result, "red_M"] = np.nan
+		keep_M.loc[result, "rederr_M"] = np.nan
 
-	keep_M = pd.merge(keep_M, ids, on="id_M", how="left", validate="m:1")
+	keep_M = pd.merge(keep_M, ids, on="id_M", how="left")
 
 	# MERGING LIGHT CURVES
 	logging.info("Merging light curves...")
@@ -343,16 +310,35 @@ def merger_eros_first(output_dir_path, start, end,
 	for field in fields:
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field)+"_blue_M_ratios.npy")),
 								  columns=["blue_amp", "time", "ratio"])
+		dfb.loc[:, "cut"] = dfb.ratio>0.05
+		counts = dfb.groupby(["blue_amp"])["cut"].agg(["sum", "size"])
+		counts.loc[:, "percent"] = (np.ceil(0.03*counts["size"])).astype(int)
+		index_keep = []
+		for j in counts.iterrows():
+			index_keep += [True]*j[1]["percent"]+[False]*(j[1]["size"]-j[1]["percent"])
+		dfb = dfb.sort_values(["blue_amp", "ratio"], ascending=[True, False]).reset_index(drop=True)
+		dfb.loc[:, "percent"] = index_keep
+		mask = dfb[dfb["percent"] & dfb["cut"]]
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
-		pdf = list(zip(dfb[dfb.ratio > 0.05]["time"].values, dfb[dfb.ratio > 0.05]["blue_amp"].values))
+		pdf = list(zip(dfb[mask]["time"].values, dfb[mask]["blue_amp"].values))
 		result = pd.Series(pms).isin(pdf)
 		keep_M.loc[result].blue_M = np.nan
 		keep_M.loc[result].blueerr_M = np.nan
-
+		del dfb
+	
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")),
 						   columns=["red_amp", "time", "ratio"])
+		dfr.loc[:, "cut"] = dfr.ratio>0.05
+		counts = dfr.groupby(["red_amp"])["cut"].agg(["sum", "size"])
+		counts.loc[:, "percent"] = (np.ceil(0.03*counts["size"])).astype(int)
+		index_keep = []
+		for j in counts.iterrows():
+			index_keep += [True]*j[1]["percent"]+[False]*(j[1]["size"]-j[1]["percent"])
+		dfr = dfr.sort_values(["red_amp", "ratio"], ascending=[True, False]).reset_index(drop=True)
+		dfr.loc[:, "percent"] = index_keep
+		mask = dfr[dfr["percent"] & dfr["cut"]]
 		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
-		pdf = list(zip(dfr[dfr.ratio > 0.05]["time"].values, dfr[dfr.ratio > 0.05]["red_amp"].values))
+		pdf = list(zip(dfr[mask]["time"].values, dfr[mask]["red_amp"].values))
 		result = pd.Series(pms).isin(pdf)
 		keep_M.loc[result].red_M = np.nan
 		keep_M.loc[result].rederr_M = np.nan
