@@ -85,8 +85,7 @@ def merger_small_sample(output_dir_path, start, end,
 		if ccd is None:
 			continue
 		ratios = pd.read_parquet(os.path.join(eros_ratio_path, "ratios_" + ccd + ".parquet"))
-		for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"],
-												 ["rederr_E", "blueerr_E"]):
+		for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"], ["rederr_E", "blueerr_E"]):
 			g = ratios[color_ratio][ratios[color_ratio] > 0]
 			x = g.values
 			a, xm, b = np.nanquantile(x, q=[0.25, 0.5, 0.75])
@@ -142,14 +141,14 @@ def merger_small_sample(output_dir_path, start, end,
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
 		pdf = list(zip(dfb[dfb.ratio > max_macho_fraction]["time"].values, dfb[dfb.ratio > max_macho_fraction]["blue_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields==field)
+		result = pd.Series(pms).isin(pdf) & (fields == field)
 		keep_M.loc[result, "blue_M"] = np.nan
 		keep_M.loc[result, "blueerr_M"] = np.nan
 
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
 		pdf = list(zip(dfr[dfr.ratio > max_macho_fraction]["time"].values, dfr[dfr.ratio > max_macho_fraction]["red_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields==field)
+		result = pd.Series(pms).isin(pdf) & (fields == field)
 		keep_M.loc[result, "red_M"] = np.nan
 		keep_M.loc[result, "rederr_M"] = np.nan
 
@@ -175,13 +174,15 @@ from memory_profiler import profile
 
 @profile
 def merger_eros_first(output_dir_path, start, end,
-					  correspondance_file_path = "/pbs/home/b/blaineau/work/notebooks/combined.parquet",
-					  macho_files_path="/sps/eros/data/macho/lightcurves/F_",
-					  eros_files_path = "/sps/eros/users/blaineau/eros_fast_read/",
-					  eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/ratios",
-					  macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho",
-					  save=True,
-					  verbose=False):
+						correspondance_file_path = "/pbs/home/b/blaineau/work/notebooks/combined.parquet",
+						macho_files_path="/sps/eros/data/macho/lightcurves/F_",
+						eros_files_path = "/sps/eros/users/blaineau/eros_fast_read/",
+						eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/ratios",
+						macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho",
+						jbm_discard_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/discard.txt",
+						jbm_date_conversion = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/datesall/all.csv",
+						save=True,
+						verbose=False):
 	"""
 	Merge EROS and MACHO lightcurves, using EROS as starter
 
@@ -246,7 +247,7 @@ def merger_eros_first(output_dir_path, start, end,
 	#Clean EROS
 	logging.info("Cleaning EROS light curves")
 	ccds = keep_E.id_E.str[:6]
-	#r=0, b=1
+	# r=0, b=1
 	blue_eros_max_ratio = 0.015
 	red_eros_max_ratio = 0.017
 	for ccd in ccds.unique():
@@ -269,21 +270,28 @@ def merger_eros_first(output_dir_path, start, end,
 			else:
 				w3 = b + 1.5 * np.exp(3 * mc) * (b - a)
 
-			r = g[(g>w3) | (g>red_eros_max_ratio)].sort_values(ascending=False)
+			r = g[(g > w3)].sort_values(ascending=False)
 			one_percent = int(np.round(0.01 * len(g)))
 			if len(r) > one_percent:
-				g = g.iloc[:one_percent]
-			keep_E.loc[keep_E["time"].isin(r.index) & (ccds==ccd), [color, color_err]] = np.nan
+				r = r.iloc[:one_percent]
+			keep_E.loc[keep_E["time"].isin(r.index) & (ccds == ccd), [color, color_err]] = np.nan
 	
 	# Load and remove JBM times
 	logging.info("Removing JBM times")
-	discard = pd.read_csv("/pbs/home/b/blaineau/work/notebooks/eros_cleaning/discard.txt", sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
+	discard = pd.read_csv(jbm_discard_path, sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
 	discard["n_time"] = discard["name"].str[10:-5]
-	times_translation = pd.read_csv("datesall/all.csv", usecols=[0, 3], names=["n_time", "hjd"])
+	times_translation = pd.read_csv(jbm_date_conversion, usecols=[0, 3], names=["n_time", "hjd"])
 	discard = pd.merge(discard, times_translation, on="n_time")
 	discard.loc[:, "hjd"] = discard.hjd.astype(float)
 	discard = discard[discard["target"]=="lm"].reset_index(drop=True)
-	
+	discard.hjd = discard.hjd + 49999.5
+	for i, color in enumerate(["red_E", "blue_E"]):
+		td = discard[discard.n_color.str[-1]==str(i)]
+		keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
+		rm = keep_E[["n_quart", "time"]].isin(discard[["n_quart", "hjd"]]).all(axis=1)
+		logging.info("Removed "+str(rm.sum())+" points in "+color)
+		keep_E.loc[rm, color] = np.nan
+	keep_E.drop("n_quart", axis=1, inplace=True)
 
 	#droping empty lines
 	keep_E.dropna(subset=["red_E", "blue_E"], how="all", inplace=True)
@@ -318,46 +326,26 @@ def merger_eros_first(output_dir_path, start, end,
 	keep_M = pd.concat(keep_M)
 
 	# Cleaning MACHO lcs.
-	max_macho_fraction=0.05
+	max_macho_fraction = 0.05
 	logging.info("Cleaning MACHO light curves")
-	fields = keep_M.id_M.str.split(":").str[0].unique()
-	for field in fields:
-		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field)+"_blue_M_ratios.npy")),
-								  columns=["blue_amp", "time", "ratio"])
-		dfb.loc[:, "cut"] = dfb.ratio>0.05
-		counts = dfb.groupby(["blue_amp"])["cut"].agg(["sum", "size"])
-		counts.loc[:, "percent"] = (np.ceil(0.03*counts["size"])).astype(int)
-		index_keep = []
-		for j in counts.iterrows():
-			index_keep += [True]*j[1]["percent"]+[False]*(j[1]["size"]-j[1]["percent"])
-		dfb = dfb.sort_values(["blue_amp", "ratio"], ascending=[True, False]).reset_index(drop=True)
-		dfb.loc[:, "percent"] = index_keep
-		mask = dfb[dfb["percent"] & dfb["cut"]]
+	fields = keep_M.id_M.str.split(":").str[0]
+	for field in fields.unique():
+		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
-		pdf = list(zip(dfb[mask]["time"].values, dfb[mask]["blue_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields==field)
-		keep_M.loc[result].blue_M = np.nan
-		keep_M.loc[result].blueerr_M = np.nan
-		del dfb
-	
-		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")),
-						   columns=["red_amp", "time", "ratio"])
-		dfr.loc[:, "cut"] = dfr.ratio>0.05
-		counts = dfr.groupby(["red_amp"])["cut"].agg(["sum", "size"])
-		counts.loc[:, "percent"] = (np.ceil(0.03*counts["size"])).astype(int)
-		index_keep = []
-		for j in counts.iterrows():
-			index_keep += [True]*j[1]["percent"]+[False]*(j[1]["size"]-j[1]["percent"])
-		dfr = dfr.sort_values(["red_amp", "ratio"], ascending=[True, False]).reset_index(drop=True)
-		dfr.loc[:, "percent"] = index_keep
-		mask = dfr[dfr["percent"] & dfr["cut"]]
-		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
-		pdf = list(zip(dfr[mask]["time"].values, dfr[mask]["red_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields==field)
-		keep_M.loc[result].red_M = np.nan
-		keep_M.loc[result].rederr_M = np.nan
+		pdf = list(zip(dfb[dfb.ratio > max_macho_fraction]["time"].values, dfb[dfb.ratio > max_macho_fraction]["blue_amp"].values))
+		result = pd.Series(pms).isin(pdf) & (fields == field)
+		keep_M.loc[result, "blue_M"] = np.nan
+		keep_M.loc[result, "blueerr_M"] = np.nan
 
-	keep_M = pd.merge(keep_M, ids, on="id_M", how="left", validate="m:1")
+		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
+		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
+		pdf = list(zip(dfr[dfr.ratio > max_macho_fraction]["time"].values, dfr[dfr.ratio > max_macho_fraction]["red_amp"].values))
+		result = pd.Series(pms).isin(pdf) & (fields == field)
+		keep_M.loc[result, "red_M"] = np.nan
+		keep_M.loc[result, "rederr_M"] = np.nan
+
+	keep_M.drop(["blue_amp", "red_amp"], axis=1, inplace=True)
+	keep_M = pd.merge(keep_M, ids, on="id_M", how="left")
 
 	# MERGING LIGHT CURVES
 	logging.info("Merging light curves...")
