@@ -234,7 +234,17 @@ def merger_prod4(output_dir_path, start, end,
 	st1 = time.time()
 	# Load combined ids
 	logging.info("Reading correspondance file.")
-	ids = pd.read_parquet(correspondance_file_path, columns=["id_M", "id_E"]).iloc[start:end]
+	idx1 = start // 1000000
+	idx2 = (end-1) // 1000000
+	if idx1==idx2:
+		ids = pd.read_parquet(os.path.join(correspondance_file_path, "ci_"+str(idx1)+".parquet"), columns=["id_M", "id_E"]).iloc[start:end]
+	elif idx2>idx1+1:
+		raise logging.error("end - start > 1e6 stars !")
+	else:
+		ids = pd.concat([
+			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx1) + ".parquet"), columns=["id_M", "id_E"]).iloc[start:],
+			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx2) + ".parquet"), columns=["id_M", "id_E"]).iloc[:end],
+		])
 	id_Es = ids.id_E
 
 	# l o a d   E R O S
