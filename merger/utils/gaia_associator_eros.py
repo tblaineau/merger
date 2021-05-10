@@ -46,7 +46,7 @@ def rotation_sphere(ra, dec, ra0, dec0, theta):
 
 
 @nb.jit
-def transform(ra, dec, ra0, dec0, r, a, alpha, theta):
+def transform(ra, dec, ra0, dec0, r, a, alpha, theta, offra, offdec):
     out = rotation_sphere(ra, dec, ra0, dec0, theta)
     ra1, dec1 = out[:, 0], out[:, 1]
     sina = np.sin(alpha)
@@ -54,8 +54,8 @@ def transform(ra, dec, ra0, dec0, r, a, alpha, theta):
     a1 = r * (1 + (a - 1)*cosa**2)
     a2 = r * (a - 1) * cosa * sina
     b2 = r * (1 + (a - 1)*sina**2)
-    ra_p = ra0 + a1 * (ra1 - ra0) + a2 * (dec1 - dec0) #+ offra
-    dec_p = dec0 + a2 * (ra1 - ra0) + b2 * (dec1 - dec0) #+ offdec
+    ra_p = ra0 + a1 * (ra1 - ra0) + a2 * (dec1 - dec0) + offra
+    dec_p = dec0 + a2 * (ra1 - ra0) + b2 * (dec1 - dec0) + offdec
     return np.array([ra_p, dec_p]).T
 
 
@@ -117,7 +117,7 @@ for ccd in np.arange(0, 8):
             bounds = [(eros_coord.ra.rad.min() - 2 * offra, eros_coord.ra.rad.max() + 2 * offra),
                       (eros_coord.dec.rad.min()- 2 * offdec ,eros_coord.dec.rad.max()+2 * offdec),
                       (0.98, 1.02), (0.98, 1.02), (0, 2 * np.pi), (-5 *np.pi/180., 5 *np.pi/180.),
-                      #(-1*np.pi/180., 1*np.pi/180.),  (-1*np.pi/180., 1*np.pi/180.)
+                      (-2*u.arcsec.to(u.rad), 2*u.arcsec.to(u.rad)),  (-2*u.arcsec.to(u.rad), 2*u.arcsec.to(u.rad))
                      ]
 
             if len(c_temp_gaia)>10000:

@@ -309,6 +309,7 @@ if __name__ == '__main__':
 	parser.add_argument('--bad_times_directory', '-btd', type=str, required=False)
 	parser.add_argument('--seed', type=int, required=False, default=1234)
 	parser.add_argument('--fraction', '-f', type=float, required=False, default=0.05, help="Fraction of lightcurves used for simulation")
+	parser.add_argument('--mass', '-m', type=float, required=False, default=100, help="Mass of lenses")
 
 	args = parser.parse_args()
 	path_to_merged = args.path_to_merged
@@ -317,6 +318,7 @@ if __name__ == '__main__':
 	MACHO_bad_times_directory = args.bad_times_directory
 	seed = args.seed
 	fraction = args.fraction
+	mass = args.mass
 
 	np.random.seed(seed)
 
@@ -350,7 +352,7 @@ if __name__ == '__main__':
 							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files/densities.txt"
 							)
 
-	params, w = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=t0_ranges.shape[1], mass=100)
+	params, w = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=t0_ranges.shape[1], mass=mass)
 	cnt = merged.groupby(["id_E", "id_M"])["time"].agg(len).values.astype(int)
 	cm = np.cumsum(cnt)-cnt
 	merged = merged.iloc[np.concatenate(np.repeat([cm[i]+np.arange(cnt[i]) for i in range(len(cnt))], w))]

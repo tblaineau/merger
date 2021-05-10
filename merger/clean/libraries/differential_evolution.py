@@ -420,7 +420,7 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 		if len(flux[key]) <= 3:
 			intrinsic_dispersion[key] = 1.
 		else:
-			tmsk = subdf[mask[key]][COLOR_FILTERS[key]["err"]][cut5[key]].values<0.6 #errs[key]<0.
+			tmsk = errs[key] < 0.6
 			scount[key] = tmsk.sum()
 			try :
 				intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], flux[key][tmsk], errs[key][tmsk], fraction=0.01)
@@ -578,7 +578,7 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 			flat_ks_colors[key] = np.nan
 			f2m_ks_colors[key] = np.nan
 	micro_distribution = np.concatenate(list(micro_distributions.values()))
-	flat_distribution = np.concatenate(list(flat_distributions.values()))
+	flat_distribution =  np.concatenate(list(flat_distributions.values()))
 
 	micro_ks = kstest(micro_distribution, norm.cdf).pvalue
 	flat_ks = kstest(flat_distribution, norm.cdf).pvalue

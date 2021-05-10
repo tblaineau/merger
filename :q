@@ -1,0 +1,12 @@
+diff --git a/merger/clean/simulator_script.py b/merger/clean/simulator_script.py
+index 9ed20cf..c6aafd8 100644
+--- a/merger/clean/simulator_script.py
++++ b/merger/clean/simulator_script.py
+@@ -89,6 +89,7 @@ class RealisticGenerator:
+ 			self.blends = []
+ 			self.weights = []
+ 			self.fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_57.csv")), pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
++			self.fracs_catalogues = [fcat[fcat.frac_red_E.values>self.max_blend] for fcat in self.fracs_catalogues]
+ 			density1_catalogues = [self.fracs_catalogues[0].groupby("index_eros").blue_E.agg([max, "size"]),self.fracs_catalogues[1].groupby("index_eros").blue_E.agg([max, "size"])]
+ 			index_eross = [fcat.drop_duplicates("index_eros").index_eros for fcat in self.fracs_catalogues]
+ 

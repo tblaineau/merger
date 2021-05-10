@@ -78,11 +78,12 @@ macho["ra"] = 2*np.pi/24.*(ra[0] + (ra[1]+ra[2]/60.)/60.)
 dec = macho.dec.str.split(":", expand=True).astype(float)
 macho["dec"]= (np.pi/180. * (np.abs(dec[0]) + (dec[1]+dec[2]/60.)/60.))*np.sign(dec[0])
 macho.loc[:, "id_M"] = macho.field.astype(str).str.cat([macho.tile.astype(str), macho.id.astype(str)], sep=":")
+macho = macho[(macho.ra!=0) & (macho.dec!=0)]
 macho_coord = SkyCoord(macho.ra.values, macho.dec.values, unit=u.rad)
 print("Done")
 
 print("Loading Gaia")
-gaia = pd.read_csv("../new_association/gaia_edr3_lmc_bright.csv")
+gaia = pd.read_csv("/pbs/home/b/blaineau/work/new_association/gaia_edr3_lmc_bright.csv")
 gaia_coord = SkyCoord(gaia.ra.values, gaia.dec.values, unit=u.deg, frame="icrs")#, equinox="J2016")
 print("Done")
 
@@ -100,12 +101,14 @@ factors = []
 
 for p in pc:
 	c_macho = macho[(macho.pier == p[0]) & (macho.chunk == p[1])]
+	c_temp_macho = c_macho.iloc[np.random.randint(0, len(c_macho), 1500)]
 	print(p)
 	if int(p[1]) == 255:
 		corrected.append(np.append(c_macho.id_M[:, None], c_macho[["ra", "dec"]].values, axis=1))
 		factors.append([0.] * 6)
 		continue
 	c_macho_coord = SkyCoord(c_macho.ra.values, c_macho.dec.values, unit=u.rad)
+	c_temp_macho_coord = SkyCoord(c_temp_macho.ra.values, c_temp_macho.dec.values, unit=u.rad)
 	temp_corrected = None
 	temp_factors = None
 	offra = (c_macho.ra.max() - c_macho.ra.min())
@@ -127,7 +130,7 @@ for p in pc:
 
 
 	def minuit(x):
-		temp = transform(c_macho_coord.ra.rad, c_macho_coord.dec.rad, *x)
+		temp = transform(c_temp_macho_coord.ra.rad, c_temp_macho_coord.dec.rad, *x)
 		temp = np.array(to_cartesian(temp))
 		d3d = k.query(temp)[0].flatten()
 		v = 1 / np.sum(1 / (d3d * 180 / np.pi * 3600 + 0.1))
@@ -137,11 +140,11 @@ for p in pc:
 
 	bounds = [(c_macho.ra.min() - 2 * offra, c_macho.ra.max() + 2 * offra),
 			  (c_macho.dec.min() - 2 * offdec, c_macho.dec.max() + 2 * offdec),
-			  (0.9, 1.1), (0.9, 1.1), (0, 2 * np.pi), (-5 * np.pi / 180., 5 * np.pi / 180.),
+			  (0.98, 1.02), (0.98, 1.02), (0, 2 * np.pi), (-5 * np.pi / 180., 5 * np.pi / 180.),
 			  (-2 * u.arcsec.to(u.rad), 2 * u.arcsec.to(u.rad)), (-2 * u.arcsec.to(u.rad), 2 * u.arcsec.to(u.rad))
 			  ]
 	i = 0
-	pop = 70
+	pop = 40
 	imax = 3
 	prec = 0
 	while i < imax:
@@ -157,26 +160,25 @@ for p in pc:
 		i1, i2, d2d, _ = correct_macho.search_around_sky(c_temp_gaia, seplimit=2 * u.arcsec)
 		dra, ddec = correct_macho[i2].spherical_offsets_to(c_temp_gaia[i1])
 
-		if (d2d.arcsec < 1.).sum() / (d2d.arcsec < 2).sum() > 0.4:
-			tp = (d2d.arcsec < 0.2).sum() / (d2d.arcsec < 2).sum()
-			if not prec or prec < tp:
-				prec = tp
-				temp_corrected = out
-				temp_factors = res
-				print(prec)
+		tp = (d2d.arcsec < 0.2).sum() / (d2d.arcsec < 2).sum()
+		if prec < tp:
+			prec = tp
+			temp_corrected = out
+			temp_factors = res
+			print(prec)
 			pop = 20
 		if (d2d.arcsec < 0.5).sum() / (d2d.arcsec < 2).sum() > 0.85:
-			corrected.append(np.append(c_macho.id_M[:, None], out, axis=1))
+			corrected.append(np.append(c_macho.id_M.values[:, None], out, axis=1))
 			factors.append(res)
 			i = 100
 			break
 		i += 1
 	if i == imax:
 		if not (temp_corrected is None):
-			corrected.append(np.append(c_macho.id_M[:, None][:, None], temp_corrected, axis=1))
+			corrected.append(np.append(c_macho.id_M.values[:, None], temp_corrected, axis=1))
 			factors.append(temp_factors)
 		else:
-			corrected.append(np.append(c_macho.id_M[:, None][:, None], c_macho, axis=1))
+			corrected.append(np.append(c_macho.id_M.values[:, None], c_macho[["ra", "dec"]].values, axis=1))
 			factors.append([0.] * 6)
 			print("Failed")
 	print("MACHO loaded")
