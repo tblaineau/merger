@@ -118,10 +118,12 @@ def merger_small_sample(output_dir_path, start, end,
 	discard.hjd = discard.hjd + 49999.5
 	for i, color in enumerate(["red_E", "blue_E"]):
 		td = discard[discard.n_color.str[-1]==str(i)]
-		keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
-		rm = keep_E[["n_quart", "time"]].isin(discard[["n_quart", "hjd"]]).all(axis=1)
-		logging.info("Removed "+str(rm.sum())+" points in "+color)	
-		keep_E.loc[rm, color] = np.nan
+                keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
+                l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
+                l2 = list(zip(td["n_quart"], td["hjd"]))
+                rm = pd.Series(l1).isin(l2)
+                logging.info("Removed "+str(rm.sum())+" points in "+color)
+                keep_E.loc[rm, color] = np.nan
 	keep_E.drop("n_quart", axis=1, inplace=True)
 
 	# droping empty lines
@@ -138,19 +140,26 @@ def merger_small_sample(output_dir_path, start, end,
 	logging.info("Cleaning MACHO light curves")
 	fields = keep_M.id_M.str.split(":").str[0]
 	for field in fields.unique():
-		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
-		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
-		pdf = list(zip(dfb[dfb.ratio > max_macho_fraction]["time"].values, dfb[dfb.ratio > max_macho_fraction]["blue_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields == field)
-		keep_M.loc[result, "blue_M"] = np.nan
-		keep_M.loc[result, "blueerr_M"] = np.nan
+                logging.info("\t"+str(field))
+                dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
+                r = dfb[dfb.ratio > max_macho_fraction].sort_values(["blue_amp", "ratio"], ascending=False)
+                lengths = dfb.groupby("blue_amp").time.count()
+                r = r.groupby("blue_amp").apply(keep)
+                l1 = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
+                l2 = list(zip(r["time"].values, r["blue_amp"].values))
+                result = pd.Series(l1).isin(l2)
+                keep_M.loc[result, "blue_M"] = np.nan
+                keep_M.loc[result, "blueerr_M"] = np.nan
 
-		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
-		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
-		pdf = list(zip(dfr[dfr.ratio > max_macho_fraction]["time"].values, dfr[dfr.ratio > max_macho_fraction]["red_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields == field)
-		keep_M.loc[result, "red_M"] = np.nan
-		keep_M.loc[result, "rederr_M"] = np.nan
+                dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
+                r = dfr[dfr.ratio > max_macho_fraction].sort_values(["red_amp", "ratio"], ascending=False)
+                lengths = dfr.groupby("red_amp").time.count()
+                r = r.groupby("red_amp").apply(keep)
+                l1 = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
+                l2 = list(zip(r["time"].values, r["red_amp"].values))
+                result = pd.Series(l1).isin(l2)
+                keep_M.loc[result, "red_M"] = np.nan
+                keep_M.loc[result, "rederr_M"] = np.nan	
 
 	keep_M.drop(["blue_amp", "red_amp"], axis=1, inplace=True)
 	keep_M = pd.merge(keep_M, ids, on="id_M", how="left")
@@ -251,11 +260,13 @@ def merger_prod4(output_dir_path, start, end,
 	blue_eros_max_ratio = 0.015
 	red_eros_max_ratio = 0.017
 	for ccd in ccds.unique():
+		logging.info("\t"+str(ccd))
 		if ccd is None:
 			continue
 		ratios = pd.read_parquet(os.path.join(eros_ratio_path, "ratios_" + ccd + ".parquet"))
 		for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"], ["rederr_E", "blueerr_E"]):
-			g = ratios[color_ratio][ratios[color_ratio] > 0]
+			g = print(resultaratios[color_ratio][ratios[color_ratio] > 0]
+ > 0.05
 			x = g.values
 			a, xm, b = np.nanquantile(x, q=[0.25, 0.5, 0.75])
 			p = len(x[x <= xm])
@@ -288,7 +299,9 @@ def merger_prod4(output_dir_path, start, end,
 	for i, color in enumerate(["red_E", "blue_E"]):
 		td = discard[discard.n_color.str[-1]==str(i)]
 		keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
-		rm = keep_E[["n_quart", "time"]].isin(discard[["n_quart", "hjd"]]).all(axis=1)
+		l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
+		l2 = list(zip(td["n_quart"], td["hjd"]))
+		rm = pd.Series(l1).isin(l2)
 		logging.info("Removed "+str(rm.sum())+" points in "+color)
 		keep_E.loc[rm, color] = np.nan
 	keep_E.drop("n_quart", axis=1, inplace=True)
@@ -301,6 +314,7 @@ def merger_prod4(output_dir_path, start, end,
 	logging.info("Loading MACHO light curves.")
 	splitted = ids.id_M.str.split(":", expand=True)
 	tiles = splitted[0].str.cat(splitted[1], "_").unique()
+	print(tiles)
 	del splitted
 	keep_M = []
 	for tile in tiles:
@@ -330,17 +344,24 @@ def merger_prod4(output_dir_path, start, end,
 	logging.info("Cleaning MACHO light curves")
 	fields = keep_M.id_M.str.split(":").str[0]
 	for field in fields.unique():
+		logging.info("\t"+str(field))
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
-		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
-		pdf = list(zip(dfb[dfb.ratio > max_macho_fraction]["time"].values, dfb[dfb.ratio > max_macho_fraction]["blue_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields == field)
+		r = dfb[dfb.ratio > max_macho_fraction].sort_values(["blue_amp", "ratio"], ascending=False)
+		lengths = dfb.groupby("blue_amp").time.count()
+		r = r.groupby("blue_amp").apply(keep)
+		l1 = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
+		l2 = list(zip(r["time"].values, r["blue_amp"].values))
+		result = pd.Series(l1).isin(l2)    
 		keep_M.loc[result, "blue_M"] = np.nan
 		keep_M.loc[result, "blueerr_M"] = np.nan
 
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
-		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
-		pdf = list(zip(dfr[dfr.ratio > max_macho_fraction]["time"].values, dfr[dfr.ratio > max_macho_fraction]["red_amp"].values))
-		result = pd.Series(pms).isin(pdf) & (fields == field)
+		r = dfr[dfr.ratio > max_macho_fraction].sort_values(["red_amp", "ratio"], ascending=False)
+		lengths = dfr.groupby("red_amp").time.count()
+		r = r.groupby("red_amp").apply(keep)
+		l1 = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
+		l2 = list(zip(r["time"].values, r["red_amp"].values))
+		result = pd.Series(l1).isin(l2)
 		keep_M.loc[result, "red_M"] = np.nan
 		keep_M.loc[result, "rederr_M"] = np.nan
 
