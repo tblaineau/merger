@@ -5,6 +5,7 @@ from iminuit import Minuit
 import logging
 import pandas as pd
 from sklearn.utils.random import sample_without_replacement
+from scipy.stats import kstest, norm, ks_2samp
 
 fastmath = False
 
@@ -419,16 +420,16 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 		if len(flux[key]) <= 3:
 			intrinsic_dispersion[key] = 1.
 		else:
-			tmsk = errs[key]<0.6
+			tmsk = subdf[mask[key]][COLOR_FILTERS[key]["err"]][cut5[key]].values<0.6 #errs[key]<0.
 			scount[key] = tmsk.sum()
 			try :
 				intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], flux[key][tmsk], errs[key][tmsk], fraction=0.01)
 			except ZeroDivisionError:
-				print("invalid intr_dispersion")
+				print("invalid intr_dispersion for "+key+" : ZeroDivisionError.")
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
-				print(f"null intrinsic dispersion for {subdf.name}")
+				print(f"null intrinsic dispersion for {subdf.name}, key : {key}, Length : {mask[key].sum()}")
 
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
 	# 	return pd.Series(None)
@@ -468,7 +469,7 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 
 	alltimes = np.concatenate(list(time.values()))
 	tmin = alltimes.min()
-	tmax = alltimes.min()
+	tmax = alltimes.max()
 	bounds_simple = np.array([[0, np.max(flux[key])] for key in ufilters] + [[0, 3], [tmin-600, tmax+600], [0, 3.7]])
 	try:
 		fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_flux, list(time.values()), list(flux.values()),
@@ -539,9 +540,11 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 
 	lsqs = []
 	micro_values = [micro_params['u0'], micro_params['t0'], micro_params['tE']]
+	micro_distributions = dict()
 	for key in COLOR_FILTERS.keys():
 		if key in ufilters:
-			lsqs.append(np.sum(((flux[key] - microlens_simple_flux(time[key], micro_params["fluxStar_" + key], 0, micro_params['u0'], micro_params['t0'], micro_params['tE'])) / errs[key]) ** 2))
+			micro_distributions[key] = (flux[key] - microlens_simple_flux(time[key], micro_params["fluxStar_" + key], 0, micro_params['u0'], micro_params['t0'], micro_params['tE'])) / errs[key]
+			lsqs.append(np.sum(micro_distributions[key]**2))
 			micro_values.append(m_micro.values["fluxStar_" + key])
 		else:
 			lsqs.append(np.nan)
@@ -551,13 +554,35 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 
 	counts = []
 	flat_chi2s = []
+	flat_distributions = dict()
 	for key in COLOR_FILTERS.keys():
 		if key in ufilters:
 			counts.append((~np.isnan(flux[key])).sum())
-			flat_chi2s.append(np.sum(((flux[key] - m_flat.values["f_fluxStar_"+key]) / errs[key]) ** 2))
+			flat_distributions[key] = (flux[key] - m_flat.values["f_fluxStar_"+key]) / errs[key]
+			flat_chi2s.append(np.sum(flat_distributions[key]**2))
 		else:
 			counts.append(0)
 			flat_chi2s.append(np.nan)
+
+	# Compute K-S Test
+	micro_ks_colors = dict()
+	flat_ks_colors = dict()
+	f2m_ks_colors = dict()
+	for key in COLOR_FILTERS.keys():
+		if key in ufilters:
+			micro_ks_colors[key] = kstest(micro_distributions[key], norm.cdf).pvalue
+			flat_ks_colors[key] = kstest(flat_distributions[key], norm.cdf).pvalue
+			f2m_ks_colors[key] = ks_2samp(micro_distributions[key], flat_distributions[key]).pvalue
+		else:
+			micro_ks_colors[key] = np.nan
+			flat_ks_colors[key] = np.nan
+			f2m_ks_colors[key] = np.nan
+	micro_distribution = np.concatenate(list(micro_distributions.values()))
+	flat_distribution = np.concatenate(list(flat_distributions.values()))
+
+	micro_ks = kstest(micro_distribution, norm.cdf).pvalue
+	flat_ks = kstest(flat_distribution, norm.cdf).pvalue
+	f2m_ks = ks_2samp(micro_distribution, flat_distribution).pvalue
 
 	return pd.Series(
 		micro_values + [micro_fmin, micro_fval] + micro_errors
@@ -569,7 +594,8 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 		+ list(median_errors.values())
 		+ list(intrinsic_dispersion.values())
 		+ [tmin, tmax]
-
+		+ [micro_ks, flat_ks, f2m_ks]
+		+ list(micro_ks_colors.values()) + list(flat_ks_colors.values()) + list(f2m_ks_colors.values())
 		,
 
 		index = micro_keys + ['micro_fmin', 'micro_fval'] + micro_error_labels
@@ -581,6 +607,10 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 			  + ["magerr_" + key + "_median" for key, cf in COLOR_FILTERS.items()]  # ['errRE_median', 'errBE_median', 'errRM_median', 'errBM_median']
 			  + ["intr_disp_" + key for key in intrinsic_dispersion.keys()]
 			  + ["tmin", "tmax"]
+			  + ["micro_ks", "flat_ks", "f2m_ks"]
+			  + ["micro_ks_"+key for key in COLOR_FILTERS.keys()]
+			  + ["flat_ks_"+key for key in COLOR_FILTERS.keys()]
+			  + ["f2m_ks_"+key for key in COLOR_FILTERS.keys()]
 	)
 
 
