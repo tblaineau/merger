@@ -102,11 +102,11 @@ def merger_small_sample(output_dir_path, start, end,
 			else:
 				w3 = b + 1.5 * np.exp(3 * mc) * (b - a)
 
-			r = g[(g > w3) | (g > red_eros_max_ratio)].sort_values(ascending=False)
+			r = g[(g > w3)].sort_values(ascending=False)
 			one_percent = int(np.round(0.01 * len(g)))
 			if len(r) > one_percent:
-				g = g.iloc[:one_percent]
-			keep_E.loc[keep_E["time"].isin(r.index) & (ccds==ccd), [color, color_err]] = np.nan
+				r = r.iloc[:one_percent]
+			keep_E.loc[keep_E["time"].isin(r.index) & (ccds == ccd), [color, color_err]] = np.nan
 
 	# Load and remove JBM times
 	logging.info("Removing JBM times")
@@ -139,18 +139,16 @@ def merger_small_sample(output_dir_path, start, end,
 	logging.info("Cleaning MACHO light curves")
 	fields = keep_M.id_M.str.split(":").str[0]
 	for field in fields.unique():
-		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")),
-						   columns=["blue_amp", "time", "ratio"])
+		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
-		pdf = list(zip(dfb[dfb.ratio > 0.05]["time"].values, dfb[dfb.ratio > 0.05]["blue_amp"].values))
+		pdf = list(zip(dfb[dfb.ratio > max_macho_fraction]["time"].values, dfb[dfb.ratio > max_macho_fraction]["blue_amp"].values))
 		result = pd.Series(pms).isin(pdf) & (fields==field)
 		keep_M.loc[result, "blue_M"] = np.nan
 		keep_M.loc[result, "blueerr_M"] = np.nan
 
-		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")),
-						   columns=["red_amp", "time", "ratio"])
+		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
 		pms = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
-		pdf = list(zip(dfr[dfr.ratio > 0.05]["time"].values, dfr[dfr.ratio > 0.05]["red_amp"].values))
+		pdf = list(zip(dfr[dfr.ratio > max_macho_fraction]["time"].values, dfr[dfr.ratio > max_macho_fraction]["red_amp"].values))
 		result = pd.Series(pms).isin(pdf) & (fields==field)
 		keep_M.loc[result, "red_M"] = np.nan
 		keep_M.loc[result, "rederr_M"] = np.nan
