@@ -265,8 +265,7 @@ def merger_prod4(output_dir_path, start, end,
 			continue
 		ratios = pd.read_parquet(os.path.join(eros_ratio_path, "ratios_" + ccd + ".parquet"))
 		for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"], ["rederr_E", "blueerr_E"]):
-			g = print(resultaratios[color_ratio][ratios[color_ratio] > 0]
- > 0.05
+			g = ratios[color_ratio][ratios[color_ratio] > 0
 			x = g.values
 			a, xm, b = np.nanquantile(x, q=[0.25, 0.5, 0.75])
 			p = len(x[x <= xm])
