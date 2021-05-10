@@ -173,7 +173,7 @@ def merger_small_sample(output_dir_path, start, end,
 from memory_profiler import profile
 
 @profile
-def merger_eros_first(output_dir_path, start, end,
+def merger_prod4(output_dir_path, start, end,
 						correspondance_file_path = "/pbs/home/b/blaineau/work/notebooks/combined.parquet",
 						macho_files_path="/sps/eros/data/macho/lightcurves/F_",
 						eros_files_path = "/sps/eros/users/blaineau/eros_fast_read/",
@@ -224,7 +224,7 @@ def merger_eros_first(output_dir_path, start, end,
 
 	st1 = time.time()
 	# Load combined ids
-	logging.info("Reading correspondace file.")
+	logging.info("Reading correspondance file.")
 	ids = pd.read_parquet(correspondance_file_path, columns=["id_M", "id_E"]).iloc[start:end]
 	id_Es = ids.id_E
 
