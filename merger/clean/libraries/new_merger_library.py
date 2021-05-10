@@ -192,7 +192,7 @@ from memory_profiler import profile
 
 @profile
 def merger_prod4(output_dir_path, start, end,
-						correspondance_file_path = "/pbs/home/b/blaineau/work/notebooks/combined.parquet",
+						correspondance_file_path = "/sps/eros/users/blaineau/combination_index/",
 						macho_files_path="/sps/eros/data/macho/lightcurves/F_",
 						eros_files_path = "/sps/eros/users/blaineau/eros_fast_read/",
 						eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/ratios",
