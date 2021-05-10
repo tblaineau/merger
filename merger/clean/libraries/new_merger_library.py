@@ -8,6 +8,14 @@ from io import StringIO
 import time
 
 
+def keep(subdf, lengths, max_percent=0.05):
+	maxlen = int(np.round(lengths[subdf.name]*max_percent))
+	if len(subdf)>maxlen:
+		return subdf.iloc[:maxlen]
+	else:
+		return subdf
+
+
 def load_irods_eros_lightcurves(irods_filepath="", idE_list=[]):
 	#irods_filepath = '/eros/data/eros2/lightcurves/lm/lm041/lm0412/lm0412k-lc.tar.gz'
 	try:
@@ -121,7 +129,7 @@ def merger_small_sample(output_dir_path, start, end,
 		keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
 		l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
 		l2 = list(zip(td["n_quart"], td["hjd"]))
-		rm = pd.Series(l1).isin(l2)
+		rm = pd.Series(l1).isin(l2).values
 		logging.info("Removed "+str(rm.sum())+" points in "+color)
 		keep_E.loc[rm, color] = np.nan
 	keep_E.drop("n_quart", axis=1, inplace=True)
@@ -137,6 +145,7 @@ def merger_small_sample(output_dir_path, start, end,
 
 	# Cleaning MACHO lcs.
 	max_macho_fraction = 0.05
+	max_removed_points = 0.05 #percent
 	logging.info("Cleaning MACHO light curves")
 	fields = keep_M.id_M.str.split(":").str[0]
 	for field in fields.unique():
@@ -144,20 +153,20 @@ def merger_small_sample(output_dir_path, start, end,
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
 		r = dfb[dfb.ratio > max_macho_fraction].sort_values(["blue_amp", "ratio"], ascending=False)
 		lengths = dfb.groupby("blue_amp").time.count()
-		r = r.groupby("blue_amp").apply(keep)
+		r = r.groupby("blue_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
 		l1 = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
 		l2 = list(zip(r["time"].values, r["blue_amp"].values))
-		result = pd.Series(l1).isin(l2)
+		result = pd.Series(l1).isin(l2).values
 		keep_M.loc[result, "blue_M"] = np.nan
 		keep_M.loc[result, "blueerr_M"] = np.nan
 
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
 		r = dfr[dfr.ratio > max_macho_fraction].sort_values(["red_amp", "ratio"], ascending=False)
 		lengths = dfr.groupby("red_amp").time.count()
-		r = r.groupby("red_amp").apply(keep)
+		r = r.groupby("red_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
 		l1 = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
 		l2 = list(zip(r["time"].values, r["red_amp"].values))
-		result = pd.Series(l1).isin(l2)
+		result = pd.Series(l1).isin(l2).values
 		keep_M.loc[result, "red_M"] = np.nan
 		keep_M.loc[result, "rederr_M"] = np.nan
 
@@ -300,7 +309,7 @@ def merger_prod4(output_dir_path, start, end,
 		keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
 		l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
 		l2 = list(zip(td["n_quart"], td["hjd"]))
-		rm = pd.Series(l1).isin(l2)
+		rm = pd.Series(l1).isin(l2).values
 		logging.info("Removed "+str(rm.sum())+" points in "+color)
 		keep_E.loc[rm, color] = np.nan
 	keep_E.drop("n_quart", axis=1, inplace=True)
@@ -340,6 +349,7 @@ def merger_prod4(output_dir_path, start, end,
 
 	# Cleaning MACHO lcs.
 	max_macho_fraction = 0.05
+	max_removed_points = 0.05 #percent
 	logging.info("Cleaning MACHO light curves")
 	fields = keep_M.id_M.str.split(":").str[0]
 	for field in fields.unique():
@@ -347,20 +357,20 @@ def merger_prod4(output_dir_path, start, end,
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
 		r = dfb[dfb.ratio > max_macho_fraction].sort_values(["blue_amp", "ratio"], ascending=False)
 		lengths = dfb.groupby("blue_amp").time.count()
-		r = r.groupby("blue_amp").apply(keep)
+		r = r.groupby("blue_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
 		l1 = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
 		l2 = list(zip(r["time"].values, r["blue_amp"].values))
-		result = pd.Series(l1).isin(l2)    
+		result = pd.Series(l1).isin(l2).values
 		keep_M.loc[result, "blue_M"] = np.nan
 		keep_M.loc[result, "blueerr_M"] = np.nan
 
 		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
 		r = dfr[dfr.ratio > max_macho_fraction].sort_values(["red_amp", "ratio"], ascending=False)
 		lengths = dfr.groupby("red_amp").time.count()
-		r = r.groupby("red_amp").apply(keep)
+		r = r.groupby("red_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
 		l1 = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
 		l2 = list(zip(r["time"].values, r["red_amp"].values))
-		result = pd.Series(l1).isin(l2)
+		result = pd.Series(l1).isin(l2).values
 		keep_M.loc[result, "red_M"] = np.nan
 		keep_M.loc[result, "rederr_M"] = np.nan
 
