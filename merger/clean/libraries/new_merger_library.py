@@ -8,6 +8,10 @@ from io import StringIO
 import time
 
 
+from memory_profiler import profile
+import sys
+
+@profile
 def keep(subdf, lengths, max_percent=0.05):
 	maxlen = int(np.round(lengths[subdf.name]*max_percent))
 	if len(subdf)>maxlen:
@@ -130,7 +134,7 @@ def merger_small_sample(output_dir_path, start, end,
 		l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
 		l2 = list(zip(td["n_quart"], td["hjd"]))
 		rm = pd.Series(l1).isin(l2).values
-		logging.info("Removed "+str(rm.sum())+" points in "+color)
+		logging.info("Removed "+str(rm.sum())+"/"+str(len(rm))+" points in "+color)
 		keep_E.loc[rm, color] = np.nan
 	keep_E.drop("n_quart", axis=1, inplace=True)
 
@@ -188,7 +192,6 @@ def merger_small_sample(output_dir_path, start, end,
 	return merged
 
 
-from memory_profiler import profile
 
 @profile
 def merger_prod4(output_dir_path, start, end,
@@ -254,6 +257,7 @@ def merger_prod4(output_dir_path, start, end,
 			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx1) + ".parquet"), columns=["id_M", "id_E"]).iloc[start:],
 			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx2) + ".parquet"), columns=["id_M", "id_E"]).iloc[:end],
 		])
+	ids = ids.sort_values("id_M")
 	id_Es = ids.id_E
 
 	# l o a d   E R O S
@@ -268,7 +272,7 @@ def merger_prod4(output_dir_path, start, end,
 			continue
 		d = pd.read_parquet(path)
 		keep_E.append(d[d.id_E.isin(id_Es)])
-	del d
+		del d
 	keep_E = pd.concat(keep_E)
 	keep_E.time += 49999.5
 
@@ -320,7 +324,7 @@ def merger_prod4(output_dir_path, start, end,
 		l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
 		l2 = list(zip(td["n_quart"], td["hjd"]))
 		rm = pd.Series(l1).isin(l2).values
-		logging.info("Removed "+str(rm.sum())+" points in "+color)
+		logging.info("Removed "+str(rm.sum())+"/"+str(len(rm))+" points in "+color)
 		keep_E.loc[rm, color] = np.nan
 	keep_E.drop("n_quart", axis=1, inplace=True)
 
@@ -352,17 +356,23 @@ def merger_prod4(output_dir_path, start, end,
 						)
 		d.loc[:, "id_M"] = d.field.astype(str).str.cat([d.tile.astype(str), d.starid.astype(str)], sep=":")
 		d = d.drop(["field", "tile", "starid"], axis=1)
-		# d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
-		keep_M.append(d[d.id_M.isin(ids.id_M)])
-	del d
-	keep_M = pd.concat(keep_M)
-
+		#d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
+		if len(keep_M)==0:
+			keep_M = d[d.id_M.isin(ids.id_M)]
+		else:
+			keep_M = pd.concat([keep_M, d[d.id_M.isin(ids.id_M)]])
+		#keep_M.append(d[d.id_M.isin(ids.id_M)])
+		del d
+	#keep_M = pd.concat(keep_M)
+	
 	# Cleaning MACHO lcs.
 	max_macho_fraction = 0.05
 	max_removed_points = 0.05 #percent
 	logging.info("Cleaning MACHO light curves")
-	fields = keep_M.id_M.str.split(":").str[0]
-	for field in fields.unique():
+	#ifields = keep_M.id_M.str.split(":").str[0].values
+	#fields = fields.astype(int)
+	fields = np.unique([tile.split("_")[0] for tile in tiles]).astype(int)
+	for field in np.unique(fields):
 		logging.info("\t"+str(field))
 		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
 		r = dfb[dfb.ratio > max_macho_fraction].sort_values(["blue_amp", "ratio"], ascending=False)
@@ -397,6 +407,7 @@ def merger_prod4(output_dir_path, start, end,
 	if save:
 		logging.info("Saving")
 		merged.to_parquet(os.path.join(output_dir_path, str(start)+"_"+str(end)+".parquet"), index=False)
+
 
 	logging.info("Total merging time : "+str(time.time()-st1))
 	return merged
