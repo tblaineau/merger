@@ -384,7 +384,7 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 					 subdf[COLOR_FILTERS[key]["fluxerr"]].notnull() &
 					 subdf[COLOR_FILTERS[key]["err"]].between(min_err, 9.999, inclusive=False))  # No nan and limits on errors
 
-		if mask[key].sum()>2:		#Check if there are more than 3 valid points in the current color
+		if mask[key].sum()>4:		#Check if there are more than 3 valid points in the current color
 			ufilters.append(key)
 			flux[key] = subdf[mask[key]][COLOR_FILTERS[key]["flux"]]  # mags
 			errs[key] = subdf[mask[key]][COLOR_FILTERS[key]["fluxerr"]]  # errs
@@ -420,7 +420,7 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 		if len(flux[key]) <= 3:
 			intrinsic_dispersion[key] = 1.
 		else:
-			tmsk = errs[key] < 0.6
+			tmsk = errs[key] < 0.6 * flux[key]
 			scount[key] = tmsk.sum()
 			try :
 				intrinsic_dispersion[key] = nb_truncated_intrinsic_dispersion(time[key][tmsk], flux[key][tmsk], errs[key][tmsk], fraction=0.01)
@@ -470,7 +470,13 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 	alltimes = np.concatenate(list(time.values()))
 	tmin = alltimes.min()
 	tmax = alltimes.max()
-	bounds_simple = np.array([[0, np.max(flux[key])] for key in ufilters] + [[0, 3], [tmin-600, tmax+600], [0, 3.7]])
+	try:
+		bounds_simple = np.array([[0, np.max(flux[key])] for key in ufilters] + [[0, 3], [tmin-600, tmax+600], [0, 3.7]])
+	except ValueError as e:
+		print(p)
+		print(cut5)
+		print(ufilters)
+		print(str(e))
 	try:
 		fval, pms, nbloops = diff_ev_lhs(to_minimize_simple_flux, list(time.values()), list(flux.values()),
 									 list(errs.values()), bounds=bounds_simple, pop=70, recombination=0.3)
