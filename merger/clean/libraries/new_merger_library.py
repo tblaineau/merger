@@ -67,6 +67,8 @@ def merger_small_sample(output_dir_path, start, end,
 						eros_files_path = "/sps/eros/users/blaineau/small_sample/eros/sample_eros.parquet",
 						eros_ratio_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/ratios",
 						macho_ratio_path = "/pbs/home/b/blaineau/work/bad_times/bt_macho",
+						jbm_discard_path = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/discard.txt",
+						jbm_date_conversion = "/pbs/home/b/blaineau/work/notebooks/eros_cleaning/datesall/all.csv",
 						save=True,
 						verbose=False):
 	if verbose:
@@ -94,6 +96,7 @@ def merger_small_sample(output_dir_path, start, end,
 	blue_eros_max_ratio = 0.015
 	red_eros_max_ratio = 0.017
 	for ccd in ccds.unique():
+		logging.info("\t" + str(ccd))
 		if ccd is None:
 			continue
 		ratios = pd.read_parquet(os.path.join(eros_ratio_path, "ratios_" + ccd + ".parquet"))
@@ -121,20 +124,21 @@ def merger_small_sample(output_dir_path, start, end,
 
 	# Load and remove JBM times
 	logging.info("Removing JBM times")
-	discard = pd.read_csv("/pbs/home/b/blaineau/work/notebooks/eros_cleaning/discard.txt", sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
+	discard = pd.read_csv(jbm_discard_path, sep="/", usecols=[0, 1, 2, 3, 5],
+						  names=["target", "n_ccd", "n_color", "n_quart", "name"])
 	discard["n_time"] = discard["name"].str[10:-5]
-	times_translation = pd.read_csv("/pbs/home/b/blaineau/work/notebooks/eros_cleaning/datesall/all.csv", usecols=[0, 3], names=["n_time", "hjd"])
+	times_translation = pd.read_csv(jbm_date_conversion, usecols=[0, 3], names=["n_time", "hjd"])
 	discard = pd.merge(discard, times_translation, on="n_time")
 	discard.loc[:, "hjd"] = discard.hjd.astype(float)
-	discard = discard[discard["target"]=="lm"].reset_index(drop=True)
+	discard = discard[discard["target"] == "lm"].reset_index(drop=True)
 	discard.hjd = discard.hjd + 49999.5
 	for i, color in enumerate(["red_E", "blue_E"]):
-		td = discard[discard.n_color.str[-1]==str(i)]
+		td = discard[discard.n_color.str[-1] == str(i)]
 		keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
 		l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
 		l2 = list(zip(td["n_quart"], td["hjd"]))
 		rm = pd.Series(l1).isin(l2).values
-		logging.info("Removed "+str(rm.sum())+"/"+str(len(rm))+" points in "+color)
+		logging.info("Removed " + str(rm.sum()) + "/" + str(len(rm)) + " points in " + color)
 		keep_E.loc[rm, color] = np.nan
 	keep_E.drop("n_quart", axis=1, inplace=True)
 
