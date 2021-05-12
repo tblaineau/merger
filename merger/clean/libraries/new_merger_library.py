@@ -252,14 +252,16 @@ def merger_prod4(output_dir_path, start, end,
 	logging.info("Reading correspondance file.")
 	idx1 = start // 1000000
 	idx2 = (end-1) // 1000000
+	nstart = start % 1000000
+	nend = end % 1000000
 	if idx1==idx2:
-		ids = pd.read_parquet(os.path.join(correspondance_file_path, "ci_"+str(idx1)+".parquet"), columns=["id_M", "id_E"]).iloc[start:end]
+		ids = pd.read_parquet(os.path.join(correspondance_file_path, "ci_"+str(idx1)+".parquet"), columns=["id_M", "id_E"]).iloc[nstart:nend]
 	elif idx2>idx1+1:
 		raise logging.error("end - start > 1e6 stars !")
 	else:
 		ids = pd.concat([
-			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx1) + ".parquet"), columns=["id_M", "id_E"]).iloc[start:],
-			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx2) + ".parquet"), columns=["id_M", "id_E"]).iloc[:end],
+			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx1) + ".parquet"), columns=["id_M", "id_E"]).iloc[nstart:],
+			pd.read_parquet(os.path.join(correspondance_file_path, "ci_" + str(idx2) + ".parquet"), columns=["id_M", "id_E"]).iloc[:nend],
 		])
 	ids = ids.sort_values("id_M")
 	id_Es = ids.id_E

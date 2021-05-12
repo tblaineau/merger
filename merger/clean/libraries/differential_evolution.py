@@ -391,7 +391,7 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 			cut5[key] = np.abs((flux[key].rolling(5, center=True).median() - flux[key][2:-2])) / errs[key][2:-2] < 5
 
 			if not remove_extremities:
-				cut5[key][:2] = True
+				cut5[key][:3] = True
 				cut5[key][-2:] = True
 
 			p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
@@ -429,6 +429,8 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 			if intrinsic_dispersion[key] > 0:
 				errs[key] = errs[key] * intrinsic_dispersion[key]
 			else:
+				print(intrinsic_dispersion[key])
+				print(time[key][tmsk], flux[key][tmsk], errs[key][tmsk])
 				print(f"null intrinsic dispersion for {subdf.name}, key : {key}, Length : {mask[key].sum()}")
 
 	# if magRE.size==0 or magBE.size==0 or magRM.size==0 or magBM.size==0:
