@@ -359,22 +359,23 @@ def merger_prod4(output_dir_path, start, end,
 				#                   )
 				path = os.path.join(macho_files_path + tile.split("_")[0],
 									"F_" + tile.replace("_", ".") + ".gz")
-				d = pd.read_csv(path, sep=";", usecols=[1, 2, 3, 4, 9, 10, 17, 24, 25, 32], names=["field", "tile", "starid", "time", "red_M", "rederr_M", "red_amp", "blue_M", "blueerr_M", "blue_amp"])
+				reader = pd.read_csv(path, sep=";", usecols=[1, 2, 3, 4, 9, 10, 17, 24, 25, 32], names=["field", "tile", "starid", "time", "red_M", "rederr_M", "red_amp", "blue_M", "blueerr_M", "blue_amp"], chunksize=1000000)
+				for d in reader:        #for each chunk
+					d.loc[:, "id_M"] = d.field.astype(str).str.cat([d.tile.astype(str), d.starid.astype(str)], sep=":")
+					d = d.drop(["field", "tile", "starid"], axis=1)
+					#d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
+					if len(keep_M)==0:
+						keep_M = d[d.id_M.isin(ids.id_M)]
+					else:
+						keep_M = pd.concat([keep_M, d[d.id_M.isin(ids.id_M)]])
+					#keep_M.append(d[d.id_M.isin(ids.id_M)])
+					del d
 			except TypeError:
 				logging.error("Type Error")
 				continue
 			except FileNotFoundError:
 				logging.error("File not found : "+path)
 				continue
-			d.loc[:, "id_M"] = d.field.astype(str).str.cat([d.tile.astype(str), d.starid.astype(str)], sep=":")
-			d = d.drop(["field", "tile", "starid"], axis=1)
-			#d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
-			if len(keep_M)==0:
-				keep_M = d[d.id_M.isin(ids.id_M)]
-			else:
-				keep_M = pd.concat([keep_M, d[d.id_M.isin(ids.id_M)]])
-			#keep_M.append(d[d.id_M.isin(ids.id_M)])
-			del d
 		#keep_M = pd.concat(keep_M)
 		
 		# Cleaning MACHO lcs.

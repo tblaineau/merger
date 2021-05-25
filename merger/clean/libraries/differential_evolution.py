@@ -396,6 +396,10 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 			p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
 			if cut5[key].sum()>2:
 				ufilters.append(key)
+			else:
+				del flux[key]
+				del errs[key]
+				del cut5[key]
 
 	if do_cut5 and not p:
 		for key in ufilters:
@@ -407,6 +411,19 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 			time[key] = subdf[mask[key]].time.values
 			errs[key] = errs[key].values
 			flux[key] = flux[key].values
+
+
+	if len(ufilters)==0:
+		micro_keys =  ["u0", "t0", "tE"] + ["fluxStar_" + key for key in COLOR_FILTERS.keys()]
+		flat_keys  = ["f_fluxStar_" + key for key in COLOR_FILTERS.keys()]
+		micro_error_labels = []
+		if hesse:
+			micro_error_labels = ["error_" + name for name in micro_keys]
+		elif minos:
+			for name in micro_keys:
+				micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
+		index = micro_keys + ['micro_fmin', 'micro_fval'] + micro_error_labels + flat_keys + ['flat_fmin', 'flat_fval'] + flat_keys + ['flat_fmin', 'flat_fval'] + ["counts_" + key for key in COLOR_FILTERS.keys()] + ["scounts_"+key for key in COLOR_FILTERS.keys()] + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()] + ["flat_chi2_" + key for key in COLOR_FILTERS.keys()] + ["magerr_" + key + "_median" for key in COLOR_FILTERS.keys()] + ["intr_disp_" + key for key in COLOR_FILTERS.keys()] + ["tmin", "tmax"] + ["micro_ks", "flat_ks", "f2m_ks"] + ["micro_ks_"+key for key in COLOR_FILTERS.keys()] + ["flat_ks_"+key for key in COLOR_FILTERS.keys()] + ["f2m_ks_"+key for key in COLOR_FILTERS.keys()]
+		return pd.Series([np.nan]*len(index),index=index)
 
 	# Normalize errors
 	intrinsic_dispersion = dict()
@@ -485,6 +502,9 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 									 list(errs.values()), bounds=bounds_simple, pop=70, recombination=0.3)
 	except ZeroDivisionError:
 		logging.error("Divison by zero in diffev. Current star: "+str(subdf.name))
+	except nb.errors.TypingError as err:
+		logging.error("numba error, seires in input ?")
+		logging.error(err)
 
 	names = ["u0", "t0", "tE"] + ["fluxStar_" + key for key in COLOR_FILTERS.keys()]
 	micro_keys = names
