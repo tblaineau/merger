@@ -253,7 +253,7 @@ def merger_prod4(output_dir_path, start, end,
 	idx1 = start // 1000000
 	idx2 = (end-1) // 1000000
 	nstart = start % 1000000
-	nend = end % 1000000
+	nend = (end-1) % 1000000
 	if idx1==idx2:
 		ids = pd.read_parquet(os.path.join(correspondance_file_path, "ci_"+str(idx1)+".parquet"), columns=["id_M", "id_E"]).iloc[nstart:nend]
 	elif idx2>idx1+1:
@@ -265,143 +265,152 @@ def merger_prod4(output_dir_path, start, end,
 		])
 	ids = ids.sort_values("id_M")
 	id_Es = ids.id_E
-
-	# l o a d   E R O S
-	logging.info("Loading EROS light curves")
-	quarts = id_Es.str[:7].unique()
-	keep_E = []
-	for quart in quarts:
-		logging.info(quart)
-		try:
-			path = os.path.join(eros_files_path, quart[:5], quart + ".parquet")
-		except TypeError:
-			continue
-		d = pd.read_parquet(path)
-		keep_E.append(d[d.id_E.isin(id_Es)])
-		del d
-	keep_E = pd.concat(keep_E)
-	keep_E.time += 49999.5
-
-	#Clean EROS
-	logging.info("Cleaning EROS light curves")
-	ccds = keep_E.id_E.str[:6]
-	# r=0, b=1
-	blue_eros_max_ratio = 0.015
-	red_eros_max_ratio = 0.017
-	for ccd in ccds.unique():
-		logging.info("\t"+str(ccd))
-		if ccd is None:
-			continue
-		ratios = pd.read_parquet(os.path.join(eros_ratio_path, "ratios_" + ccd + ".parquet"))
-		for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"], ["rederr_E", "blueerr_E"]):
-			g = ratios[color_ratio][ratios[color_ratio] > 0]
-			x = g.values
-			a, xm, b = np.nanquantile(x, q=[0.25, 0.5, 0.75])
-			p = len(x[x <= xm])
-			hs = []
-			for xj in x[x <= xm]:
-				for xi in x[x > xm]:
-					hs.append(h(xi, xj, xm, p))
-			mc = np.median(hs)
-			if mc < 0:
-				# mc=0
-				w3 = b + 1.5 * np.exp(4 * mc) * (b - a)
-			else:
-				w3 = b + 1.5 * np.exp(3 * mc) * (b - a)
-
-			r = g[(g > w3)].sort_values(ascending=False)
-			one_percent = int(np.round(0.01 * len(g)))
-			if len(r) > one_percent:
-				r = r.iloc[:one_percent]
-			keep_E.loc[keep_E["time"].isin(r.index) & (ccds == ccd), [color, color_err]] = np.nan
 	
-	# Load and remove JBM times
-	logging.info("Removing JBM times")
-	discard = pd.read_csv(jbm_discard_path, sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
-	discard["n_time"] = discard["name"].str[10:-5]
-	times_translation = pd.read_csv(jbm_date_conversion, usecols=[0, 3], names=["n_time", "hjd"])
-	discard = pd.merge(discard, times_translation, on="n_time")
-	discard.loc[:, "hjd"] = discard.hjd.astype(float)
-	discard = discard[discard["target"]=="lm"].reset_index(drop=True)
-	discard.hjd = discard.hjd + 49999.5
-	for i, color in enumerate(["red_E", "blue_E"]):
-		td = discard[discard.n_color.str[-1]==str(i)]
-		keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
-		l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
-		l2 = list(zip(td["n_quart"], td["hjd"]))
-		rm = pd.Series(l1).isin(l2).values
-		logging.info("Removed "+str(rm.sum())+"/"+str(len(rm))+" points in "+color)
-		keep_E.loc[rm, color] = np.nan
-	keep_E.drop("n_quart", axis=1, inplace=True)
+	if len(id_Es)>0:
+		# l o a d   E R O S
+		logging.info("Loading EROS light curves")
+		quarts = id_Es.str[:7].unique()
+		keep_E = []
+		for quart in quarts:
+			logging.info(quart)
+			try:
+				path = os.path.join(eros_files_path, quart[:5], quart + ".parquet")
+			except TypeError:
+				continue
+			d = pd.read_parquet(path)
+			keep_E.append(d[d.id_E.isin(id_Es)])
+			del d
+		keep_E = pd.concat(keep_E)
+		keep_E.time += 49999.5
 
-	#droping empty lines
-	keep_E.dropna(subset=["red_E", "blue_E"], how="all", inplace=True)
-	keep_E = pd.merge(keep_E, ids, on="id_E", how="left")
+		#Clean EROS
+		logging.info("Cleaning EROS light curves")
+		ccds = keep_E.id_E.str[:6]
+		# r=0, b=1
+		blue_eros_max_ratio = 0.015
+		red_eros_max_ratio = 0.017
+		for ccd in ccds.unique():
+			logging.info("\t"+str(ccd))
+			if ccd is None:
+				continue
+			ratios = pd.read_parquet(os.path.join(eros_ratio_path, "ratios_" + ccd + ".parquet"))
+			for color_ratio, color, color_err in zip(["high_distance_b10", "high_distance_r10"], ["red_E", "blue_E"], ["rederr_E", "blueerr_E"]):
+				g = ratios[color_ratio][ratios[color_ratio] > 0]
+				x = g.values
+				a, xm, b = np.nanquantile(x, q=[0.25, 0.5, 0.75])
+				p = len(x[x <= xm])
+				hs = []
+				for xj in x[x <= xm]:
+					for xi in x[x > xm]:
+						hs.append(h(xi, xj, xm, p))
+				mc = np.median(hs)
+				if mc < 0:
+					# mc=0
+					w3 = b + 1.5 * np.exp(4 * mc) * (b - a)
+				else:
+					w3 = b + 1.5 * np.exp(3 * mc) * (b - a)
+
+				r = g[(g > w3)].sort_values(ascending=False)
+				one_percent = int(np.round(0.01 * len(g)))
+				if len(r) > one_percent:
+					r = r.iloc[:one_percent]
+				keep_E.loc[keep_E["time"].isin(r.index) & (ccds == ccd), [color, color_err]] = np.nan
+		
+		# Load and remove JBM times
+		logging.info("Removing JBM times")
+		discard = pd.read_csv(jbm_discard_path, sep="/", usecols=[0, 1, 2, 3, 5], names=["target", "n_ccd", "n_color", "n_quart", "name"])
+		discard["n_time"] = discard["name"].str[10:-5]
+		times_translation = pd.read_csv(jbm_date_conversion, usecols=[0, 3], names=["n_time", "hjd"])
+		discard = pd.merge(discard, times_translation, on="n_time")
+		discard.loc[:, "hjd"] = discard.hjd.astype(float)
+		discard = discard[discard["target"]=="lm"].reset_index(drop=True)
+		discard.hjd = discard.hjd + 49999.5
+		for i, color in enumerate(["red_E", "blue_E"]):
+			td = discard[discard.n_color.str[-1]==str(i)]
+			keep_E.loc[:, "n_quart"] = keep_E.id_E.str[:5] + str(i) + keep_E.id_E.str[5]
+			l1 = list(zip(keep_E["n_quart"].values, keep_E["time"].values))
+			l2 = list(zip(td["n_quart"], td["hjd"]))
+			rm = pd.Series(l1).isin(l2).values
+			logging.info("Removed "+str(rm.sum())+"/"+str(len(rm))+" points in "+color)
+			keep_E.loc[rm, color] = np.nan
+		keep_E.drop("n_quart", axis=1, inplace=True)
+
+		#droping empty lines
+		keep_E.dropna(subset=["red_E", "blue_E"], how="all", inplace=True)
+		keep_E = pd.merge(keep_E, ids, on="id_E", how="left")
+	else:
+		print("no EROS stars")
+		keep_E = pd.DataFrame(columns=["id_E", "red_E", "blue_E", "rederr_E", "blueerr_E"])
 
 	#LOADING MACHO
 	logging.info("Loading MACHO light curves.")
 	splitted = ids.id_M.str.split(":", expand=True)
-	tiles = splitted[0].str.cat(splitted[1], "_").unique()
-	print(tiles)
-	del splitted
-	keep_M = []
-	for tile in tiles:
-		logging.info("   loading tile : "+str(tile))
-		try:
-			# path = os.path.join("/sps/eros/users/blaineau/macho_fast_read/",
-			#                    "F_"+tile.split("_")[0], "F_"+tile+".parquet",
-			#                   )
-			path = os.path.join(macho_files_path + tile.split("_")[0],
-								"F_" + tile.replace("_", ".") + ".gz")
-		except TypeError:
-			continue
-		d = pd.read_csv(path,
-						sep=";", usecols=[1, 2, 3, 4, 9, 10, 17, 24, 25, 32],
-						names=["field", "tile", "starid", "time", "red_M", "rederr_M", "red_amp", "blue_M", "blueerr_M",
-							   "blue_amp"]
-						)
-		d.loc[:, "id_M"] = d.field.astype(str).str.cat([d.tile.astype(str), d.starid.astype(str)], sep=":")
-		d = d.drop(["field", "tile", "starid"], axis=1)
-		#d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
-		if len(keep_M)==0:
-			keep_M = d[d.id_M.isin(ids.id_M)]
-		else:
-			keep_M = pd.concat([keep_M, d[d.id_M.isin(ids.id_M)]])
-		#keep_M.append(d[d.id_M.isin(ids.id_M)])
-		del d
-	#keep_M = pd.concat(keep_M)
-	
-	# Cleaning MACHO lcs.
-	max_macho_fraction = 0.05
-	max_removed_points = 0.05 #percent
-	logging.info("Cleaning MACHO light curves")
-	#ifields = keep_M.id_M.str.split(":").str[0].values
-	#fields = fields.astype(int)
-	fields = np.unique([tile.split("_")[0] for tile in tiles]).astype(int)
-	for field in np.unique(fields):
-		logging.info("\t"+str(field))
-		dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
-		r = dfb[dfb.ratio > max_macho_fraction].sort_values(["blue_amp", "ratio"], ascending=False)
-		lengths = dfb.groupby("blue_amp").time.count()
-		r = r.groupby("blue_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
-		l1 = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
-		l2 = list(zip(r["time"].values, r["blue_amp"].values))
-		result = pd.Series(l1).isin(l2).values
-		keep_M.loc[result, "blue_M"] = np.nan
-		keep_M.loc[result, "blueerr_M"] = np.nan
+	print(ids.id_M)
+	if ids.id_M.isnull().sum()<len(splitted):
+		tiles = splitted[0].str.cat(splitted[1], "_").unique()
+		print(tiles)
+		del splitted
+		keep_M = []
+		for tile in tiles:
+			logging.info("   loading tile : "+str(tile))
+			try:
+				# path = os.path.join("/sps/eros/users/blaineau/macho_fast_read/",
+				#                    "F_"+tile.split("_")[0], "F_"+tile+".parquet",
+				#                   )
+				path = os.path.join(macho_files_path + tile.split("_")[0],
+									"F_" + tile.replace("_", ".") + ".gz")
+				d = pd.read_csv(path, sep=";", usecols=[1, 2, 3, 4, 9, 10, 17, 24, 25, 32], names=["field", "tile", "starid", "time", "red_M", "rederr_M", "red_amp", "blue_M", "blueerr_M", "blue_amp"])
+			except TypeError:
+				logging.error("Type Error")
+				continue
+			except FileNotFoundError:
+				logging.error("File not found : "+path)
+				continue
+			d.loc[:, "id_M"] = d.field.astype(str).str.cat([d.tile.astype(str), d.starid.astype(str)], sep=":")
+			d = d.drop(["field", "tile", "starid"], axis=1)
+			#d = pd.read_parquet(path)#, columns=["time", "red_M", "rederr_M", "blue_M", "blueerr_M", "id_M"])
+			if len(keep_M)==0:
+				keep_M = d[d.id_M.isin(ids.id_M)]
+			else:
+				keep_M = pd.concat([keep_M, d[d.id_M.isin(ids.id_M)]])
+			#keep_M.append(d[d.id_M.isin(ids.id_M)])
+			del d
+		#keep_M = pd.concat(keep_M)
+		
+		# Cleaning MACHO lcs.
+		max_macho_fraction = 0.05
+		max_removed_points = 0.05 #percent
+		logging.info("Cleaning MACHO light curves")
+		#ifields = keep_M.id_M.str.split(":").str[0].values
+		#fields = fields.astype(int)
+		fields = np.unique([tile.split("_")[0] for tile in tiles]).astype(int)
+		for field in np.unique(fields):
+			logging.info("\t"+str(field))
+			dfb = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_blue_M_ratios.npy")), columns=["blue_amp", "time", "ratio"])
+			r = dfb[dfb.ratio > max_macho_fraction].sort_values(["blue_amp", "ratio"], ascending=False)
+			lengths = dfb.groupby("blue_amp").time.count()
+			r = r.groupby("blue_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
+			l1 = list(zip(keep_M["time"].values, keep_M["blue_amp"].values))
+			l2 = list(zip(r["time"].values, r["blue_amp"].values))
+			result = pd.Series(l1).isin(l2).values
+			keep_M.loc[result, "blue_M"] = np.nan
+			keep_M.loc[result, "blueerr_M"] = np.nan
 
-		dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
-		r = dfr[dfr.ratio > max_macho_fraction].sort_values(["red_amp", "ratio"], ascending=False)
-		lengths = dfr.groupby("red_amp").time.count()
-		r = r.groupby("red_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
-		l1 = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
-		l2 = list(zip(r["time"].values, r["red_amp"].values))
-		result = pd.Series(l1).isin(l2).values
-		keep_M.loc[result, "red_M"] = np.nan
-		keep_M.loc[result, "rederr_M"] = np.nan
+			dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
+			r = dfr[dfr.ratio > max_macho_fraction].sort_values(["red_amp", "ratio"], ascending=False)
+			lengths = dfr.groupby("red_amp").time.count()
+			r = r.groupby("red_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
+			l1 = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
+			l2 = list(zip(r["time"].values, r["red_amp"].values))
+			result = pd.Series(l1).isin(l2).values
+			keep_M.loc[result, "red_M"] = np.nan
+			keep_M.loc[result, "rederr_M"] = np.nan
 
-	keep_M.drop(["blue_amp", "red_amp"], axis=1, inplace=True)
-	keep_M = pd.merge(keep_M, ids, on="id_M", how="left")
+		keep_M.drop(["blue_amp", "red_amp"], axis=1, inplace=True)
+		keep_M = pd.merge(keep_M, ids, on="id_M", how="left")
+	else:
+		print("no MACHO light curves")
+		keep_M = pd.DataFrame(columns=["id_M", "red_M", "blue_M", "rederr_M", "blueerr_M"])
 
 	# MERGING LIGHT CURVES
 	logging.info("Merging light curves...")
@@ -409,6 +418,8 @@ def merger_prod4(output_dir_path, start, end,
 	del keep_E
 	del keep_M
 
+	#merged.fillna(value=np.nan, inplace=True)
+	
 	# save merged dataframe
 	if save:
 		logging.info("Saving")

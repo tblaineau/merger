@@ -384,8 +384,7 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 					 subdf[COLOR_FILTERS[key]["fluxerr"]].notnull() &
 					 subdf[COLOR_FILTERS[key]["err"]].between(min_err, 9.999, inclusive=False))  # No nan and limits on errors
 
-		if mask[key].sum()>4:		#Check if there are more than 3 valid points in the current color
-			ufilters.append(key)
+		if mask[key].sum()>4:		#Check if there are more than 10 valid points in the current color
 			flux[key] = subdf[mask[key]][COLOR_FILTERS[key]["flux"]]  # mags
 			errs[key] = subdf[mask[key]][COLOR_FILTERS[key]["fluxerr"]]  # errs
 			cut5[key] = np.abs((flux[key].rolling(5, center=True).median() - flux[key][2:-2])) / errs[key][2:-2] < 5
@@ -395,6 +394,8 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 				cut5[key][-2:] = True
 
 			p *= cut5[key].sum() / len(cut5[key]) < tolerance_ratio
+			if cut5[key].sum()>2:
+				ufilters.append(key)
 
 	if do_cut5 and not p:
 		for key in ufilters:
