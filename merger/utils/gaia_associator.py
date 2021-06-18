@@ -96,7 +96,7 @@ temp_gaia = gaia_coord[sep<distance]
 corrected = []
 factors = []
 
-quartpc_w = [
+quartpc_r = [
 	[120, 121, 124, 125],
 	[0, 1, 4, 5],
 	[122, 123, 126, 127],
@@ -114,7 +114,7 @@ quartpc_w = [
 	[34, 35, 38, 39],
 	[32, 33, 36, 37]
 ]
-quartpc_e = [
+quartpc_b = [
 	[108, 109, 104, 105],
 	[106, 107, 110, 111],
 	[112, 113, 116, 117],
@@ -133,7 +133,7 @@ quartpc_e = [
 	[80, 81, 84, 85]
 ]
 
-quartpc = quartpc_w + quartpc_e+[[255]]
+quartpc = quartpc_b + quartpc_r+[[255]]
 
 j=0
 for pier in ["W", "E"]:
