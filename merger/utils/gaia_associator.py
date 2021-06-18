@@ -185,7 +185,7 @@ for pier in ["W", "E"]:
 				  (-2 * u.arcsec.to(u.rad), 2 * u.arcsec.to(u.rad)), (-2 * u.arcsec.to(u.rad), 2 * u.arcsec.to(u.rad))
 				  ]
 		i = 0
-		pop = 40
+		pop = 70
 		imax = 3
 		correct_macho = c_temp_macho_coord.copy()
 		i1, i2, d2d, _ = correct_macho.search_around_sky(c_temp_gaia, seplimit=2 * u.arcsec)
