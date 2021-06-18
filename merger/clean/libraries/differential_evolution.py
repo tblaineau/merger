@@ -422,7 +422,10 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 		elif minos:
 			for name in micro_keys:
 				micro_error_labels+=["lower_error_"+name, "upper_error_"+name, "valid_lower_error_"+name, "valid_upper_error_"+name]
-		index = micro_keys + ['micro_fmin', 'micro_fval'] + micro_error_labels + flat_keys + ['flat_fmin', 'flat_fval'] + flat_keys + ['flat_fmin', 'flat_fval'] + ["counts_" + key for key in COLOR_FILTERS.keys()] + ["scounts_"+key for key in COLOR_FILTERS.keys()] + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()] + ["flat_chi2_" + key for key in COLOR_FILTERS.keys()] + ["magerr_" + key + "_median" for key in COLOR_FILTERS.keys()] + ["intr_disp_" + key for key in COLOR_FILTERS.keys()] + ["tmin", "tmax"] + ["micro_ks", "flat_ks", "f2m_ks"] + ["micro_ks_"+key for key in COLOR_FILTERS.keys()] + ["flat_ks_"+key for key in COLOR_FILTERS.keys()] + ["f2m_ks_"+key for key in COLOR_FILTERS.keys()]
+		index = (micro_keys 
+			+ ['micro_fmin', 'micro_fval'] 
+			+ micro_error_labels + flat_keys 
+			+ ['flat_fmin', 'flat_fval'] + ["counts_" + key for key in COLOR_FILTERS.keys()] + ["scounts_"+key for key in COLOR_FILTERS.keys()] + ["micro_chi2_" + key for key in COLOR_FILTERS.keys()] + ["flat_chi2_" + key for key in COLOR_FILTERS.keys()] + ["magerr_" + key + "_median" for key in COLOR_FILTERS.keys()] + ["intr_disp_" + key for key in COLOR_FILTERS.keys()] + ["tmin", "tmax"] + ["micro_ks", "flat_ks", "f2m_ks"] + ["micro_ks_"+key for key in COLOR_FILTERS.keys()] + ["flat_ks_"+key for key in COLOR_FILTERS.keys()] + ["f2m_ks_"+key for key in COLOR_FILTERS.keys()])
 		return pd.Series([np.nan]*len(index),index=index)
 
 	# Normalize errors
@@ -612,7 +615,6 @@ def fit_ml_de_flux(subdf, do_cut5=False, hesse=False, minos=False):
 	micro_ks = kstest(micro_distribution, norm.cdf).pvalue
 	flat_ks = kstest(flat_distribution, norm.cdf).pvalue
 	f2m_ks = ks_2samp(micro_distribution, flat_distribution).pvalue
-
 	return pd.Series(
 		micro_values + [micro_fmin, micro_fval] + micro_errors
 		+ flat_values + [flat_fmin, flat_fval]
