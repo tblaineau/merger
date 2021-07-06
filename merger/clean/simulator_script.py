@@ -4,9 +4,8 @@ import pandas as pd
 import numpy as np
 import time
 import os
-from merger.clean.libraries import iminuit_fitter
+from merger.clean.libraries import differential_evolution as de
 from merger.clean.libraries.merger_library import COLOR_FILTERS
-from merger.clean.libraries.differential_evolution import fit_ml_de_simple
 from merger.clean.libraries.parameter_generator import microlens_parallax, microlens_simple, delta_u_from_x, tE_from_xvt
 import matplotlib.pyplot as plt
 import numba as nb
@@ -446,63 +445,7 @@ if __name__ == '__main__':
 	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup2"].agg(sum), left_on=["id_E", "id_M"], right_index=True)
 	true_parameters.to_parquet(os.path.join(output_path, "truth_" + str(current_filename) + ".parquet"), index=False)
 
-	logging.info("Bad time removal.")
-	dfr = []
-	dfb = []
-	#MACHO_bad_times_directory = "/Users/tristanblaineau/tmp2"
-	MACHO_btt = 0.1
-
-	try:
-		df = pd.DataFrame(np.load(os.path.join(MACHO_bad_times_directory, str(MACHO_field) + "_red_M_ratios.npy")),
-						  columns=["red_amp", "time", "ratio"])
-		df.loc[:, "field"] = MACHO_field
-		dfr.append(df)
-		df = pd.DataFrame(np.load(os.path.join(MACHO_bad_times_directory, str(MACHO_field) + "_blue_M_ratios.npy")),
-						  columns=["blue_amp", "time", "ratio"])
-		df.loc[:, "field"] = MACHO_field
-		dfb.append(df)
-	except FileNotFoundError:
-		logging.warning("No ratio file found for field " + str(MACHO_field) + ".")
-	else:
-		merged.reset_index(drop=True, inplace=True)
-
-		dfr = pd.concat(dfr)
-		dfb = pd.concat(dfb)
-
-		pms = list(zip(merged["time"].values, merged["red_amp"].values))
-		pdf = list(zip(dfr[dfr.ratio > MACHO_btt]["time"].values, dfr[dfr.ratio > MACHO_btt]["red_amp"].values))
-		result = pd.Series(pms).isin(pdf)
-		merged[result].red_M = np.nan
-		merged[result].rederr_M = np.nan
-
-		pms = list(zip(merged["time"].values, merged["blue_amp"].values))
-		pdf = list(zip(dfb[dfb.ratio > MACHO_btt]["time"].values, dfb[dfb.ratio > MACHO_btt]["blue_amp"].values))
-		result = pd.Series(pms).isin(pdf)
-		merged[result].blue_M = np.nan
-		merged[result].blueerr_M = np.nan
-
-		merged = merged.dropna(axis=0, how='all', subset=['blue_E', 'red_E', 'blue_M', 'red_M'])
-
-	# ndf = merged.merge(merged.groupby(["id_E", "id_M"]).median(), on=["id_E", "id_M"], suffixes=("", "_median"))
-
-	#ndf = ndf.dropna(subset=["red_E", "rederr_E"])
-	# for key in COLOR_FILTERS.keys():
-	# 	_, bins = pd.qcut(ndf[COLOR_FILTERS[key]["mag"]], 30, retbins=True)
-	# 	ndf.loc[:, "dist"] = (ndf[COLOR_FILTERS[key]["mag"]] - ndf[COLOR_FILTERS[key]["mag"]+"_median"]) / ndf[COLOR_FILTERS[key]["err"]]
-	# 	fs = []
-	# 	for i in zip(bins[:-1], bins[1:]):
-	# 		t = ndf[ndf.red_E.between(*i)]
-	# 		fs.append(np.std(t.dist[np.abs(t.dist) < 10].values - t.dist.median()))
-	# 	interpolation = scipy.interpolate.interp1d((bins[:-1] + bins[1:])[:] / 2, fs[:], fill_value=(fs[0], fs[-1]), bounds_error=False)
-	# 	df.rederr_E = df.rederr_E * interpolation(df.red_E)
-	#ndf = ndf[(ndf.red_E < 23) & (ndf.red_E > 14)]
-
 	logging.info("Done.")
 	logging.info("Starting fit")
-	iminuit_fitter.fit_all(merged=merged,
-						   filename=str(MACHO_field) + "_" + str(t) + ".pkl",
-						   input_dir_path=output_path,
-						   output_dir_path=output_path,
-						   fit_function=fit_ml_de_simple,
-						   do_cut5=True,
-						   hesse=True)
+	res = merged.groupby(["id_M", "id_E"]).apply(de.fit_ml_de_flux, do_cut5=True, minos=True)
+	res.to_csv(os.path.join(output_path, "res_" + str(current_filename) + ".csv"))
