@@ -88,7 +88,7 @@ class RealisticGenerator:
 			fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_42.csv")),
 									 pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
 			fracs_catalogues = [fcat[fcat.frac_red_E.values > self.max_blend].reset_index(drop=True) for fcat in fracs_catalogues]
-			mags_catalogues = [fcat.groupby("index_eros").blue_E.agg([max, "size"]) for fcat in fracs_catalogues]
+			mags_catalogues = [fcat.groupby("index_eros")[["blue_E", "red_E", "blue_M", "red_M"]].agg([max, "size"]) for fcat in fracs_catalogues]
 
 			# densité des champs EROS
 			try:
@@ -161,7 +161,7 @@ class RealisticGenerator:
 				self.w.append(w)
 		self.blends = pd.DataFrame(self.blends)
 		self.w = np.array(self.w)
-		self.weights = 1 / self.w
+		self.weights = np.repeat(1 / self.w, self.w)
 
 		if self.xvt_file:
 			if isinstance(self.xvt_file, str):
@@ -445,5 +445,23 @@ if __name__ == '__main__':
 
 	logging.info("Done.")
 	logging.info("Starting fit")
+
+	merged.id_M.fillna(value="no_id_M", inplace=True)
+	merged.id_E.fillna(value="no_id_E", inplace=True)
+	merged.fillna(value=np.nan, inplace=True)
+	merged = merged.replace([99.999, -99., 9.999], np.nan).dropna(subset=["red_E", "red_M", "blue_E", "blue_M"], how="all")
+
+	logging.info("fluxes")
+	color_offsets = {"red_E": 22.1, "blue_E": 22.7, "red_M": 0, "blue_M": 0}
+	color_coeffs = {"red_E": 0.01, "blue_E": 0.01, "red_M": 1, "blue_M": 1}
+	for key in COLOR_FILTERS.keys():
+		print(key)
+		merged.loc[:, COLOR_FILTERS[key]["flux"]] = np.power(10, (-merged[COLOR_FILTERS[key]["mag"]] + 2 + color_offsets[key]) / 2.5)
+		merged.loc[:, COLOR_FILTERS[key]["fluxerr"]] = np.abs(
+			merged[COLOR_FILTERS[key]["flux"]] * (np.power(10, (merged[COLOR_FILTERS[key]["err"]]) / 2.5) - 1)
+		)
+	# a = color_coeffs[key]
+	# merged.loc[:,COLOR_FILTERS[key]["fluxerr"]] = merged[COLOR_FILTERS[key]["flux"]] * 1/a * (np.power(10, (merged[COLOR_FILTERS[key]["err"]])/2.5*a) - 1)
 	res = merged.groupby(["id_M", "id_E"]).apply(de.fit_ml_de_flux, do_cut5=True, minos=True)
+
 	res.to_csv(os.path.join(output_path, "res_" + str(current_filename) + ".csv"))
