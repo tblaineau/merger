@@ -344,7 +344,6 @@ if __name__ == '__main__':
 	parser.add_argument('--path_to_merged', '-p', type=str, required=True, help="Path to the compressed merged file (ex : 1415000_1420000.parquet)")
 	parser.add_argument('--output_path', '-o', type=str, default=".", required=False)
 	parser.add_argument('--verbose', '-v', action='store_true', help='Debug logging level')
-	parser.add_argument('--bad_times_directory', '-btd', type=str, required=False)
 	parser.add_argument('--seed', type=int, required=False, default=1234)
 	parser.add_argument('--fraction', '-f', type=float, required=False, default=0.05, help="Fraction of lightcurves used for simulation")
 	parser.add_argument('--mass', '-m', type=float, required=False, default=100, help="Mass of lenses")
@@ -353,7 +352,6 @@ if __name__ == '__main__':
 	path_to_merged = args.path_to_merged
 	output_path = args.output_path
 	verbose = args.verbose
-	MACHO_bad_times_directory = args.bad_times_directory
 	seed = args.seed
 	fraction = args.fraction
 	mass = args.mass
