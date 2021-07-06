@@ -15,10 +15,10 @@ import scipy.interpolate
 
 @nb.njit
 def find_nearest(array, values):
-    o = []
-    for i in range(len(values)):
-        o.append((np.abs(array - values[i])).argmin())
-    return o
+	o = []
+	for i in range(len(values)):
+		o.append((np.abs(array - values[i])).argmin())
+	return o
 
 
 def clean_lightcurves(df):
@@ -59,7 +59,10 @@ class RealisticGenerator:
 	max_blend : float
 		maximum authorized blend, if max_blend=0, no blending
 	"""
-	def __init__(self, id_E_list, blue_E_list, xvt_file=None, seed=1234, tmin=48928., tmax=52697., u_max=2.,  max_blend=0.001, blend_directory=None, densities_path="./densities.txt"):
+
+	def __init__(self, medlist, xvt_file=None, seed=1234, tmin=48928., tmax=52697., u_max=2., max_blend=0.001,
+				 blend_directory=None,
+				 densities_path="/pbs/home/b/blaineau/work/merger/merger/clean/useful_files/"):
 		self.seed = seed
 		self.xvt_file = xvt_file
 		self.rdm = np.random.RandomState(seed)
@@ -71,67 +74,95 @@ class RealisticGenerator:
 		self.blend_pdf = None
 		self.generate_mass = False
 
-		try:
-			self.densities = pd.DataFrame(np.loadtxt(densities_path), columns=["field", "ccd", "density"])
-		except OSError:
-			logging.error("Density file not found :", densities_path)
-		id_E_list = pd.Series(id_E_list)
-		#lm0FFCQI..I
-		fields=id_E_list.str[2:5].astype(int).values
-		ccds = id_E_list.str[5].astype(int).values
-		self.densities = self.densities.set_index(["field", "ccd"]).loc[list(zip(fields, ccds))].values
-
-		if not self.blending or not os.path.exists(blend_directory):
+		if not self.blending:
+			self.w = [1] * len(medlist)
+			self.blends = {
+				"frac_red_E": [1] * len(medlist),
+				"frac_blue_E": [1] * len(medlist),
+				"frac_red_M": [1] * len(medlist),
+				"frac_blue_M": [1] * len(medlist)
+			}
+		elif not os.path.exists(blend_directory):
 			logging.error("Invalid blend factors directory")
 		else:
-			#HARDCODED for now
-			self.w  =[]
+			# load fracs catalogs
+			fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_42.csv")),
+									 pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
+			fracs_catalogues = [fcat[fcat.frac_red_E.values > self.max_blend].reset_index(drop=True) for fcat in fracs_catalogues]
+			mags_catalogues = [fcat.groupby("index_eros").blue_E.agg([max, "size"]) for fcat in fracs_catalogues]
+
+			# densité des champs EROS
+			try:
+				densities_E = pd.DataFrame(np.loadtxt(os.path.join(densities_path, "densities_E.txt")),
+										   columns=["field", "ccd", "density"])
+			except OSError:
+				logging.error("Density file not found :", os.path.join(densities_path, "densities_E.txt"))
+			id_E_list = medlist.index.get_level_values("id_E")
+			densities_E = densities_E.append(dict(field=99, ccd=99, density=np.nan),
+											 ignore_index=True)  # account for missing idE
+			fields = id_E_list.str[2:5].values
+			fields = np.where(fields == "_id", 99, fields).astype(int)  # account for missing idE
+			ccds = id_E_list.str[5].values
+			ccds = np.where(ccds == "_", 99, ccds).astype(int)  # account for missing idE
+			densities_E = densities_E.set_index(["field", "ccd"]).loc[list(zip(fields, ccds))].values
+
+			# densité des champs MACHO
+			try:
+				densities_M = pd.DataFrame(np.loadtxt(os.path.join(densities_path, "densities_M.txt")),
+										   columns=["density", "field"])
+			except OSError:
+				logging.error("Density file not found :", os.path.join(densities_path, "densities_M.txt"))
+			densities_M.loc[:, "field"] = densities_M["field"].astype(int)
+			densities_M = densities_M.append(dict(density=np.nan, field="_id"), ignore_index=True)
+			densities_M.loc[:, "field"] = densities_M["field"].astype(str)
+			id_M_list = medlist.reset_index()["id_M"]
+			fields = id_M_list.str.split(":", expand=True)[0].values.astype(str)
+			densities_M = densities_M.set_index(["field"]).loc[fields].values[:, 0]
+
 			self.blends = []
-			self.weights = []
-			self.fracs_catalogues = [pd.read_csv(os.path.join(blend_directory, "sparse_57.csv")), pd.read_csv(os.path.join(blend_directory, "medium_67.csv"))]
-			self.fracs_catalogues = [fcat[fcat.frac_red_E.values>self.max_blend].reset_index(drop=True) for fcat in self.fracs_catalogues]
-			density1_catalogues = [fcat.groupby("index_eros").blue_E.agg([max, "size"]) for fcat in self.fracs_catalogues]
-			index_eross = [fcat.drop_duplicates("index_eros").index_eros for fcat in self.fracs_catalogues]
-
-			for i in range(id_E_list.size):
-				if self.densities[i]>67:
-					fcat = self.fracs_catalogues[1]
-					density1_catalogue = density1_catalogues[1]
-					index_eros = index_eross[1]
+			self.w = []
+			for i, (index, row) in enumerate(medlist.iterrows()):
+				if index[0] != "no_id_E":
+					if densities_E[i] > 67:
+						index_catalogue = 1
+					else:
+						index_catalogue = 0
+				elif index[1] != "no_id_M":
+					if densities_M[i] > 92:
+						index_catalogue = 1
+					else:
+						index_catalogue = 0
 				else:
-					fcat = self.fracs_catalogues[0]
-					density1_catalogue = density1_catalogues[0]
-					index_eros = index_eross[0]
+					logging.error("Both eros and macho have no index ?")
 
-				idx = find_nearest(density1_catalogue["max"].values, [blue_E_list[i]])
-				eidx = density1_catalogue.index[idx].values
-				iero_to_loc = {v: k for k, v in dict(index_eros).items()}
-				eloc = np.array([iero_to_loc[i] for i in eidx])
-				w = density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values[0]
+				# ccolor est la couleur considérée quand on recherche l'étoile la plus proche
+				for key in COLOR_FILTERS.keys():
+					if not np.isnan(row[key]):
+						ccolor = key
+						break
+
+				# index de l'étoile avec la magnitude la plus proche
+				idx_in_cat = find_nearest(mags_catalogues[index_catalogue][ccolor, "max"].values, [row[ccolor]])
+				# numéro eros correspondant à cette étoile
+				eidx = mags_catalogues[index_catalogue].index[idx_in_cat]
+				#
+				imags = mags_catalogues[index_catalogue]
+				# nombre d'étoiles HST pour l'étoile E/M
+				w = imags.loc[imags.index[idx_in_cat]][ccolor, "size"].values[0]
+				#
+				fcat = fracs_catalogues[index_catalogue]
+				# dictionnaire numéro eros -> index iloc dans le fcat
+				iero_to_loc = {v: k for k, v in dict(fcat.drop_duplicates("index_eros").index_eros).items()}
+				# index iloc de l'étoile E/M
+				eloc = iero_to_loc[eidx[0]]
+				# facteurs de blend à partir de l'index iloc pour toutes les étoiles HST
 				for j in range(w):
 					self.blends.append(fcat.iloc[eloc + j][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]])
-					self.weights.append(1/w)
+				# print(catfb)
 				self.w.append(w)
-			self.blends = pd.concat(self.blends)
-
-			"""			
-			self.blends = []
-			self.weights = []
-			for fcat in self.fracs_catalogues:
-				fcat = fcat[fcat.frac_red_E.values>self.max_blend].reset_index(drop=True)
-				density1_catalogue = fcat.groupby("index_eros").blue_E.agg([max, "size"])
-				idx = find_nearest(density1_catalogue["max"].values, blue_E_list)
-				eidx = density1_catalogue.index[idx].values
-				iero_to_loc = {v: k for k, v in dict(fcat.drop_duplicates("index_eros").index_eros).items()}
-				eloc = np.array([iero_to_loc[i] for i in eidx])
-				hstloc = self.rdm.randint(0, density1_catalogue.loc[density1_catalogue.index[idx]]["size"].values)
-				self.blends.append(fcat.iloc[eloc + hstloc][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]])
-				self.weights.append(density1_catalogue.loc[eidx]["size"])
-
-			index_densities = (self.densities>67).astype(int)
-			self.blends = np.choose(index_densities, self.blends)
-			self.weights = np.choose(index_densities.flatten(), self.weights)
-			self.blends = pd.DataFrame(self.blends, columns=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"])"""
+		self.blends = pd.DataFrame(self.blends)
+		self.w = np.array(self.w)
+		self.weights = 1 / self.w
 
 		if self.xvt_file:
 			if isinstance(self.xvt_file, str):
@@ -141,6 +172,10 @@ class RealisticGenerator:
 					logging.error(f"xvt file not found : {self.xvt_file}")
 			else:
 				logging.error(f"xvts can't be loaded or generated, check variable : {self.xvt_file}")
+
+	def set_seed(self, new_seed):
+		self.seed = new_seed
+		self.rdm = np.random.RandomState(new_seed)
 
 	def generate_parameters(self, mass=30., nb_parameters=1, t0_ranges=None):
 		"""
@@ -153,25 +188,29 @@ class RealisticGenerator:
 		mass : float
 			mass for which generate paramters (\implies \delta_u, t_E)
 		nb_parameters : int
-			number of parameters set to generate
+			number of parameters set to generate, set to t0_ranges.shape[1] if using t0_ranges
+		t0_ranges : array (2, n)
+			[tmin, tmax] array. t0 will be generated between tmin-2tE and tmax+2tE
 		Returns
 		-------
 		dict
 			Dictionnary of lists containing the parameters set
 		"""
+
 		if self.generate_mass:
 			mass = self.rdm.uniform(1, 1000, size=nb_parameters)
 		else:
-			mass = np.array([mass]*nb_parameters)
+			mass = np.array([mass] * nb_parameters)
 		u0 = self.rdm.uniform(0, self.u_max, size=nb_parameters)
 		x, vt, theta = (self.xvts.T[self.rdm.randint(0, self.xvts.shape[1], size=nb_parameters)]).T
 		vt *= self.rdm.choice([-1., 1.], size=nb_parameters, replace=True)
 		delta_u = delta_u_from_x(x, mass=mass)
 		tE = tE_from_xvt(x, vt, mass=mass)
 		if not t0_ranges is None:
-			t0 = self.rdm.uniform(np.array(t0_ranges[0])-2*abs(tE), np.array(t0_ranges[1])+2*abs(tE), size=nb_parameters)
+			t0 = self.rdm.uniform(np.array(t0_ranges[0]) - 2 * abs(tE), np.array(t0_ranges[1]) + 2 * abs(tE),
+								  size=nb_parameters)
 		else:
-			t0 = self.rdm.uniform(self.tmin-2*abs(tE), self.tmax+2*abs(tE), size=nb_parameters)
+			t0 = self.rdm.uniform(self.tmin - 2 * abs(tE), self.tmax + 2 * abs(tE), size=nb_parameters)
 		params = {
 			'u0': np.repeat(u0, self.w),
 			't0': np.repeat(t0, self.w),
@@ -181,16 +220,16 @@ class RealisticGenerator:
 			'mass': np.repeat(mass, self.w),
 			'x': np.repeat(x, self.w),
 			'vt': np.repeat(vt, self.w),
-			'tmin' : np.repeat(np.array(t0_ranges[0]), self.w),
-			'tmax' : np.repeat(np.array(t0_ranges[1]), self.w),
+			'tmin': np.repeat(np.array(t0_ranges[0]), self.w),
+			'tmax': np.repeat(np.array(t0_ranges[1]), self.w),
 		}
 
 		for key in COLOR_FILTERS.keys():
 			if self.blending:
-				params['blend_'+key] = self.blends["frac_"+key].values
+				params['blend_' + key] = self.blends["frac_" + key].values
 				params['weight'] = self.weights
 			else:
-				params['blend_'+key] = [1] * nb_parameters
+				params['blend_' + key] = [1] * nb_parameters
 				params["weight"] = [1] * nb_parameters
 		return params, self.w
 
@@ -303,7 +342,7 @@ def generate_microlensing_events(subdf, sigmag, generator, parallax=False):
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--path_to_merged', '-p', type=str, required=True, help="Path to the compressed merged file (ex : 34_78.bz2)")
+	parser.add_argument('--path_to_merged', '-p', type=str, required=True, help="Path to the compressed merged file (ex : 1415000_1420000.parquet)")
 	parser.add_argument('--output_path', '-o', type=str, default=".", required=False)
 	parser.add_argument('--verbose', '-v', action='store_true', help='Debug logging level')
 	parser.add_argument('--bad_times_directory', '-btd', type=str, required=False)
@@ -320,36 +359,56 @@ if __name__ == '__main__':
 	fraction = args.fraction
 	mass = args.mass
 
+	current_filename = path_to_merged.split("/")[-1].split(".")[0]
+
 	np.random.seed(seed)
 
 	if verbose:
 		logging.basicConfig(level=logging.INFO)
 
-	MACHO_field = path_to_merged.split("/")[-1].split("_")[0]
-	t = path_to_merged.split("/")[-1].split("_")[1].split(".")[0]
-
-	merged = pd.read_pickle(path_to_merged, compression='bz2')
-	print(len(merged))
-	#merged = merged.iloc[:100000]
+	merged = pd.read_parquet(path_to_merged)
 
 	logging.info("Lightcurves loaded.")
 
-	st1 = time.time()
-	merged = merged.groupby(["id_E", "id_M"]).filter(lambda x: np.random.random()<fraction)
-	logging.info(f"Selecting {fraction*100.} % ({len(merged.id_E.unique())}) of lcs in {time.time()-st1:0.3f} seconds")
+	merged["id_M"].replace(to_replace=[None], value="no_id_M", inplace=True)
+	merged["id_E"].replace(to_replace=[None], value="no_id_E", inplace=True)
 
+	# ufilters = used filters (filter with at least 1 non nan measurement)
+	ufilters = []
+	for key in COLOR_FILTERS.keys():
+		if not (~merged[key].isnull()).sum() < 10:
+			ufilters.append(key)
+
+	# construction des erreurs sur l'ensemble des données pour avoir plus de stats
+	# à faire par champs et charger ?
+	sh = ErrorMagnitudeRelation(merged, ufilters, bin_number=20)
+
+	# selection aléatoire des courbes
+	st1 = time.time()
+	merged = merged.groupby(["id_E", "id_M"]).filter(lambda x: np.random.random() < fraction)
+	logging.info(
+		f"Selecting {fraction * 100.} % ({len(merged.id_E.unique())}) of lcs in {time.time() - st1:0.3f} seconds")
+
+	# nettoyage des courbes de lumière
 	merged = clean_lightcurves(merged).reset_index(drop=True)
-	sh = ErrorMagnitudeRelation(merged, list(COLOR_FILTERS.keys()), bin_number=20)
 
 	t0_ranges = merged.groupby(["id_E", "id_M"])["time"].agg(["min", "max"]).values.T
 	merged = merged.sort_values(["id_E", "id_M"])
-	#mg = MicrolensingGenerator(xvt_file=1000000, seed=1234, trange=t0_ranges, u_max=2, max_blend=1., min_blend=0.)
-	#mg = UniformGenerator(u0_range=[0, 2], tE_range=[1, 3000], blend_range=[0, 1], seed=seed)
-	infos = merged.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg("median")
-	mg = RealisticGenerator(infos.index.get_level_values(0).values, infos.blue_E.values, u_max=1.5, seed=seed, max_blend=0.01,
+
+	# magntiudes moyennes/médianes/de base des étoiles
+	baselines = merged.groupby(["id_E", "id_M"])[list(COLOR_FILTERS.keys())].agg(np.median)
+	# quand il n'y a aucune mesure la colonne n'eiste pas : nous la créons
+	for key in list(COLOR_FILTERS.keys()):
+		if key not in baselines.columns:
+			baselines.loc[:, key] = np.nan
+
+	# fix column order
+	baselines = baselines[["blue_E", "red_E", "blue_M", "red_M"]]
+	baselines = baselines.reorder_levels(["id_E", "id_M"])
+	mg = RealisticGenerator(baselines, u_max=1.5, seed=seed, max_blend=0.01,
 							blend_directory="/pbs/home/b/blaineau/work/simulation_prod/useful_files",
 							xvt_file="/pbs/home/b/blaineau/work/simulation_prod/useful_files/xvt_clean.npy",
-							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files/densities.txt"
+							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files"
 							)
 
 	params, w = mg.generate_parameters(t0_ranges=t0_ranges, nb_parameters=t0_ranges.shape[1], mass=mass)
@@ -385,7 +444,7 @@ if __name__ == '__main__':
 	merged.loc[:, "sup1"] = merged.amp > amp(0, 0, 1, 0, 1)
 	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup1"].agg(sum), left_on=["id_E", "id_M"], right_index=True)
 	true_parameters = true_parameters.merge(merged.groupby(["id_E", "id_M"])["sup2"].agg(sum), left_on=["id_E", "id_M"], right_index=True)
-	true_parameters.to_pickle(os.path.join(output_path, "truth_" + str(MACHO_field) + "_" + str(t) + ".pkl"))
+	true_parameters.to_parquet(os.path.join(output_path, "truth_" + str(current_filename) + ".parquet"), index=False)
 
 	logging.info("Bad time removal.")
 	dfr = []
