@@ -355,7 +355,6 @@ if __name__ == '__main__':
 	seed = args.seed
 	fraction = args.fraction
 	mass = args.mass
-
 	current_filename = path_to_merged.split("/")[-1].split(".")[0]
 
 	np.random.seed(seed)
@@ -422,15 +421,19 @@ if __name__ == '__main__':
 		norm = dict()
 
 	for key in COLOR_FILTERS.keys():
-		merged["mag_median_" + key] = merged[["id_E", "id_M", COLOR_FILTERS[key]["mag"]]].groupby(["id_E", "id_M"]).transform("median")
-		#mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values,
-		#								 merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
-		mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, 1-merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
-		norm[key] = sh.vectorized_get_sigma(key, merged["mag_median_" + key].values) / sh.vectorized_get_sigma(key, mag_th[key])
-		merged["new_" + COLOR_FILTERS[key]["err"]] = merged[COLOR_FILTERS[key]["err"]] / norm[key]
-		merged["new_" + COLOR_FILTERS[key]["mag"]] = mag_th[key] + (merged[COLOR_FILTERS[key]["mag"]] - merged["mag_median_" + key]) / norm[key]
+		try:
+			merged["mag_median_" + key] = merged[["id_E", "id_M", COLOR_FILTERS[key]["mag"]]].groupby(["id_E", "id_M"]).transform("median")
+			#mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, merged["blend_"+key].values, merged.u0.values,
+			#								 merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
+			mag_th[key] = microlens_parallax(merged.time.values, merged["mag_median_" + key].values, 1-merged["blend_"+key].values, merged.u0.values, merged.t0.values, merged.tE.values, merged.delta_u.values, merged.theta.values)
+			norm[key] = sh.vectorized_get_sigma(key, merged["mag_median_" + key].values) / sh.vectorized_get_sigma(key, mag_th[key])
+			merged["new_" + COLOR_FILTERS[key]["err"]] = merged[COLOR_FILTERS[key]["err"]] / norm[key]
+			merged["new_" + COLOR_FILTERS[key]["mag"]] = mag_th[key] + (merged[COLOR_FILTERS[key]["mag"]] - merged["mag_median_" + key]) / norm[key]
+		except pd.core.base.DataError:
+			logging.warning("No value in "+key+" column.")
+			continue
 
-	for key in COLOR_FILTERS.keys():
+		#for key in COLOR_FILTERS.keys():
 		merged = merged.rename(columns={COLOR_FILTERS[key]["mag"]: "old_" + COLOR_FILTERS[key]["mag"],
 										COLOR_FILTERS[key]["err"]: "old_" + COLOR_FILTERS[key]["err"],
 										"new_" + COLOR_FILTERS[key]["mag"]: COLOR_FILTERS[key]["mag"],
