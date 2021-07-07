@@ -266,7 +266,7 @@ def merger_prod4(output_dir_path, start, end,
 	ids = ids.sort_values("id_M")
 	id_Es = ids.id_E
 	
-	if len(id_Es)>0:
+	if (~id_Es.isnull()).sum()>0:
 		# l o a d   E R O S
 		logging.info("Loading EROS light curves")
 		quarts = id_Es.str[:7].unique()
