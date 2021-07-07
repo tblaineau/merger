@@ -112,7 +112,7 @@ class RealisticGenerator:
 			except OSError:
 				logging.error("Density file not found :", os.path.join(densities_path, "densities_M.txt"))
 			densities_M.loc[:, "field"] = densities_M["field"].astype(int)
-			densities_M = densities_M.append(dict(density=np.nan, field="_id"), ignore_index=True)
+			densities_M = densities_M.append(dict(density=np.nan, field="no_id_M"), ignore_index=True)
 			densities_M.loc[:, "field"] = densities_M["field"].astype(str)
 			id_M_list = medlist.reset_index()["id_M"]
 			fields = id_M_list.str.split(":", expand=True)[0].values.astype(str)
