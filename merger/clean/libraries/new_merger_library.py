@@ -399,6 +399,10 @@ def merger_prod4(output_dir_path, start, end,
 
 			dfr = pd.DataFrame(np.load(os.path.join(macho_ratio_path, str(field) + "_red_M_ratios.npy")), columns=["red_amp", "time", "ratio"])
 			r = dfr[dfr.ratio > max_macho_fraction].sort_values(["red_amp", "ratio"], ascending=False)
+
+			#remove red amp 3 (1_1) before anything else:
+			keep_M[keep_M["time"].between(50888.5309, 51279.5352) & (keep_M["red_amp"] == 3), "red_M"] = np.nan
+
 			lengths = dfr.groupby("red_amp").time.count()
 			r = r.groupby("red_amp").apply(keep, lengths=lengths, max_percent=max_removed_points)
 			l1 = list(zip(keep_M["time"].values, keep_M["red_amp"].values))
