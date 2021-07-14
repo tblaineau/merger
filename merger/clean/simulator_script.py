@@ -141,19 +141,23 @@ class RealisticGenerator:
 						break
 
 				# index de l'étoile avec la magnitude la plus proche
-				idx_in_cat = find_nearest(mags_catalogues[index_catalogue][ccolor, "max"].values, [row[ccolor]])
+				magvals = mags_catalogues[index_catalogue][ccolor, "max"].values
+				noidx = [np.argmin(magvals), np.argmax(magvals)]
+				idx_in_cat = find_nearest(magvals, [row[ccolor]])[0]
+				if idx_in_cat in noidx:
+					idx_in_cat = self.rdm.randint(len(magvals))
 				# numéro eros correspondant à cette étoile
 				eidx = mags_catalogues[index_catalogue].index[idx_in_cat]
 				#
 				imags = mags_catalogues[index_catalogue]
 				# nombre d'étoiles HST pour l'étoile E/M
-				w = imags.loc[imags.index[idx_in_cat]][ccolor, "size"].values[0]
+				w = int(imags.loc[imags.index[idx_in_cat]][ccolor, "size"])
 				#
 				fcat = fracs_catalogues[index_catalogue]
 				# dictionnaire numéro eros -> index iloc dans le fcat
 				iero_to_loc = {v: k for k, v in dict(fcat.drop_duplicates("index_eros").index_eros).items()}
 				# index iloc de l'étoile E/M
-				eloc = iero_to_loc[eidx[0]]
+				eloc = iero_to_loc[eidx]
 				# facteurs de blend à partir de l'index iloc pour toutes les étoiles HST
 				for j in range(w):
 					self.blends.append(fcat.iloc[eloc + j][["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]])
@@ -414,7 +418,7 @@ if __name__ == '__main__':
 	merged.loc[:,"id_E"] = merged.id_E.str.cat(np.repeat(np.arange(len(params["u0"])), np.repeat(cnt, w)).astype(str), sep="_")
 	#Save true_parameters
 	true_parameters = pd.concat([pd.DataFrame(params), merged[["id_E", "id_M"]].drop_duplicates(ignore_index=True)], axis=1)
-	
+
 	for key in params.keys():
 		merged[key] = np.repeat(params[key], np.repeat(cnt, w))
 		mag_th = dict()
