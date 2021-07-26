@@ -357,6 +357,7 @@ if __name__ == '__main__':
 	parser.add_argument('--seed', type=int, required=False, default=1234)
 	parser.add_argument('--fraction', '-f', type=float, required=False, default=0.05, help="Fraction of lightcurves used for simulation")
 	parser.add_argument('--mass', '-m', type=float, required=False, default=100, help="Mass of lenses")
+	parser.add_argument('--blend_directory', type=str, required=False, default=False)
 
 	args = parser.parse_args()
 	path_to_merged = args.path_to_merged
@@ -365,6 +366,8 @@ if __name__ == '__main__':
 	seed = args.seed
 	fraction = args.fraction
 	mass = args.mass
+	blend_directory = args.blend_directory
+
 	current_filename = path_to_merged.split("/")[-1].split(".")[0]
 
 	np.random.seed(seed)
@@ -412,7 +415,7 @@ if __name__ == '__main__':
 	baselines = baselines[["blue_E", "red_E", "blue_M", "red_M"]]
 	baselines = baselines.reorder_levels(["id_E", "id_M"])
 	mg = RealisticGenerator(baselines, u_max=1.5, seed=seed, max_blend=0.01,
-							blend_directory="/pbs/home/b/blaineau/work/simulation_prod/useful_files",
+							blend_directory=blend_directory,#"/Users/tristanblaineau/Documents/Work/Jupyter/blend/HST/HST_FINAL/", #"/pbs/home/b/blaineau/work/simulation_prod/useful_files",
 							xvt_file="/pbs/home/b/blaineau/work/simulation_prod/useful_files/xvt_clean.npy",
 							densities_path="/pbs/home/b/blaineau/work/simulation_prod/useful_files"
 							)
