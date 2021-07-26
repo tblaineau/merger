@@ -35,7 +35,7 @@ def clean_lightcurves(df):
 @nb.njit
 def amp(t, b, u0, t0, tE):
 	u = np.sqrt(u0 * u0 + ((t - t0) ** 2) / tE / tE)
-	return (u ** 2 + 2) / (u * np.sqrt(u ** 2 + 4)) * (1-b) + b
+	return (u ** 2 + 2) / (u * np.sqrt(u ** 2 + 4)) * b + 1 - b
 
 
 class RealisticGenerator:
