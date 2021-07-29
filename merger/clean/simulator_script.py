@@ -124,11 +124,12 @@ class RealisticGenerator:
 				if index[0] != "no_id_E":
 					if densities_E[i] > 67:
 						index_catalogue = 1
-					elif densities_E[i]>42:
+					elif densities_E[i] > 42:
 						index_catalogue = 0
 					else:
 						self.w.append(1)
 						self.blends.append(pd.Series([1, 1, 1, 1], index=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]))
+						continue
 				elif index[1] != "no_id_M":
 					if densities_M[i] > 92:
 						index_catalogue = 1
@@ -137,6 +138,7 @@ class RealisticGenerator:
 					else:
 						self.w.append(1)
 						self.blends.append(pd.Series([1, 1, 1, 1], index=["frac_red_E", "frac_blue_E", "frac_red_M", "frac_blue_M"]))
+						continue
 				else:
 					logging.error("Both eros and macho have no index ?")
 
