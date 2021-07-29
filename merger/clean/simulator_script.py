@@ -124,7 +124,7 @@ class RealisticGenerator:
 				if index[0] != "no_id_E":
 					if densities_E[i] > 67:
 						index_catalogue = 1
-					elif densities_E[i]>35:
+					elif densities_E[i]>42:
 						index_catalogue = 0
 					else:
 						self.w.append(1)
@@ -132,7 +132,7 @@ class RealisticGenerator:
 				elif index[1] != "no_id_M":
 					if densities_M[i] > 92:
 						index_catalogue = 1
-					elif densities_M[i] > 35:
+					elif densities_M[i] > 42:
 						index_catalogue = 0
 					else:
 						self.w.append(1)
